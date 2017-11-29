@@ -32,6 +32,9 @@ RUN pip3 install \
 WORKDIR /project/sawtooth-marketplace
 
 # Note that the context must be set to the project's root directory
+COPY bin/protogen bin/protogen
+COPY protos/ protos/
+RUN bin/protogen
 COPY . .
 
 EXPOSE 8000/tcp

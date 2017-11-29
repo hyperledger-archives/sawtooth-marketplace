@@ -1,0 +1,70 @@
+// Copyright 2017 Intel Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------
+
+syntax = "proto3";
+
+import "rule.proto";
+
+message TransactionPayload {
+    CreateAccount create_account = 1;
+    CreateAsset create_asset = 2;
+    CreateHolding create_holding = 3;
+    CreateOffer create_offer = 4;
+    AcceptOffer accept_offer = 10;
+    CloseOffer close_offer = 11;
+}
+
+message CreateAccount {
+    string id = 1;
+    string label = 2;
+    string description = 3;
+}
+
+message CreateAsset {
+    string name = 1;
+    string description = 2;
+    repeated Rule rules = 3;
+}
+
+message CreateHolding {
+    string id = 1;
+    string label = 2;
+    string description = 3;
+    string account = 4;
+    string holding = 5;
+    sint64 quantity = 6;
+}
+
+message CreateOffer {
+    string id = 1;
+    string label = 2;
+    string description = 3;
+    string source = 4;
+    sint64 source_quantity = 5;
+    string target = 6;
+    sint64 target_quantity = 7;
+    repeated Rule rules = 8;
+}
+
+message AcceptOffer {
+    string id = 1;
+    string source = 2;
+    sint64 source_quantity = 3;
+    string target = 4;
+}
+
+message CloseOffer {
+    string id = 1;
+}
