@@ -19,7 +19,14 @@ The easiest way to run these components is with
 [Docker](https://www.docker.com/what-docker). To start these components,
 first install Docker for your platform and clone this repo.
 
-Then from the root project directory simply run:
+Then, generate Python versions of the Protobuf files for each component, by
+running the `protogen` command from the root project directory:
+
+```bash
+bin/protogen
+```
+
+Finally, use `docker-compose` to build and run each component:
 
 ```bash
 docker-compose up
@@ -38,9 +45,9 @@ Sawtooth dependencies like the`sawtooth_sdk`, as well as some `pip3` modules.
 ## Deployment
 
 Dockerfiles are also available to build images suitable for deployment, and are
-demarcated with a `-installed` tag. These will copy repo files at build time
-rather than referencing them locally. They can all be built individually, or
-built and run using `docker-compose`:
+demarcated with a `-installed` tag. These will build the Protobufs and copy
+repo files at build time rather than referencing them locally. They can all be
+built individually, or built and run using `docker-compose`:
 
 ```bash
 docker-compose -f docker-compose-installed.yaml up

@@ -27,6 +27,9 @@ RUN pip3 install rethinkdb
 WORKDIR /project/sawtooth-marketplace
 
 # Note that the context must be set to the project's root directory
+COPY bin/protogen bin/protogen
+COPY protos/ protos/
+RUN bin/protogen
 COPY . .
 
 CMD ["echo \"No ledger_sync command set\""]

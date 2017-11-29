@@ -27,6 +27,9 @@ RUN echo "deb http://repo.sawtooth.me/ubuntu/ci xenial universe" >> /etc/apt/sou
 WORKDIR /project/sawtooth-marketplace
 
 # Note that the context must be set to the project's root directory
+COPY bin/protogen bin/protogen
+COPY protos/ protos/
+RUN bin/protogen
 COPY . .
 
 CMD ["echo \"No transaction processor command set\""]
