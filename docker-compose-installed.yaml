@@ -25,7 +25,7 @@ services:
         - https_proxy
         - no_proxy
     image: market-tp-installed
-    command: echo "No transaction processor command set"
+    command: ./bin/marketplace-tp -v -C tcp://validator:4004
 
   market-rest-api:
     build:

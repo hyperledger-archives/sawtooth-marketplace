@@ -13,14 +13,24 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
-FROM ubuntu:16.04
+from sawtooth_sdk.processor.handler import TransactionHandler
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD && \
-    echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list && \
-    apt-get update
+from marketplace_addressing import addresser
 
-RUN apt-get install -y -q python3-sawtooth-sdk
 
-WORKDIR /project/sawtooth-marketplace
+class MarketplaceHandler(TransactionHandler):
 
-CMD ['./bin/marketplace-tp']
+    @property
+    def family_name(self):
+        return addresser.FAMILY_NAME
+
+    @property
+    def namespaces(self):
+        return [addresser.NS]
+
+    @property
+    def family_versions(self):
+        return ['1.0']
+
+    def apply(self, transaction, context):
+        pass
