@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +15,18 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
-FROM ubuntu:16.04
+import os
+import sys
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD && \
-    echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list && \
-    apt-get update
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+    'processor'))
 
-RUN apt-get install -y -q python3-sawtooth-sdk
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+    'addressing'))
 
-WORKDIR /project/sawtooth-marketplace
+from marketplace_processor.main import main
 
-CMD ['./bin/marketplace-tp']
+if __name__ == '__main__':
+    main()

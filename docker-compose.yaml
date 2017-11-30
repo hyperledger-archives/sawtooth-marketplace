@@ -27,7 +27,7 @@ services:
     image: market-tp
     volumes:
       - '.:/project/sawtooth-marketplace'
-    command: echo "No transaction processor command set"
+    command: ./bin/marketplace-tp -v -C tcp://validator:4004
 
   market-rest-api:
     build:

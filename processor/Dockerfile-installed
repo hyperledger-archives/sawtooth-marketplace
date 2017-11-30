@@ -32,4 +32,4 @@ COPY protos/ protos/
 RUN bin/protogen
 COPY . .
 
-CMD ["echo \"No transaction processor command set\""]
+CMD ["./bin/marketplace-tp -v"]

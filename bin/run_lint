@@ -34,4 +34,9 @@ ret_val=0
 
 lint addressing/marketplace_addressing || ret_val=1
 
+
+export PYTHONPATH=$TOP_DIR/addressing:$TOP_DIR/processor
+lint processor/marketplace_processor || ret_val=1
+
+
 exit $ret_val
