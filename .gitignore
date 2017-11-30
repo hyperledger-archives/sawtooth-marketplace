@@ -5,3 +5,11 @@
 .idea/
 
 **/__pycache__/**
+
+# Node
+**/node_modules
+**/package-lock.json
+**/npm-debug.log
+
+# Webpack
+**/dist
