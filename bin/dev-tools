@@ -41,20 +41,20 @@ info() {
 
 protogen() {
     info "Building Protobuf modules"
-    docker build . -f build/Dockerfile -t mktplace-test-env
+    docker build . -f dev-tools/Dockerfile -t mktplace-test-env
     docker run --rm -v $(pwd):/project/sawtooth-marketplace mktplace-test-env bin/protogen
 }
 
 run_tests() {
     info "Running Tests"
-    docker build . -f build/Dockerfile -t mktplace-test-env
+    docker build . -f dev-tools/Dockerfile -t mktplace-test-env
     docker run --rm -v $(pwd):/project/sawtooth-marketplace mktplace-test-env bin/run_unit_tests
 
 }
 
 lint() {
     info "Running lint"
-    docker build . -f build/Dockerfile -t mktplace-test-env
+    docker build . -f dev-tools/Dockerfile -t mktplace-test-env
     docker run --rm -v $(pwd):/project/sawtooth-marketplace mktplace-test-env bin/run_lint
 }
 
