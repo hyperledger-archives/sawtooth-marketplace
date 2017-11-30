@@ -1,2 +1,7 @@
 # Generated Protobufs
 **/protobuf/
+
+# Jetbrains Ides
+.idea/
+
+**/__pycache__/**
