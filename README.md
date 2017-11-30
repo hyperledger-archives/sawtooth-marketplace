@@ -19,11 +19,11 @@ The easiest way to run these components is with
 [Docker](https://www.docker.com/what-docker). To start these components,
 first install Docker for your platform and clone this repo.
 
-Then, generate Python versions of the Protobuf files for each component, by
-running the `protogen` command from the root project directory:
+Then, generate Python versions of the Protobuf files for each component. From
+the sawtooth-marketplace directory:
 
 ```bash
-bin/protogen
+bin/dev-tools -p
 ```
 
 Finally, use `docker-compose` to build and run each component:
