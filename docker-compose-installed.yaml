@@ -60,6 +60,18 @@ services:
       - validator
     command: echo "No ledger sync command set"
 
+  market-sawbuck-app:
+    build:
+      context: ./sawbuck_app
+      dockerfile: ./Dockerfile-installed
+    image: market-sawbuck-app-installed
+    expose:
+      - 80
+    ports:
+      - '8041:80'
+    depends_on:
+      - market-rest-api
+
   rethink:
     image: rethinkdb:2.3
     expose:

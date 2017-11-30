@@ -13,27 +13,19 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
-# This Dockerfile is for running protogen, lint, and unit-tests
+# NOTE: Use `volumes` to make: sawbuck_app/public/
+# available at: /usr/local/apache2/htdocs/
 
-FROM ubuntu:xenial
+FROM httpd:2.4
 
-RUN apt-get update && apt-get install -yq python3-pip curl
+RUN echo "\
+\n\
+ServerName sawbuck_app\n\
+LoadModule proxy_module modules/mod_proxy.so\n\
+LoadModule proxy_http_module modules/mod_proxy_http.so\n\
+ProxyPass /api http://market-rest-api:8008\n\
+ProxyPassReverse /api http://market-rest-api:8008\n\
+\n\
+" >>/usr/local/apache2/conf/httpd.conf
 
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-    && apt-get install -y nodejs
-
-WORKDIR /project/sawtooth-marketplace
-
-RUN pip3 install \
-    pylint==1.7.4 \
-    pycodestyle==2.3.1 \
-    grpcio-tools==1.7.0 \
-    nose2==0.7.2
-
-COPY sawbuck_app/package.json /project/sawbuck_app/
-
-WORKDIR /project/sawbuck_app
-
-RUN npm install
-
-WORKDIR /project/sawtooth-marketplace
+EXPOSE 80/tcp
