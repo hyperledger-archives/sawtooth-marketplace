@@ -27,9 +27,10 @@ usage() {
         Options:
             -h           print help text
             -p           build protobuf modules using docker containers
+            -c           build static client files
             -l           lint source code
             -t           run unit and integration tests
-            -a           protogen, lint, tests in order
+            -a           protogen, client, lint, tests in order
 EOM
 
 }
@@ -41,24 +42,38 @@ info() {
 
 protogen() {
     info "Building Protobuf modules"
-    docker build . -f dev-tools/Dockerfile -t mktplace-test-env
-    docker run --rm -v $(pwd):/project/sawtooth-marketplace mktplace-test-env bin/protogen
+    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/protogen
+}
+
+build_client() {
+    info "Building Protobuf modules"
+    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker run --rm \
+        -v $(pwd):/project/sawtooth-marketplace market-dev-env bash -c "\
+            cd sawbuck_app/\
+            && mv /project/sawtooth-marketplace/sawbuck_app/node_modules /project/sawtooth-marketplace/sawbuck_app/node_modules-temp || true\
+            && ln -s /project/sawbuck_app/node_modules /project/sawtooth-marketplace/sawbuck_app/node_modules\
+            && npm run build\
+            && rm /project/sawtooth-marketplace/sawbuck_app/node_modules\
+            && mv /project/sawtooth-marketplace/sawbuck_app/node_modules-temp /project/sawtooth-marketplace/sawbuck_app/node_modules || true\
+        "
 }
 
 run_tests() {
     info "Running Tests"
-    docker build . -f dev-tools/Dockerfile -t mktplace-test-env
-    docker run --rm -v $(pwd):/project/sawtooth-marketplace mktplace-test-env bin/run_unit_tests
+    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_unit_tests
 
 }
 
 lint() {
     info "Running lint"
-    docker build . -f dev-tools/Dockerfile -t mktplace-test-env
-    docker run --rm -v $(pwd):/project/sawtooth-marketplace mktplace-test-env bin/run_lint
+    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_lint
 }
 
-while getopts hplta opt;
+while getopts hpclta opt;
 do
     case $opt in
         h)
@@ -67,6 +82,9 @@ do
             ;;
         p)
             protogen
+            ;;
+        c)
+            build_client
             ;;
         t)
             run_tests

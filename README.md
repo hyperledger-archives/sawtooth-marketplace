@@ -26,6 +26,11 @@ the sawtooth-marketplace directory:
 bin/dev-tools -p
 ```
 
+Next, build client files:
+```bash
+bin/dev-tools -c
+```
+
 Finally, use `docker-compose` to build and run each component:
 
 ```bash
@@ -35,7 +40,8 @@ docker-compose up
 This will create containers for all components with access to the local repo,
 and run them along with the necessary Sawtooth components. Once the process is
 complete a number of HTTP endpoints will be available:
-- The Marketplace REST API will be at **http://localhost:8000**.
+- The Marketplace REST API will be at **http://localhost:8000**
+- The SawbucksManager web app will be at **http://localhost:3000**.
 - Sawtooth's blockchain REST API will be available at **http://localhost:8008**
 - RethinkDB's admin panel will be available at **http://localhost:9090**
 
@@ -53,8 +59,8 @@ built individually, or built and run using `docker-compose`:
 docker-compose -f docker-compose-installed.yaml up
 ```
 
-Unlike the default Docker images, if the repo changes, those changes will not be
-reflected unless you rebuild them. To do that with `docker-compose`, use:
+Unlike the default Docker images, if the repo changes, those changes will not
+be reflected unless you rebuild them. To do that with `docker-compose`, use:
 
 ```bash
 docker-compose -f docker-compose-installed.yaml up --build
