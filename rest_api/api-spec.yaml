@@ -1,0 +1,700 @@
+# Copyright 2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# -----------------------------------------------------------------------------
+
+swagger: '2.0'
+
+info:
+  version: 0.0.0
+  title: Sawtooth Marketplace RESTful API
+  description: |
+    A simple API providing an HTTP/JSON interface for a distributed ledger
+    running Sawtooth Marketplace
+
+basePath: /api
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  AuthToken:
+    type: apiKey
+    in: header
+    name: Authorization
+
+paths:
+  /authorization:
+    post:
+      description: Requests an authorization token for a registered Account
+      parameters:
+        - name: credentials
+          description: Authorization info to be authenticated by the server
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuthCredentials'
+      responses:
+        200:
+          description: Success response with authorization token
+          schema:
+            type: object
+            properties:
+              authorization:
+                $ref: '#/definitions/AuthToken'
+        400:
+          $ref: '#/responses/400BadRequest'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /accounts:
+    post:
+      description: Creates a new Account and corresponding authorization token
+      parameters:
+        - name: account
+          description: Info for Account to add to state
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewAccountBody'
+      responses:
+        200:
+          description: Success response with Account and authorization token
+          schema:
+            type: object
+            properties:
+              authorization:
+                $ref: '#/definitions/AuthToken'
+              account:
+                $ref: '#/definitions/AccountObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        500:
+          $ref: '#/responses/500ServerError'
+
+    get:
+      description: Fetches complete details of all Accounts in state
+      responses:
+        200:
+          description: Success response with a list of Accounts
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AccountObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /accounts/{key}:
+    parameters:
+      - $ref: '#/parameters/AccountKey'
+    get:
+      description: Fetches the details of particular Account in state
+      responses:
+        200:
+          description: Success response with the requested Account
+          schema:
+            $ref: '#/definitions/AccountObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        404:
+          $ref: '#/responses/404NotFound'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /assets:
+    post:
+      description: Creates a new Asset in state
+      security:
+        - AuthToken: []
+      parameters:
+        - name: asset
+          description: Info for Asset to add to state
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewAssetBody'
+      responses:
+        200:
+          description: Success response with the new Asset
+          schema:
+            $ref: '#/definitions/AssetObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        401:
+          $ref: '#/responses/401Unauthorized'
+        500:
+          $ref: '#/responses/500ServerError'
+
+    get:
+      description: Fetches complete details of all Assets in state
+      responses:
+        200:
+          description: Success response with a list of Assets
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AssetObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /assets/{name}:
+    parameters:
+      - $ref: '#/parameters/AssetName'
+    get:
+      description: Fetches the details of particular Asset in state
+      responses:
+        200:
+          description: Success response with the requested Asset
+          schema:
+            $ref: '#/definitions/AssetObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        404:
+          $ref: '#/responses/404NotFound'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /holdings:
+    post:
+      description: Creates a new Holding for the authorized Account
+      security:
+        - AuthToken: []
+      parameters:
+        - name: holding
+          description: Info for Holding to add to state
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewHoldingBody'
+      responses:
+        200:
+          description: Success response with the new Holding
+          schema:
+            $ref: '#/definitions/AssetObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        401:
+          $ref: '#/responses/401Unauthorized'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /offers:
+    post:
+      description: Creates a new Offer in state
+      security:
+        - AuthToken: []
+      parameters:
+        - name: offer
+          description: Info for Offer to add to state
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewOfferBody'
+      responses:
+        200:
+          description: Success response with the new Offer
+          schema:
+            $ref: '#/definitions/OfferObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        401:
+          $ref: '#/responses/401Unauthorized'
+        500:
+          $ref: '#/responses/500ServerError'
+
+    get:
+      description: Fetches complete details of all Offers in state
+      parameters:
+        - name: status
+          description: Filters Offers to those with a particular source Asset
+          in: query
+          type: string
+          enum:
+            - open
+            - closed
+        - name: source
+          description: Filters Offers to those with a particular source Asset
+          in: query
+          type: string
+          x-example: Platinum%20Status
+        - name: target
+          description: Filters Offers to those with a particular target Asset
+          in: query
+          type: string
+          x-example: Sawbuck
+      responses:
+        200:
+          description: Success response with a list of Offers
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OfferObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /offers/{id}:
+    parameters:
+      - $ref: '#/parameters/OfferId'
+    get:
+      description: Fetches the details of particular Offer in state
+      responses:
+        200:
+          description: Success response with the requested Offer
+          schema:
+            $ref: '#/definitions/OfferObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        404:
+          $ref: '#/responses/404NotFound'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /offers/{id}/accept:
+    parameters:
+      - $ref: '#/parameters/OfferId'
+    patch:
+      description: Request for authorized Account to accept Offer
+      security:
+        - AuthToken: []
+      parameters:
+        - name: acceptance
+          description: Info necessary to accept Offer
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AcceptOfferBody'
+      responses:
+        200:
+          description: Success response with the updated Holdings
+          schema:
+            type: object
+            properties:
+              source:
+                $ref: '#/definitions/HoldingObject'
+              target:
+                $ref: '#/definitions/HoldingObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        401:
+          $ref: '#/responses/401Unauthorized'
+        404:
+          $ref: '#/responses/404NotFound'
+        500:
+          $ref: '#/responses/500ServerError'
+
+  /offers/{id}/close:
+    parameters:
+      - $ref: '#/parameters/OfferId'
+    patch:
+      description: Request by owner of Offer to close it
+      security:
+        - AuthToken: []
+      responses:
+        200:
+          description: Success response with the updated Offer
+          schema:
+            $ref: '#/definitions/OfferObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        401:
+          $ref: '#/responses/401Unauthorized'
+        404:
+          $ref: '#/responses/404NotFound'
+        500:
+          $ref: '#/responses/500ServerError'
+
+# Reference Definitions
+
+responses:
+  400BadRequest:
+    description: Client request was invalid
+    schema:
+      $ref: '#/definitions/ErrorObject'
+
+  401Unauthorized:
+    description: Authorization token was missing or invalid
+    schema:
+      $ref: '#/definitions/ErrorObject'
+
+  404NotFound:
+    description: Name, key, or id did not match any resource
+    schema:
+      $ref: '#/definitions/ErrorObject'
+
+  500ServerError:
+    description: Something went wrong within the REST API
+    schema:
+      $ref: '#/definitions/ErrorObject'
+
+parameters:
+  AccountKey:
+    name: key
+    description: The public key for a particular Account in state
+    in: path
+    required: true
+    type: string
+    x-example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
+
+  AssetName:
+    name: name
+    description: The unique name of a particular Asset in state
+    in: path
+    required: true
+    type: string
+    minLength: 3
+    x-example: Sawbuck
+
+  OfferId:
+    name: id
+    description: Id of a particular Offer in state
+    in: path
+    required: true
+    type: string
+    format: uuid
+    x-example: 1f68397b-5b38-4aec-9913-4541c7e1d4c4
+
+definitions:
+  ErrorObject:
+    properties:
+      error:
+        description: A message describing the error that occured
+        type: string
+        example: The Asset name specified already exists, names must be unique
+
+# Authentication
+
+  AuthCredentials:
+    description: Info to authenticate a client as an Account
+    type: object
+    properties:
+      email:
+        description: Email of the Account owner attempting to authenticate
+        type: string
+        format: email
+        example: suzie72@suze.au.co
+      password:
+        description: Password of the Account owner attempting to authenticate
+        type: string
+        format: password
+        example: '12345'
+
+  AuthToken:
+    description: A token used to authorize client requests
+    type: string
+    example: eyJpYXQiOjE1MTA4NjM5NzksImV4cCI6MTUxMDg2NzU3OSwiYWxnIjoiSFMyNTYifQ.eyJpZCI6IjAyYTA2ZjM0NGM2MDc0ZTRiZDBjYThhMmFiZTQ1ZWU2ZWM5MmJmOWNkZDdiN2E2N2M4MDQzNTBiZmZmNGQ0YThjMCJ9.mM_uwZ1wrdag5PoCNThn_0gzZpsIhC_xSsa8xIFxggs
+
+# Accounts
+
+  AccountObject:
+    description: An actor in the system controlling various Holdings of Assets
+    type: object
+    properties:
+      publicKey:
+        description: Unique public half of a key pair used to sign transactions
+        type: string
+        example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
+      label:
+        description: A human readable name for the Account (not unique)
+        type: string
+        example: Susan Susanson
+      description:
+        description: A human readable description for the Account
+        type: string
+        example: VP of Loyalty Encouragement for Sawbucks
+      holdings:
+        description: List of Holdings which belong to the Account
+        type: array
+        items:
+          $ref: '#/definitions/HoldingObject'
+      email:
+        description: Unique email address used to authenticate Account's owner
+        type: string
+        format: email
+        example: suzie72@suze.au.co
+
+  NewAccountBody:
+    description: Details provided to create a new Account
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      label:
+        description: A human readable name for the Account (not unique)
+        type: string
+        example: Susan Susanson
+      description:
+        description: A human readable description for the Account
+        type: string
+        example: VP of Loyalty Encouragement for Sawbucks
+      email:
+        description: Unique email address used to authenticate Account's owner
+        type: string
+        format: email
+        example: suzie72@suze.au.co
+      password:
+        description: Password of the Account owner attempting to authenticate
+        type: string
+        format: password
+        example: '12345'
+
+  HoldingObject:
+    description: A Holding with a certain quantity of a particular Asset
+    type: object
+    properties:
+      id:
+        description: A unique id for the Holding
+        type: string
+        format: uuid
+        example: 7ea843aa-1650-4530-94b1-a445d2a8193a
+      label:
+        description: A human readable name for the Holding (not unique)
+        type: string
+        example: Sawbucks Cache
+      description:
+        description: A human readable description for the Holding
+        type: string
+        example: Master source of all Sawbucks
+      asset:
+        description: The unique name of the Asset which this Holding contains
+        type: string
+        example: Sawbuck
+      quantity:
+        description: The quantity of the Asset
+        type: integer
+        example: 100000
+
+  NewHoldingBody:
+    description: Details provided to create a new Holding
+    type: object
+    required:
+      - asset
+    properties:
+      label:
+        description: A human readable name for the Holding (not unique)
+        type: string
+        example: Sawbucks Cache
+      description:
+        description: A human readable description for the Holding
+        type: string
+        example: Master source of all Sawbucks
+      asset:
+        description: The unique name of the Asset which this Holding contains
+        type: string
+        example: Sawbuck
+      quantity:
+        description: The quantity of the Asset
+        type: integer
+        default: 0
+
+# Assets
+
+  AssetObject:
+    description: Describes a thing of value which Holdings might contain
+    type: object
+    properties:
+      name:
+        description: A unique name for the Asset
+        type: string
+        example: Sawbuck
+      description:
+        description: A human readable description for the Asset
+        type: string
+        example: VP of Loyalty Encouragement for Sawbucks
+      owners:
+        description: List of ids for Accounts which control the Asset
+        type: array
+        items:
+          type: string
+          example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
+      rules:
+        description: List of Rules which control Asset behavior
+        type: array
+        items:
+          $ref: '#/definitions/RuleObject'
+
+  NewAssetBody:
+    description: Details provided to create a new Asset
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        description: A unique name for the Asset
+        type: string
+        example: Sawbuck
+      description:
+        description: A human readable description for the Asset
+        type: string
+        example: VP of Loyalty Encouragement for Sawbucks
+      rules:
+        description: List of Rules which control Asset behavior
+        type: array
+        items:
+          $ref: '#/definitions/RuleObject'
+
+# Offers
+
+  OfferObject:
+    description: An Offer to exchange one type of Asset for another
+    type: object
+    properties:
+      id:
+        description: A unique id for the Offer
+        type: string
+        format: uuid
+        example: 1f68397b-5b38-4aec-9913-4541c7e1d4c4
+      label:
+        description: A human readable name for the Offer (not unique)
+        type: string
+        example: Get Platinum Status Now!
+      description:
+        description: A human readable description for the Offer
+        type: string
+        example: Limited time offer to get Platinum Status for 1000 Sawbucks!!!
+      owners:
+        description: List of ids for Accounts which control the Offer
+        type: array
+        items:
+          type: string
+          example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
+      source:
+        description: The id of a Holding from which resources will be drawn
+        type: string
+        format: uuid
+        example: 7ea843aa-1650-4530-94b1-a445d2a8193a
+      sourceQuantity:
+        description: The proportion of resources to send out during exchange
+        type: integer
+        example: 1
+      target:
+        description: The id of a Holding which will receive resources
+        type: string
+        format: uuid
+        example: ddb5b98b-8d34-466a-94cb-06288755312b
+      targetQuantity:
+        description: The proportion of resources to require for exchange
+        type: integer
+        example: 1000
+      rules:
+        description: List of Rules which control Asset behavior
+        type: array
+        items:
+          $ref: '#/definitions/RuleObject'
+      status:
+        description: Whether the offer is still open, or has been closed
+        type: string
+        enum:
+          - OPEN
+          - CLOSED
+
+  NewOfferBody:
+    description: Details provided to create a new Asset
+    type: object
+    required:
+      - source
+      - sourceQuantity
+      - target
+      - targetQuantity
+    properties:
+      label:
+        description: A human readable name for the Offer (not unique)
+        type: string
+        example: Get Platinum Status Now!
+      description:
+        description: A human readable description for the Offer
+        type: string
+        example: Limited time offer to get Platinum Status for 1000 Sawbucks!!!
+      source:
+        description: The id of a Holding from which resources will be drawn
+        type: string
+        format: uuid
+        example: 7ea843aa-1650-4530-94b1-a445d2a8193a
+      sourceQuantity:
+        description: The proportion of resources to send out during exchange
+        type: integer
+        example: 1
+      target:
+        description: The id of a Holding which will receive resources
+        type: string
+        format: uuid
+        example: ddb5b98b-8d34-466a-94cb-06288755312b
+      targetQuantity:
+        description: The proportion of resources to require for exchange
+        type: integer
+        example: 1000
+      rules:
+        description: List of Rules which control Asset behavior
+        type: array
+        items:
+          $ref: '#/definitions/RuleObject'
+
+  AcceptOfferBody:
+    description: Details provided in body to accept an Offer
+    type: object
+    required:
+      - source
+      - sourceQuantity
+      - target
+    properties:
+      source:
+        description: The id of a Holding from which resources will be drawn
+        type: string
+        format: uuid
+        example: 0ab3febf-e7a3-4b90-966a-68e2f273c7a5
+      sourceQuantity:
+        description: The number of resources to send out during exchange
+        type: integer
+        example: 1000
+      target:
+        description: The id of a Holding which will receive resources
+        type: string
+        format: uuid
+        example: f78b57cb-1b20-41da-a730-9128c32dc5e5
+
+# Rules
+
+  RuleObject:
+    description: |
+      A simple enum and with optional value, used to constrain and define the
+      behavior of Assets or Offers
+    type: object
+    properties:
+      type:
+        description: The enum which defines the Rule
+        type: string
+        enum:
+          - OWNER_HOLDINGS_INFINITE
+          - ALL_HOLDINGS_INFINITE
+          - REQUIRE_TARGET_TYPES
+          - REQUIRE_TARGET_QUANTITIES
+          - REQUIRE_SOURCE_QUANTITIES
+          - EXCHANGE_ONCE
+          - EXCHANGE_ONCE_PER_ACCOUNT
+          - EXCHANGE_LIMITED_TO_ACCOUNTS
+      value:
+        description: |
+          An optional value that modifies the Rule
+          (e.g. a list of Account ids for `EXCHANGE_LIMITED_TO_ACCOUNTS`)
+        type: array
+        items:
+          type: string
+          example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
