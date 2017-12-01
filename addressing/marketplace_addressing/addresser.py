@@ -17,7 +17,7 @@ import enum
 import hashlib
 
 
-FAMILY_NAME = 'mktplace'
+FAMILY_NAME = 'marketplace'
 
 
 NS = hashlib.sha512(FAMILY_NAME.encode()).hexdigest()[:6]
