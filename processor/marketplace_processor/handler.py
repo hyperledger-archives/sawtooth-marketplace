@@ -17,6 +17,10 @@ from sawtooth_sdk.processor.handler import TransactionHandler
 
 from marketplace_addressing import addresser
 
+from marketplace_processor.account import account_creation
+from marketplace_processor.marketplace_payload import MarketplacePayload
+from marketplace_processor.marketplace_state import MarketplaceState
+
 
 class MarketplaceHandler(TransactionHandler):
 
@@ -33,4 +37,12 @@ class MarketplaceHandler(TransactionHandler):
         return ['1.0']
 
     def apply(self, transaction, context):
-        pass
+
+        state = MarketplaceState(context=context, timeout=2)
+        payload = MarketplacePayload(payload=transaction.payload)
+
+        if payload.create_account():
+            account_creation.handle_account_creation(
+                payload.create_account(),
+                header=transaction.header,
+                state=state)
