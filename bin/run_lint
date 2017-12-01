@@ -41,4 +41,8 @@ lint processor/marketplace_processor || ret_val=1
 export PYTHONPATH=$TOP_DIR/addressing:$TOP_DIR/ledger_sync
 lint ledger_sync/marketplace_ledger_sync || ret_val=1
 
+export PYTHONPATH=$TOP_DIR/addressing
+lint transaction_creation/marketplace_transaction || ret_val=1
+
+
 exit $ret_val
