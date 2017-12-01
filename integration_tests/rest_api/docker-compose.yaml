@@ -50,6 +50,9 @@ services:
       PYTHONPATH: /project/sawtooth-marketplace/addressing
     command: |
       dredd ./rest_api/api-spec.yaml http://market-rest-api:8040
+        --language=python
+        --hookfiles=./integration_tests/rest_api/*_hooks.py
+        --hooks-worker-after-connect-wait=10000
         --reporter=dot
 
   market-processor:
