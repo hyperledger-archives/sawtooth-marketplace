@@ -38,6 +38,7 @@ def make_protobuf(path, pkg_name):
              '-I={}'.format(os.path.join(TOP_DIR, 'protos')),
              '--python_out={}'.format(OUT_DIR)] +
             glob(os.path.join(TOP_DIR, 'protos/*.proto')))
+    print("Generated protobuf classes: {}".format(OUT_DIR))
 
 
 if __name__ == '__main__':
