@@ -69,6 +69,22 @@ docker-compose -f docker-compose-installed.yaml up --build
 Note that this compose file only exposes the URL for the Marketplace REST API,
 not Sawtooth or RethinkDB.
 
+## Testing
+
+Integration tests can be run within docker containers using this command:
+
+```bash
+bin/run_integration_tests
+```
+
+By default this command will run all tests in the `integration_tests/`
+directory. It is also possible to run a single set of tests by specifying a
+sub-directory:
+
+```bash
+bin/run_integration_tests rest_api
+```
+
 ## License
 
 Hyperledger Sawtooth software is licensed under the
