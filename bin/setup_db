@@ -44,24 +44,29 @@ def setup_db(host, port, name):
         r.db_create(name).run(conn)
 
         print('Creating table: accounts')
-        r.db(name).table_create('accounts').run(conn)
-        r.db(name).table('accounts').index_create('account_id').run(conn)
+        r.db(name).table_create('accounts', primary_key='delta_id').run(conn)
+        r.db(name).table('accounts').index_create('public_key').run(conn)
 
         print('Creating table: assets')
-        r.db(name).table_create('assets').run(conn)
-        r.db(name).table('assets').index_create('asset_id').run(conn)
-
-        print('Creating table: auth')
-        r.db(name).table_create('auth', primary_key='public_key').run(conn)
-        r.db(name).table('auth').index_create('email').run(conn)
+        r.db(name).table_create('assets', primary_key='delta_id').run(conn)
+        r.db(name).table('assets').index_create('name').run(conn)
 
         print('Creating table: offers')
-        r.db(name).table_create('offers').run(conn)
-        r.db(name).table('offers').index_create('offer_id').run(conn)
+        r.db(name).table_create('offers', primary_key='delta_id').run(conn)
+        r.db(name).table('offers').index_create('id').run(conn)
 
         print('Creating table: holdings')
-        r.db(name).table_create('holdings').run(conn)
-        r.db(name).table('holdings').index_create('holding_id').run(conn)
+        r.db(name).table_create('holdings', primary_key='delta_id').run(conn)
+        r.db(name).table('holdings').index_create('id').run(conn)
+
+        print('Creating table: blocks')
+        r.db(name).table_create('blocks', primary_key='block_num').run(conn)
+        r.db(name).table('blocks').index_create('block_id').run(conn)
+
+        print('Creating table: auth')
+        r.db(name).table_create('auth', primary_key='email').run(conn)
+        r.db(name).table('auth').index_create('public_key').run(conn)
+
     except RqlRuntimeError:
         print('Database already exists:', name)
 
