@@ -16,7 +16,7 @@
 version: '2.1'
 
 services:
-  processor:
+  market-processor:
     build:
       context: .
       dockerfile: ./processor/Dockerfile-installed
@@ -24,10 +24,10 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: marketplace-tp-installed
+    image: market-tp-installed
     command: echo "No transaction processor command set"
 
-  rest-api:
+  market-rest-api:
     build:
       context: .
       dockerfile: ./rest_api/Dockerfile-installed
@@ -35,18 +35,18 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: marketplace-rest-api-installed
+    image: market-rest-api-installed
     expose:
       - 8000
     ports:
-      - '8000:8000'
+      - '8040:8000'
     depends_on:
-      - ledger-sync
+      - market-ledger-sync
       - rethink
       - validator
     command: echo "No REST API command set"
 
-  ledger-sync:
+  market-ledger-sync:
     build:
       context: .
       dockerfile: ./ledger_sync/Dockerfile-installed
@@ -54,7 +54,7 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: marketplace-ledger-sync-installed
+    image: market-ledger-sync-installed
     depends_on:
       - rethink
       - validator
