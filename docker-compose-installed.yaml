@@ -58,7 +58,11 @@ services:
     depends_on:
       - rethink
       - validator
-    command: echo "No ledger sync command set"
+    command: |
+      bash -c "
+        sleep 1 &&
+        bin/setup_db --host rethink
+      "
 
   market-sawbuck-app:
     build:
