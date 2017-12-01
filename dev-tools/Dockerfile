@@ -25,6 +25,7 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
         python3-sawtooth-sdk \
         python3-sawtooth-rest-api \
         python3-sawtooth-cli \
+        python3-sawtooth-signing \
         curl
 
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
@@ -36,7 +37,10 @@ RUN pip3 install \
     pylint==1.7.4 \
     pycodestyle==2.3.1 \
     grpcio-tools==1.7.0 \
-    nose2==0.7.2
+    nose2==0.7.2 \
+    rethinkdb \
+    sanic \
+    itsdangerous
 
 COPY sawbuck_app/package.json /project/sawbuck_app/
 

@@ -39,4 +39,4 @@ COPY . .
 
 EXPOSE 8000/tcp
 
-CMD ["echo \"No server command set\""]
+CMD ["./bin/marketplace-rest-api"]
