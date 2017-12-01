@@ -17,11 +17,14 @@
 
 from glob import glob
 import os
+import re
+import tempfile
 from os.path import dirname as DIRNAME
 
 from grpc.tools.protoc import main as _protoc
 
 TOP_DIR = DIRNAME(DIRNAME(__file__))
+SRC_DIR = os.path.join(TOP_DIR, 'protos')
 
 
 def make_protobuf(path, pkg_name):
@@ -34,14 +37,46 @@ def make_protobuf(path, pkg_name):
         with open(init_py, mode='w'):
             pass
 
-    _protoc([__file__,
-             '-I={}'.format(os.path.join(TOP_DIR, 'protos')),
-             '--python_out={}'.format(OUT_DIR)] +
-            glob(os.path.join(TOP_DIR, 'protos/*.proto')))
-    print("Generated protobuf classes: {}".format(OUT_DIR))
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_pkg_dir = os.path.join(tmp_dir, pkg_name)
+        os.makedirs(tmp_pkg_dir)
 
+        cwd = os.getcwd()
+        os.chdir(SRC_DIR)
+        proto_files = glob("*.proto")
+        os.chdir(cwd)
+
+        for proto in proto_files:
+            src = os.path.join(SRC_DIR, proto)
+            dst = os.path.join(tmp_pkg_dir, proto)
+            with open(src, encoding='utf-8') as fin:
+                with open(dst, "w", encoding='utf-8') as fout:
+                    src_contents = fin.read()
+                    fixed_contents = fix_import(src_contents, pkg_name)
+                    fout.write(fixed_contents)
+
+        _protoc([
+            __file__,
+            "-I=%s" % tmp_dir,
+            "--python_out=%s" % os.path.join(TOP_DIR, path),
+        ] + glob("%s/*.proto" % tmp_pkg_dir))
+        print("Generated protobuf classes: {}".format(OUT_DIR))
+
+def fix_import(contents, pkg, sub_dir=False):
+    pattern = r'^import "(.*)\.proto\"'
+    if sub_dir:
+        template = r'import "%s/\1_pb2/\1.proto"'
+    else:
+        template = r'import "%s/\1.proto"'
+
+    return re.sub(
+        pattern,
+        lambda match: match.expand(template) % pkg,
+        contents,
+        flags=re.MULTILINE
+    )
 
 if __name__ == '__main__':
-    make_protobuf('processor/marketplace_processor', 'protobuf')
-    make_protobuf('server/marketplace_rest_api', 'protobuf')
-    make_protobuf('ledger_sync/marketplace_ledger_sync', 'protobuf')
+    make_protobuf('processor', 'marketplace_processor/protobuf')
+    make_protobuf('server', 'marketplace_rest_api/protobuf')
+    make_protobuf('ledger_sync', 'marketplace_ledger_sync/protobuf')
