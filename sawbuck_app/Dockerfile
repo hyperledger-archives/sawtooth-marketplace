@@ -23,8 +23,8 @@ RUN echo "\
 ServerName sawbuck_app\n\
 LoadModule proxy_module modules/mod_proxy.so\n\
 LoadModule proxy_http_module modules/mod_proxy_http.so\n\
-ProxyPass /api http://market-rest-api:8008\n\
-ProxyPassReverse /api http://market-rest-api:8008\n\
+ProxyPass /api http://market-rest-api:8040\n\
+ProxyPassReverse /api http://market-rest-api:8040\n\
 \n\
 " >>/usr/local/apache2/conf/httpd.conf
 
