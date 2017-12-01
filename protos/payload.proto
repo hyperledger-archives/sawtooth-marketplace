@@ -27,9 +27,8 @@ message TransactionPayload {
 }
 
 message CreateAccount {
-    string id = 1;
-    string label = 2;
-    string description = 3;
+    string label = 1;
+    string description = 2;
 }
 
 message CreateAsset {
