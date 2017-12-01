@@ -14,24 +14,14 @@
 # -----------------------------------------------------------------------------
 
 FROM node:6
-WORKDIR /project/sawbuck_app
-COPY package.json .
-RUN npm install
-COPY . .
-RUN npm run build
 
-FROM httpd:2.4
-WORKDIR .
-COPY --from=0 /project/sawbuck_app/public/ /usr/local/apache2/htdocs/
+RUN apt-get update && \
+    apt-get install -y --allow-unauthenticated -q python3-pip
 
-RUN echo "\
-\n\
-ServerName sawbuck_app\n\
-LoadModule proxy_module modules/mod_proxy.so\n\
-LoadModule proxy_http_module modules/mod_proxy_http.so\n\
-ProxyPass /api http://market-rest-api:8040\n\
-ProxyPassReverse /api http://market-rest-api:8040\n\
-\n\
-" >>/usr/local/apache2/conf/httpd.conf
+RUN npm install -g dredd
 
-EXPOSE 80/tcp
+RUN pip3 install \
+    requests \
+    dredd-hooks
+
+WORKDIR /project/sawtooth-marketplace
