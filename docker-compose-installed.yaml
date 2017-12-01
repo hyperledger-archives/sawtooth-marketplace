@@ -69,7 +69,7 @@ services:
     image: hyperledger/sawtooth-settings-tp:1.0
     depends_on:
       - validator
-    command: settings-tp -v tcp://validator:4004
+    command: settings-tp -v -C tcp://validator:4004
 
   validator:
     image: hyperledger/sawtooth-validator:1.0
@@ -77,10 +77,11 @@ services:
       - 4004
     command: |
       bash -c "
-        sawtooth admin keygen &&
-        sawtooth config genesis -k /root/.sawtooth/keys/my_key.priv &&
-        sawtooth admin genesis config-genesis.batch &&
-        sawtooth-validator -v \
+        sawadm keygen && \
+        sawtooth keygen my_key && \
+        sawset genesis -k /root/.sawtooth/keys/my_key.priv && \
+        sawadm genesis config-genesis.batch && \
+        sawtooth-validator -vv \
           --endpoint tcp://validator:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800
