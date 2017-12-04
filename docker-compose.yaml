@@ -98,7 +98,7 @@ services:
       - '8043:8008'
     depends_on:
       - validator
-    entrypoint: sawtooth-rest-api --connect tcp://validator:4004 --bind sawtooth-rest-api:8008 -vv
+    entrypoint: sawtooth-rest-api -vv --connect tcp://validator:4004 --bind sawtooth-rest-api:8008
 
   shell:
     image: hyperledger/sawtooth-shell:1.0
@@ -127,10 +127,10 @@ services:
       - '4040:4004'
     command: |
       bash -c "
-        sawadm keygen && \
-        sawtooth keygen my_key && \
-        sawset genesis -k /root/.sawtooth/keys/my_key.priv && \
-        sawadm genesis config-genesis.batch && \
+        sawadm keygen &&
+        sawtooth keygen my_key &&
+        sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
+        sawadm genesis config-genesis.batch &&
         sawtooth-validator -vv \
           --endpoint tcp://validator:8800 \
           --bind component:tcp://eth0:4004 \
