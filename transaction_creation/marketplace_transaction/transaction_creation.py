@@ -29,7 +29,7 @@ def create_account(txn_key, batch_key, label, description):
         description (str): The description of the account.
 
     Returns:
-        tuple: BatchList, signature tuple
+        tuple: List of Batch, signature tuple
     """
 
     inputs = [addresser.make_account_address(
@@ -42,6 +42,43 @@ def create_account(txn_key, batch_key, label, description):
         label=label,
         description=description)
     payload = payload_pb2.TransactionPayload(create_account=account)
+
+    return make_header_and_batch(
+        payload=payload,
+        inputs=inputs,
+        outputs=outputs,
+        txn_key=txn_key,
+        batch_key=batch_key)
+
+
+def create_asset(txn_key, batch_key, name, description, rules):
+    """Create a CreateAsset txn and wrap it in a batch and batchlist.
+
+    Args:
+        txn_key (sawtooth_signing.Signer): The txn signer key pair.
+        batch_key (sawtooth_signing.Signer): The batch signer key pair.
+        name (str): The name of the asset.
+        description (str): A description of the asset.
+        rules (list): List of protobuf.rule_pb2.Rule
+
+    Returns:
+        tuple: List of Batch, signature tuple
+    """
+
+    inputs = [addresser.make_asset_address(asset_id=name),
+              addresser.make_account_address(
+                  account_id=txn_key.get_public_key().as_hex())]
+
+    outputs = [addresser.make_asset_address(asset_id=name)]
+
+    asset = payload_pb2.CreateAsset(
+        name=name,
+        description=description
+    )
+
+    asset.rules.extend(rules)
+
+    payload = payload_pb2.TransactionPayload(create_asset=asset)
 
     return make_header_and_batch(
         payload=payload,
