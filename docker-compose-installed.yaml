@@ -44,7 +44,14 @@ services:
       - market-ledger-sync
       - rethink
       - validator
-    command: echo "No REST API command set"
+    command: |
+      bash -c "
+        sleep 1 &&
+        ./bin/marketplace-rest-api \
+          --host market-rest-api \
+          --db-host rethink \
+          --validator-host validator
+      "
 
   market-ledger-sync:
     build:

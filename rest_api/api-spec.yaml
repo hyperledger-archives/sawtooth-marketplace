@@ -22,8 +22,6 @@ info:
     A simple API providing an HTTP/JSON interface for a distributed ledger
     running Sawtooth Marketplace
 
-basePath: /api
-
 consumes:
   - application/json
 produces:

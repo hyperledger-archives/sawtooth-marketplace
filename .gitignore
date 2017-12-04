@@ -11,5 +11,8 @@
 **/package-lock.json
 **/npm-debug.log
 
+# Sanic
+config.py
+
 # Webpack
 **/dist
