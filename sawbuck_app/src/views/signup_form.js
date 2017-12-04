@@ -51,12 +51,12 @@ const SignupForm = {
         'Or you can ',
         m('a[href="/login"]',
           { oncreate: m.route.link },
-          'login an existing Agent')),
+          'login with an existing Account')),
       m('.form-group',
         m('.row.justify-content-end.align-items-end',
           m('col-2',
             m('button.btn.btn-primary',
-              'Create Agent')))))
+              'Create Account')))))
     ])
   }
 }
