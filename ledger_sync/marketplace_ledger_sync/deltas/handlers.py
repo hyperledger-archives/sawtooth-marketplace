@@ -35,17 +35,25 @@ def get_events_handler(database):
 
 def _handle_events(database, events):
     block_num, block_id = _parse_new_block(events)
+
     is_duplicate = _resolve_if_forked(database, block_num, block_id)
     if is_duplicate:
         return
+
     changes = _parse_state_changes(events)
-    _apply_state_changes(database, changes, block_num)
+    if changes:
+        _apply_state_changes(database, changes, block_num)
+
     _insert_new_block(database, block_num, block_id)
 
 
 def _parse_new_block(events):
-    block_attr = next(e.attributes for e in events
-                      if e.event_type == 'sawtooth/block-commit')
+    try:
+        block_attr = next(e.attributes for e in events
+                          if e.event_type == 'sawtooth/block-commit')
+    except StopIteration:
+        return None, None
+
     block_num = int(next(a.value for a in block_attr if a.key == 'block_num'))
     block_id = next(a.value for a in block_attr if a.key == 'block_id')
     LOGGER.debug('Handling deltas for block: %s', block_id)
@@ -53,8 +61,12 @@ def _parse_new_block(events):
 
 
 def _parse_state_changes(events):
-    change_data = next(e.data for e in events
-                       if e.event_type == 'sawtooth/state-delta')
+    try:
+        change_data = next(e.data for e in events
+                           if e.event_type == 'sawtooth/state-delta')
+    except StopIteration:
+        return None
+
     state_change_list = StateChangeList()
     state_change_list.ParseFromString(change_data)
     return [c for c in state_change_list.state_changes
