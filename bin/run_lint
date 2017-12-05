@@ -34,6 +34,8 @@ ret_val=0
 
 
 lint addressing/marketplace_addressing || ret_val=1
+
+export PYTHONPATH=$TOP_DIR/transaction_creation
 lint rest_api/api || ret_val=1
 lint rest_api/db || ret_val=1
 

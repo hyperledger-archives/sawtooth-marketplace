@@ -13,9 +13,35 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
+from Crypto.Cipher import AES
+
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
+from api.errors import ApiBadRequest
 
-def deserialize_apikey(secret_key, token):
+
+def validate_fields(required_fields, request_json):
+    try:
+        for field in required_fields:
+            if request_json.get(field) is None:
+                raise ApiBadRequest(
+                    "Bad Request: {} is required".format(field))
+    except ValueError:
+        raise ApiBadRequest("Bad Request: Improper JSON format")
+
+
+def encrypt_private_key(aes_key, public_key, private_key):
+    init_vector = bytes.fromhex(public_key[:32])
+    cipher = AES.new(bytes.fromhex(aes_key), AES.MODE_CBC, init_vector)
+    return cipher.encrypt(private_key)
+
+
+def generate_auth_token(secret_key, email):
+    serializer = Serializer(secret_key)
+    token = serializer.dumps({'email': email})
+    return token.decode('ascii')
+
+
+def deserialize_auth_token(secret_key, token):
     serializer = Serializer(secret_key)
     return serializer.loads(token)

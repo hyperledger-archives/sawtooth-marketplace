@@ -173,8 +173,9 @@ def load_config(app):  # pylint: disable=too-many-branches
     except ParseError as err:
         LOGGER.exception('Unable to load private key: %s', str(err))
         sys.exit(1)
-    context = create_context('secp256k1')
-    app.config.SIGNER = CryptoFactory(context).new_signer(private_key)
+    app.config.CONTEXT = create_context('secp256k1')
+    app.config.SIGNER = CryptoFactory(
+        app.config.CONTEXT).new_signer(private_key)
 
 
 def main():
