@@ -78,6 +78,5 @@ def fix_import(contents, pkg, sub_dir=False):
 
 if __name__ == '__main__':
     make_protobuf('processor', 'marketplace_processor/protobuf')
-    make_protobuf('server', 'marketplace_rest_api/protobuf')
     make_protobuf('ledger_sync', 'marketplace_ledger_sync/protobuf')
     make_protobuf('transaction_creation', 'marketplace_transaction/protobuf')
