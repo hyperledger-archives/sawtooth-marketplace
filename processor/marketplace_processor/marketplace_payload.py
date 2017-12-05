@@ -45,3 +45,39 @@ class MarketplacePayload(object):
         """
 
         return self._transaction.create_holding
+
+    def create_asset(self):
+        """Returns the value set in the create_asset.
+
+        Returns:
+            payload_pb2.CreateAsset
+        """
+
+        return self._transaction.create_asset
+
+    def create_offer(self):
+        """Returns the value set in the create_offer.
+
+        Returns:
+            payload_pb2.CreateOffer
+        """
+
+        return self._transaction.create_offer
+
+    def accept_offer(self):
+        """Returns the value set in accept_offer.
+
+        Returns:
+            payload_pb2.AcceptOffer
+        """
+
+        return self._transaction.accept_offer
+
+    def close_offer(self):
+        """Returns the value set in close_offer.
+
+        Returns:
+            payload_pb2.CloseOffer
+        """
+
+        return self._transaction.close_offer
