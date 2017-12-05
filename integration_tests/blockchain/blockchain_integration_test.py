@@ -23,6 +23,8 @@ from uuid import uuid4
 
 from sawtooth_cli.rest_client import RestClient
 
+from sawtooth_rest_api.protobuf import batch_pb2
+
 from sawtooth_signing import create_context
 from sawtooth_signing import CryptoFactory
 
@@ -84,11 +86,13 @@ class MarketplaceClient(object):
         self._client = RestClient(base_url="http://{}".format(url))
 
     def create_account(self, key, label, description):
-        batch_list, signature = transaction_creation.create_account(
+        batches, signature = transaction_creation.create_account(
             txn_key=key,
             batch_key=BATCH_KEY,
             label=label,
             description=description)
+        batch_list = batch_pb2.BatchList(batches=batches)
+
         self._client.send_batches(batch_list)
         return self._client.get_statuses([signature], wait=10)
 

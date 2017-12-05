@@ -22,7 +22,7 @@ from api.errors import ApiInternalError
 
 async def send(conn, timeout, batch_list):
     batch_request = client_batch_submit_pb2.ClientBatchSubmitRequest()
-    batch_request.batches.extend(list(batch_list.batches))
+    batch_request.batches.extend(batch_list)
 
     validator_response = await conn.send(
         validator_pb2.Message.CLIENT_BATCH_SUBMIT_REQUEST,
