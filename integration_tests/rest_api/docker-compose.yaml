@@ -66,7 +66,7 @@ services:
     image: market-tp
     volumes:
       - '../../:/project/sawtooth-marketplace'
-    command: echo "No transaction processor command set"
+    command: ./bin/marketplace-tp -v -C tcp://validator:4004
 
   market-rest-api:
     build:
@@ -83,7 +83,14 @@ services:
       - market-ledger-sync
       - rethink
       - validator
-    command: echo "No REST API command set"
+    command: |
+      bash -c "
+        sleep 3 &&
+        ./bin/marketplace-rest-api \
+          --host market-rest-api \
+          --db-host rethink \
+          --validator-host validator
+      "
 
   market-ledger-sync:
     build:
@@ -99,7 +106,14 @@ services:
     depends_on:
       - rethink
       - validator
-    command: echo "No ledger sync command set"
+    command: |
+      bash -c "
+        sleep 1 &&
+        bin/setup_db --host rethink &&
+        bin/marketplace-ledger-sync -vv \
+          --validator tcp://validator:4004 \
+          --db-host rethink
+      "
 
   rethink:
     image: rethinkdb:2.3
