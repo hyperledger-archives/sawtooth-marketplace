@@ -53,6 +53,7 @@ class BlockchainTest(unittest.TestCase):
         cls.client = MarketplaceClient(REST_URL)
 
         cls.key1 = make_key()
+        cls.asset_name = uuid4().hex
 
     def test_00_create_account(self):
         """Tests the CreateAccount validation rules.
@@ -77,6 +78,42 @@ class BlockchainTest(unittest.TestCase):
             "INVALID",
             "There can only be 1 account per public key.")
 
+    def test_01_create_asset(self):
+        """Tests the CreateAsset validation rules
+
+        Notes:
+            CreateAsset validation rules
+                - The Txn signer has an account
+                - There is not already an Asset with the same name.
+        """
+
+        self.assertEqual(
+            self.client.create_asset(
+                key=self.key1,
+                name=self.asset_name,
+                description=uuid4().hex,
+                rules=[])[0]['status'],
+            "COMMITTED")
+
+        self.assertEqual(
+            self.client.create_asset(
+                key=self.key1,
+                name=self.asset_name,
+                description=uuid4().hex,
+                rules=[])[0]['status'],
+            "INVALID",
+            "There must not be another Asset with the same name")
+
+        invalid_signer = make_key()
+        self.assertEqual(
+            self.client.create_asset(
+                key=invalid_signer,
+                name=uuid4().hex,
+                description=uuid4().hex,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The txn signer must have an account.")
+
 
 class MarketplaceClient(object):
 
@@ -89,6 +126,16 @@ class MarketplaceClient(object):
             batch_key=BATCH_KEY,
             label=label,
             description=description)
+        self._client.send_batches(batch_list)
+        return self._client.get_statuses([signature], wait=10)
+
+    def create_asset(self, key, name, description, rules):
+        batch_list, signature = transaction_creation.create_asset(
+            txn_key=key,
+            batch_key=BATCH_KEY,
+            name=name,
+            description=description,
+            rules=rules)
         self._client.send_batches(batch_list)
         return self._client.get_statuses([signature], wait=10)
 
