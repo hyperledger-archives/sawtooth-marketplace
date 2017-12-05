@@ -50,9 +50,7 @@ def wrap_payload_in_txn_batch(txn_key, payload, header, batch_key):
         header_signature=batch_key.sign(batch_header),
         transactions=[transaction])
 
-    batch_list = batch_pb2.BatchList(
-        batches=[batch])
-    return batch_list, batch.header_signature
+    return [batch], batch.header_signature
 
 
 def make_header_and_batch(payload, inputs, outputs, txn_key, batch_key):
