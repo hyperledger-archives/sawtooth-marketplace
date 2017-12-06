@@ -366,7 +366,6 @@ parameters:
     in: path
     required: true
     type: string
-    format: uuid
     x-example: 1f68397b-5b38-4aec-9913-4541c7e1d4c4
 
 definitions:
@@ -386,12 +385,10 @@ definitions:
       email:
         description: Email of the Account owner attempting to authenticate
         type: string
-        format: email
         example: suzie72@suze.au.co
       password:
         description: Password of the Account owner attempting to authenticate
         type: string
-        format: password
         example: '12345'
 
   AuthToken:
@@ -425,7 +422,6 @@ definitions:
       email:
         description: Unique email address used to authenticate Account's owner
         type: string
-        format: email
         example: suzie72@suze.au.co
 
   NewAccountBody:
@@ -446,12 +442,10 @@ definitions:
       email:
         description: Unique email address used to authenticate Account's owner
         type: string
-        format: email
         example: suzie72@suze.au.co
       password:
         description: Password of the Account owner attempting to authenticate
         type: string
-        format: password
         example: '12345'
 
   HoldingObject:
@@ -461,7 +455,6 @@ definitions:
       id:
         description: A unique id for the Holding
         type: string
-        format: uuid
         example: 7ea843aa-1650-4530-94b1-a445d2a8193a
       label:
         description: A human readable name for the Holding (not unique)
@@ -558,7 +551,6 @@ definitions:
       id:
         description: A unique id for the Offer
         type: string
-        format: uuid
         example: 1f68397b-5b38-4aec-9913-4541c7e1d4c4
       label:
         description: A human readable name for the Offer (not unique)
@@ -577,7 +569,6 @@ definitions:
       source:
         description: The id of a Holding from which resources will be drawn
         type: string
-        format: uuid
         example: 7ea843aa-1650-4530-94b1-a445d2a8193a
       sourceQuantity:
         description: The proportion of resources to send out during exchange
@@ -586,7 +577,6 @@ definitions:
       target:
         description: The id of a Holding which will receive resources
         type: string
-        format: uuid
         example: ddb5b98b-8d34-466a-94cb-06288755312b
       targetQuantity:
         description: The proportion of resources to require for exchange
@@ -624,7 +614,6 @@ definitions:
       source:
         description: The id of a Holding from which resources will be drawn
         type: string
-        format: uuid
         example: 7ea843aa-1650-4530-94b1-a445d2a8193a
       sourceQuantity:
         description: The proportion of resources to send out during exchange
@@ -633,7 +622,6 @@ definitions:
       target:
         description: The id of a Holding which will receive resources
         type: string
-        format: uuid
         example: ddb5b98b-8d34-466a-94cb-06288755312b
       targetQuantity:
         description: The proportion of resources to require for exchange
@@ -656,7 +644,6 @@ definitions:
       source:
         description: The id of a Holding from which resources will be drawn
         type: string
-        format: uuid
         example: 0ab3febf-e7a3-4b90-966a-68e2f273c7a5
       sourceQuantity:
         description: The number of resources to send out during exchange
@@ -665,7 +652,6 @@ definitions:
       target:
         description: The id of a Holding which will receive resources
         type: string
-        format: uuid
         example: f78b57cb-1b20-41da-a730-9128c32dc5e5
 
 # Rules
