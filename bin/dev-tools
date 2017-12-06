@@ -50,14 +50,10 @@ build_client() {
     info "Building Protobuf modules"
     docker build . -f dev-tools/Dockerfile -t market-dev-env
     docker run --rm \
-        -v $(pwd):/project/sawtooth-marketplace market-dev-env bash -c "\
-            cd sawbuck_app/\
-            && mv /project/sawtooth-marketplace/sawbuck_app/node_modules /project/sawtooth-marketplace/sawbuck_app/node_modules-temp || true\
-            && ln -s /project/sawbuck_app/node_modules /project/sawtooth-marketplace/sawbuck_app/node_modules\
-            && npm run build\
-            && rm /project/sawtooth-marketplace/sawbuck_app/node_modules\
-            && mv /project/sawtooth-marketplace/sawbuck_app/node_modules-temp /project/sawtooth-marketplace/sawbuck_app/node_modules || true\
-        "
+        -v $(pwd):/project/sawtooth-marketplace \
+        -v /project/sawtooth-marketplace/sawbuck_app/node_modules \
+        market-dev-env \
+        bash -c "cd sawbuck_app/ && npm run build"
 }
 
 run_tests() {
