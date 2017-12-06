@@ -52,7 +52,7 @@ services:
         ./bin/marketplace-rest-api \
           --host market-rest-api \
           --db-host rethink \
-          --validator-host validator
+          --validator tcp://validator:4004
       "
 
   market-ledger-sync:
@@ -74,8 +74,8 @@ services:
         sleep 1 &&
         bin/setup_db --host rethink &&
         bin/marketplace-ledger-sync -vv \
-          --validator tcp://validator:4004 \
-          --db-host rethink
+          --db-host rethink \
+          --validator tcp://validator:4004
       "
 
   market-sawbuck-app:
@@ -108,7 +108,10 @@ services:
       - '8043:8008'
     depends_on:
       - validator
-    entrypoint: sawtooth-rest-api -vv --connect tcp://validator:4004 --bind sawtooth-rest-api:8008
+    entrypoint: |
+      sawtooth-rest-api -vv
+        --connect tcp://validator:4004
+        --bind sawtooth-rest-api:8008
 
   shell:
     image: hyperledger/sawtooth-shell:1.0
