@@ -25,6 +25,7 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
         python3-sawtooth-rest-api
 
 RUN pip3 install \
+    bcrypt \
     itsdangerous \
     rethinkdb \
     sanic \

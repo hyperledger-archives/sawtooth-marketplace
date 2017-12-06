@@ -38,6 +38,8 @@ RUN pip3 install \
     pycodestyle==2.3.1 \
     grpcio-tools==1.7.0 \
     nose2==0.7.2 \
+    bcrypt \
+    pycrypto \
     rethinkdb \
     sanic \
     itsdangerous

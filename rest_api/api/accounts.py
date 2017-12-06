@@ -13,9 +13,20 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-from sanic import Blueprint
+import bcrypt
 
+from sanic import Blueprint
+from sanic.response import json
+
+from sawtooth_signing import CryptoFactory
+
+from api import common
+from api import messaging
 from api.errors import ApiNotImplemented
+
+from db import auth_query
+
+from marketplace_transaction import transaction_creation
 
 
 ACCOUNTS_BP = Blueprint('accounts')
@@ -24,7 +35,35 @@ ACCOUNTS_BP = Blueprint('accounts')
 @ACCOUNTS_BP.post('accounts')
 async def create_account(request):
     """Creates a new Account and corresponding authorization token"""
-    raise ApiNotImplemented()
+    required_fields = ['email', 'password']
+    common.validate_fields(required_fields, request.json)
+    private_key = request.app.config.CONTEXT.new_random_private_key()
+    signer = CryptoFactory(request.app.config.CONTEXT).new_signer(private_key)
+    batch_list, _ = transaction_creation.create_account(
+        signer,
+        request.app.config.SIGNER,
+        request.json.get('label'),
+        request.json.get('description'))
+    await messaging.send(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        batch_list)
+    public_key = signer.get_public_key().as_hex()
+    encrypted_private_key = common.encrypt_private_key(
+        request.app.config.AES_KEY,
+        public_key,
+        private_key.as_hex())
+    hashed_password = bcrypt.hashpw(
+        bytes(request.json.get('password'), 'utf-8'),
+        bcrypt.gensalt())
+    auth_entry = {
+        'public_key': public_key,
+        'hashed_password': hashed_password,
+        'encrypted_private_key': encrypted_private_key,
+        'email': request.json.get('email')
+    }
+    await auth_query.create_auth_entry(request.app.config.DB_CONN, auth_entry)
+    return _create_account_response(request, public_key)
 
 
 @ACCOUNTS_BP.get('accounts')
@@ -37,3 +76,23 @@ async def get_all_accounts(request):
 async def get_account(request, account_id):
     """Fetches the details of particular Account in state"""
     raise ApiNotImplemented()
+
+
+def _create_account_response(request, public_key):
+    token = common.generate_auth_token(
+        request.app.config.SECRET_KEY,
+        request.json.get('email'))
+    account_resource = {
+        'public_key': public_key,
+        'holdings': [],
+        'email': request.json.get('email')
+    }
+    if request.json.get('label'):
+        account_resource['label'] = request.json.get('label')
+    if request.json.get('description'):
+        account_resource['description'] = request.json.get('description')
+    return json(
+        {
+            'authorization': token,
+            'account': account_resource
+        })

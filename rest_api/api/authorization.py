@@ -19,7 +19,7 @@ from itsdangerous import BadSignature
 
 from sanic import Blueprint
 
-from api.common import deserialize_apikey
+from api import common
 from api.errors import ApiNotImplemented
 from api.errors import ApiUnauthorized
 from db import auth_query
@@ -42,11 +42,11 @@ def authorized():
             if request.token is None:
                 raise ApiUnauthorized("Unauthorized: No bearer token provided")
             try:
-                public_key = deserialize_apikey(
+                email = common.deserialize_auth_token(
                     request.app.config.SECRET_KEY,
-                    request.token).get('public_key')
-                auth_info = await auth_query.fetch_info_by_public_key(
-                    public_key).run(request.app.config.DB_CONN)
+                    request.token).get('email')
+                auth_info = await auth_query.fetch_info_by_email(
+                    request.app.config.DB_CONN, email)
                 if auth_info is None:
                     raise ApiUnauthorized(
                         "Unauthorized: "
