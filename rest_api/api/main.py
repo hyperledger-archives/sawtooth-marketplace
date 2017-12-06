@@ -46,9 +46,8 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_CONFIG = {
     'HOST': 'localhost',
     'PORT': 8000,
-    'VALIDATOR_HOST': 'localhost',
-    'VALIDATOR_PORT': 4040,
     'TIMEOUT': 500,
+    'VALIDATOR_URL': 'tcp://localhost:4004',
     'DB_HOST': 'localhost',
     'DB_PORT': 28015,
     'DB_NAME': 'marketplace',
@@ -68,11 +67,7 @@ async def open_connections(app):
         port=app.config.DB_PORT,
         db=app.config.DB_NAME)
 
-    validator_url = "{}:{}".format(
-        app.config.VALIDATOR_HOST, app.config.VALIDATOR_PORT)
-    if "tcp://" not in app.config.VALIDATOR_HOST:
-        validator_url = "tcp://" + validator_url
-    app.config.VAL_CONN = Connection(validator_url)
+    app.config.VAL_CONN = Connection(app.config.VALIDATOR_URL)
 
     LOGGER.warning('opening validator connection')
     app.config.VAL_CONN.open()
@@ -92,12 +87,10 @@ def parse_args(args):
                         help='The host for the api to run on.')
     parser.add_argument('--port',
                         help='The port for the api to run on.')
-    parser.add_argument('--validator-host',
-                        help='The host to connect to a running validator')
-    parser.add_argument('--validator-port',
-                        help='The port to connect to a running validator')
     parser.add_argument('--timeout',
                         help='Seconds to wait for a validator response')
+    parser.add_argument('--validator',
+                        help='The url to connect to a running validator')
     parser.add_argument('--db-host',
                         help='The host for the state database')
     parser.add_argument('--db-port',
@@ -132,14 +125,11 @@ def load_config(app):  # pylint: disable=too-many-branches
         app.config.HOST = opts.host
     if opts.port is not None:
         app.config.PORT = opts.port
-
-    if opts.validator_host is not None:
-        app.config.VALIDATOR_HOST = opts.validator_host
-    if opts.validator_port is not None:
-        app.config.VALIDATOR_PORT = opts.validator_port
     if opts.timeout is not None:
         app.config.TIMEOUT = opts.timeout
 
+    if opts.validator is not None:
+        app.config.VALIDATOR_URL = opts.validator
     if opts.db_host is not None:
         app.config.DB_HOST = opts.db_host
     if opts.db_port is not None:
