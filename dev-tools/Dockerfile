@@ -44,9 +44,9 @@ RUN pip3 install \
     sanic \
     itsdangerous
 
-COPY sawbuck_app/package.json /project/sawbuck_app/
+COPY sawbuck_app/package.json /project/sawtooth-marketplace/sawbuck_app/
 
-WORKDIR /project/sawbuck_app
+WORKDIR /project/sawtooth-marketplace/sawbuck_app
 
 RUN npm install
 
