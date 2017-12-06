@@ -20,7 +20,7 @@ from marketplace_transaction.protobuf import payload_pb2
 
 
 def create_account(txn_key, batch_key, label, description):
-    """Create a CreateAccount txn and wrap it in a batch and batchlist.
+    """Create a CreateAccount txn and wrap it in a batch and list.
 
     Args:
         txn_key (sawtooth_signing.Signer): The Txn signer key pair.
@@ -54,7 +54,7 @@ def create_account(txn_key, batch_key, label, description):
 
 
 def create_asset(txn_key, batch_key, name, description, rules):
-    """Create a CreateAsset txn and wrap it in a batch and batchlist.
+    """Create a CreateAsset txn and wrap it in a batch and list.
 
     Args:
         txn_key (sawtooth_signing.Signer): The txn signer key pair.
@@ -83,6 +83,59 @@ def create_asset(txn_key, batch_key, name, description, rules):
     payload = payload_pb2.TransactionPayload(
         payload_type=payload_pb2.TransactionPayload.CREATE_ASSET,
         create_asset=asset)
+
+    return make_header_and_batch(
+        payload=payload,
+        inputs=inputs,
+        outputs=outputs,
+        txn_key=txn_key,
+        batch_key=batch_key)
+
+
+def create_holding(txn_key,
+                   batch_key,
+                   identifier,
+                   label,
+                   description,
+                   asset,
+                   quantity):
+    """Create a CreateHolding txn and wrap it in a batch and list.
+
+    Args:
+        txn_key (sawtooth_signing.Signer): The txn signer key pair.
+        batch_key (sawtooth_signing.Signer): The batch signer key pair.
+        identifier (str): The identifier of the Holding.
+        label (str): The label of the Holding.
+        description (str): The description of the Holding.
+        account (str): The account's public key.
+        holding (str): The asset's identifier.
+        quantity (int): The amount of the Asset.
+
+    Returns:
+        tuple: List of Batch, signature tuple
+    """
+
+    inputs = [
+        addresser.make_account_address(
+            account_id=txn_key.get_public_key().as_hex()),
+        addresser.make_asset_address(asset_id=asset),
+        addresser.make_holding_address(holding_id=identifier)
+    ]
+
+    outputs = [addresser.make_holding_address(holding_id=identifier),
+               addresser.make_account_address(
+                   account_id=txn_key.get_public_key().as_hex())]
+
+    holding_txn = payload_pb2.CreateHolding(
+        id=identifier,
+        label=label,
+        description=description,
+        asset=asset,
+        quantity=quantity)
+
+    payload = payload_pb2.TransactionPayload(
+        payload_type=payload_pb2.TransactionPayload.CREATE_HOLDING,
+        create_holding=holding_txn)
 
     return make_header_and_batch(
         payload=payload,
