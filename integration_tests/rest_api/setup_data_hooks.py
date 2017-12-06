@@ -21,8 +21,8 @@ from requests import request
 
 
 INVALID_SPEC_IDS = [
-        ('account',
-         '02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a')
+        ('02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a',
+         lambda d: d['account']['public_key'])
 ]
 
 ACCOUNT = {
@@ -91,8 +91,8 @@ def initialize_sample_resources(txns):
     for txn in txns:
         txn['request']['headers']['Authorization'] = seeded_data['auth']
 
-        for name, spec_id in INVALID_SPEC_IDS:
-            sub_nested_strings(txn, spec_id, seeded_data[name]['id'])
+        for spec_id, id_getter in INVALID_SPEC_IDS:
+            sub_nested_strings(txn, spec_id, id_getter(seeded_data))
 
 
 @hooks.before('/authorization > POST > 200 > application/json')
