@@ -23,7 +23,8 @@ TEST_DIR="integration_tests"
 run_test() {
   cd $TOP_DIR/$TEST_DIR/$1
 
-  docker-compose up --abort-on-container-exit
+  docker-compose rm -fs
+  docker-compose up --abort-on-container-exit || true
   docker-compose down
 
   cd -
