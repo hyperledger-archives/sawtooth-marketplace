@@ -46,7 +46,7 @@ services:
       - validator
     command: |
       bash -c "
-        sleep 1 &&
+        sleep 3 &&
         ./bin/marketplace-rest-api \
           --host market-rest-api \
           --db-host rethink \
@@ -68,7 +68,10 @@ services:
     command: |
       bash -c "
         sleep 1 &&
-        bin/setup_db --host rethink
+        bin/setup_db --host rethink &&
+        bin/marketplace-ledger-sync -vv \
+          --validator tcp://validator:4004 \
+          --db-host rethink
       "
 
   market-sawbuck-app:
