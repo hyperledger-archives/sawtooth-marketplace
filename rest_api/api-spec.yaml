@@ -96,6 +96,29 @@ paths:
         500:
           $ref: '#/responses/500ServerError'
 
+    patch:
+      description: Updates auth information for the authorized account
+      security:
+        - AuthToken: []
+      parameters:
+        - name: authInfo
+          description: Authorization info to be updated
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuthCredentials'
+      responses:
+        200:
+          description: Success response with the updated Account
+          schema:
+            $ref: '#/definitions/AccountObject'
+        400:
+          $ref: '#/responses/400BadRequest'
+        401:
+          $ref: '#/responses/401Unauthorized'
+        500:
+          $ref: '#/responses/500ServerError'
+
   /accounts/{key}:
     parameters:
       - $ref: '#/parameters/AccountKey'
