@@ -15,9 +15,19 @@
 
 import rethinkdb as r
 
+from api.errors import ApiBadRequest
+
 
 async def create_auth_entry(conn, auth_entry):
-    return await r.table('auth').insert(auth_entry).run(conn)
+    result = await r.table('auth').insert(auth_entry).run(conn)
+    if result.get('errors') > 0 and \
+       "Duplicate primary key `email`" in result.get('first_error'):
+        raise ApiBadRequest(
+            "Bad Request: A user with that email already exists")
+
+
+async def remove_auth_entry(conn, email):
+    await r.table('auth').get(email).delete().run(conn)
 
 
 async def fetch_info_by_email(conn, email):
