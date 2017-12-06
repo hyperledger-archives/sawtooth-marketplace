@@ -22,7 +22,9 @@ from sawtooth_signing import CryptoFactory
 
 from api import common
 from api import messaging
+from api.errors import ApiBadRequest
 from api.errors import ApiNotImplemented
+from api.errors import ApiInternalError
 
 from db import auth_query
 
@@ -39,23 +41,11 @@ async def create_account(request):
     common.validate_fields(required_fields, request.json)
     private_key = request.app.config.CONTEXT.new_random_private_key()
     signer = CryptoFactory(request.app.config.CONTEXT).new_signer(private_key)
-    batch_list, _ = transaction_creation.create_account(
-        signer,
-        request.app.config.SIGNER,
-        request.json.get('label'),
-        request.json.get('description'))
-    await messaging.send(
-        request.app.config.VAL_CONN,
-        request.app.config.TIMEOUT,
-        batch_list)
     public_key = signer.get_public_key().as_hex()
     encrypted_private_key = common.encrypt_private_key(
-        request.app.config.AES_KEY,
-        public_key,
-        private_key.as_hex())
+        request.app.config.AES_KEY, public_key, private_key.as_hex())
     hashed_password = bcrypt.hashpw(
-        bytes(request.json.get('password'), 'utf-8'),
-        bcrypt.gensalt())
+        bytes(request.json.get('password'), 'utf-8'), bcrypt.gensalt())
     auth_entry = {
         'public_key': public_key,
         'hashed_password': hashed_password,
@@ -63,6 +53,20 @@ async def create_account(request):
         'email': request.json.get('email')
     }
     await auth_query.create_auth_entry(request.app.config.DB_CONN, auth_entry)
+    batches, _ = transaction_creation.create_account(
+        signer,
+        request.app.config.SIGNER,
+        request.json.get('label'),
+        request.json.get('description'))
+    try:
+        await messaging.send(
+            request.app.config.VAL_CONN,
+            request.app.config.TIMEOUT,
+            batches)
+    except (ApiBadRequest, ApiInternalError) as err:
+        await auth_query.remove_auth_entry(
+            request.app.config.DB_CONN, request.json.get('email'))
+        raise err
     return _create_account_response(request, public_key)
 
 

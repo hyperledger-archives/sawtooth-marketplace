@@ -15,12 +15,14 @@
 
 from functools import wraps
 
+import bcrypt
+
 from itsdangerous import BadSignature
 
 from sanic import Blueprint
+from sanic.response import json
 
 from api import common
-from api.errors import ApiNotImplemented
 from api.errors import ApiUnauthorized
 from db import auth_query
 
@@ -29,9 +31,24 @@ AUTH_BP = Blueprint('auth')
 
 
 @AUTH_BP.post('authorization')
-async def authorization(request):
+async def authorize(request):
     """Requests an authorization token for a registered Account"""
-    raise ApiNotImplemented()
+    required_fields = ['email', 'password']
+    common.validate_fields(required_fields, request.json)
+    password = bytes(request.json.get('password'), 'utf-8')
+    auth_info = await auth_query.fetch_info_by_email(
+        request.app.config.DB_CONN, request.json.get('email'))
+    if auth_info is None:
+        raise ApiUnauthorized("Unauthorized: No user with that email exists")
+    hashed_password = auth_info.get('hashed_password')
+    if not bcrypt.checkpw(password, hashed_password):
+        raise ApiUnauthorized("Unauthorized: Incorrect email or password")
+    token = common.generate_auth_token(
+        request.app.config.SECRET_KEY, request.json.get('email'))
+    return json(
+        {
+            'authorization': token
+        })
 
 
 def authorized():
