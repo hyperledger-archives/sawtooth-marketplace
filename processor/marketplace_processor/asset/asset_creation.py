@@ -31,8 +31,9 @@ def handle_asset_creation(create_asset, header, state):
     """
 
     if not state.get_account(public_key=header.signer_public_key):
-        raise InvalidTransaction("Unable to create asset, signing key has no"
-                                 " Account: {}".format(header.signer_public_key))
+        raise InvalidTransaction(
+            "Unable to create asset, signing key has no"
+            " Account: {}".format(header.signer_public_key))
 
     if state.get_asset(name=create_asset.name):
         raise InvalidTransaction(
