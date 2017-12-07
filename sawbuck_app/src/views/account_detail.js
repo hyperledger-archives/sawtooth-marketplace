@@ -97,6 +97,17 @@ const passwordField = state => {
       infoForm(state, 'password', onSubmit, { type: 'password' })))
 }
 
+const holdingRow = holding => {
+  return [
+    m('.row',
+      m('.col-md-8', holding.label),
+      m('.col-md-2', holding.quantity),
+      m('.col-md-2', holding.asset)),
+    m('.row.mb-3',
+      m('.col-md.text-muted', holding.description))
+  ]
+}
+
 /**
  * Displays information for a particular Account.
  * The information can be edited if the user themself.
@@ -111,6 +122,7 @@ const AccountDetailPage = {
 
   view (vnode) {
     const publicKey = _.get(vnode.state, 'account.publicKey', '')
+    const holdings = _.get(vnode.state, 'account.holdings', [])
 
     const profileContent = layout.row([
       editField(vnode.state, 'Email', 'email'),
@@ -122,7 +134,12 @@ const AccountDetailPage = {
       layout.description(_.get(vnode.state, 'account.description', '')),
       m('.container',
         publicKey === api.getPublicKey() ? profileContent : null,
-        layout.row(staticField('Public Key', publicKey)))
+        layout.row(staticField('Public Key', publicKey)),
+        layout.row(staticField(
+          'Holdings',
+          holdings.length > 0
+            ? holdings.map(holdingRow)
+            : m('em', 'this account currently has no holdings'))))
     ]
   }
 }
