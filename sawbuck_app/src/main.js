@@ -27,6 +27,7 @@ const navigation = require('./components/navigation')
 
 const LoginForm = require('./views/login_form')
 const SignupForm = require('./views/signup_form')
+const AccountDetailPage = require('./views/account_detail')
 
 /**
  * A basic layout component that adds the navbar to the view.
@@ -95,11 +96,22 @@ const logout = () => {
 }
 
 /**
+ * Redirects to user's personal account page if logged in.
+ */
+const userAccount = () => {
+  const publicKey = api.getPublicKey()
+  if (publicKey) m.route.set(`/accounts/${publicKey}`)
+  else m.route.set('/')
+}
+
+/**
  * Build and mount app/router
  */
 document.addEventListener('DOMContentLoaded', () => {
   m.route(document.querySelector('#app'), '/', {
     '/': resolve(LoginForm),
+    '/account': { onmatch: userAccount },
+    '/accounts/:publicKey': resolve(AccountDetailPage),
     '/login': resolve(LoginForm),
     '/logout': { onmatch: logout },
     '/signup': resolve(SignupForm)
