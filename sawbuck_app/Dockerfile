@@ -21,6 +21,7 @@ FROM httpd:2.4
 RUN echo "\
 \n\
 ServerName sawbuck_app\n\
+AddDefaultCharset utf-8\n\
 LoadModule proxy_module modules/mod_proxy.so\n\
 LoadModule proxy_http_module modules/mod_proxy_http.so\n\
 ProxyPass /api http://market-rest-api:8000\n\
