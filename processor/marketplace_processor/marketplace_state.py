@@ -16,6 +16,7 @@
 from marketplace_addressing import addresser
 from marketplace_processor.protobuf import account_pb2
 from marketplace_processor.protobuf import asset_pb2
+from marketplace_processor.protobuf import holding_pb2
 
 
 class MarketplaceState(object):
@@ -24,6 +25,49 @@ class MarketplaceState(object):
         self._context = context
         self._timeout = timeout
         self._state_entries = []
+
+    def get_holding(self, identifier):
+        address = addresser.make_holding_address(holding_id=identifier)
+
+        self._state_entries.extend(self._context.get_state(
+            addresses=[address],
+            timeout=self._timeout))
+
+        container = _get_holding_container(self._state_entries, address)
+
+        holding = None
+        try:
+            holding = _get_holding_from_container(container, identifier)
+        except KeyError:
+            # Fine with returning None
+            pass
+        return holding
+
+    def set_holding(self,
+                    identifier,
+                    label,
+                    description,
+                    asset,
+                    quantity):
+        address = addresser.make_holding_address(holding_id=identifier)
+        container = _get_holding_container(self._state_entries, address)
+
+        try:
+            holding = _get_holding_from_container(container, identifier)
+        except KeyError:
+            holding = container.entries.add()
+
+        holding.id = identifier
+        holding.label = label
+        holding.description = description
+        holding.asset = asset
+        holding.quantity = quantity
+
+        state_entries_send = {}
+        state_entries_send[address] = container.SerializeToString()
+        return self._context.set_state(
+            state_entries_send,
+            self._timeout)
 
     def get_asset(self, name):
         address = addresser.make_asset_address(asset_id=name)
@@ -105,6 +149,45 @@ class MarketplaceState(object):
         return self._context.set_state(
             state_entries_send,
             self._timeout)
+
+    def add_holding_to_account(self, public_key, holding_id):
+        address = addresser.make_account_address(account_id=public_key)
+
+        container = _get_account_container(self._state_entries, address)
+
+        try:
+            account = _get_account_from_container(
+                container,
+                public_key)
+        except KeyError:
+            account = container.entries.add()
+
+        account.holdings.append(holding_id)
+
+        state_entries_send = {}
+        state_entries_send[address] = container.SerializeToString()
+        return self._context.set_state(
+            state_entries_send,
+            self._timeout)
+
+
+def _get_holding_container(state_entries, address):
+    try:
+        entry = _find_in_state(state_entries, address)
+        container = holding_pb2.HoldingContainer()
+        container.ParseFromString(entry.data)
+    except KeyError:
+        container = holding_pb2.HoldingContainer()
+
+    return container
+
+
+def _get_holding_from_container(container, holding_id):
+    for holding in container.entries:
+        if holding.id == holding_id:
+            return holding
+    raise KeyError(
+        "Holding with id {} is not in container".format(holding_id))
 
 
 def _get_asset_container(state_entries, address):

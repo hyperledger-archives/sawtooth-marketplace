@@ -54,9 +54,8 @@ message CreateHolding {
     string id = 1;
     string label = 2;
     string description = 3;
-    string account = 4;
-    string holding = 5;
-    sint64 quantity = 6;
+    string asset = 4;
+    sint64 quantity = 5;
 }
 
 message CreateOffer {
