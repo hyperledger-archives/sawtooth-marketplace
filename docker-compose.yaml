@@ -123,7 +123,9 @@ services:
       - sawtooth-rest-api
     entrypoint: |
       bash -c "
-        sawtooth keygen &&
+        if [ ! -f /root/.sawtooth/keys/root.priv ]; then
+        sawtooth keygen
+        fi;
         tail -f /dev/null
       "
   settings-tp:
@@ -140,10 +142,12 @@ services:
       - '4040:4004'
     command: |
       bash -c "
+        if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
         sawadm keygen &&
         sawtooth keygen my_key &&
         sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
-        sawadm genesis config-genesis.batch &&
+        sawadm genesis config-genesis.batch
+        fi;
         sawtooth-validator -vv \
           --endpoint tcp://validator:8800 \
           --bind component:tcp://eth0:4004 \
