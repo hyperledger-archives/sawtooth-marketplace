@@ -26,7 +26,7 @@ def validate_fields(required_fields, request_json):
             if request_json.get(field) is None:
                 raise ApiBadRequest(
                     "Bad Request: {} is required".format(field))
-    except ValueError:
+    except (ValueError, AttributeError):
         raise ApiBadRequest("Bad Request: Improper JSON format")
 
 
