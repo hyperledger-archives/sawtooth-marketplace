@@ -85,7 +85,8 @@ async def get_account(request, account_id):
 def _create_account_response(request, public_key):
     token = common.generate_auth_token(
         request.app.config.SECRET_KEY,
-        request.json.get('email'))
+        request.json.get('email'),
+        public_key)
     account_resource = {
         'public_key': public_key,
         'holdings': [],
