@@ -16,10 +16,35 @@
  */
 'use strict'
 
+const m = require('mithril')
 const _ = require('lodash')
 
 const layout = require('../components/layout')
 const api = require('../services/api')
+
+const offerButton = (name, key = 'source') => {
+  const label = key === 'target' ? 'Request' : 'Offer'
+  const onclick = () => console.log(`Offering ${name} as ${key}...`)
+
+  return m('button.btn.btn-outline-primary.mr-3', { onclick }, label)
+}
+
+const assetRow = asset => {
+  const safeName = window.encodeURI(asset.name)
+  return m('.row.mb-5', [
+    m('.col-md-8', [
+      layout.row(m('a.h5', {
+        href: `/assets/${safeName}`,
+        oncreate: m.route.link
+      }, asset.name)),
+      layout.row(m('.text-muted', asset.description))
+    ]),
+    m('.col-md-4.mt-3', [
+      offerButton(asset.name),
+      offerButton(asset.name, 'target')
+    ])
+  ])
+}
 
 /**
  * A page displaying each Asset, with links to create an Offer,
@@ -36,7 +61,11 @@ const AssetListPage = {
 
     return [
       layout.title('Assets Available'),
-      layout.row(JSON.stringify(assets))
+      m('.container.mt-6',
+        assets.length > 0
+          ? assets.map(assetRow)
+          : m('.text-center',
+              m('em', 'there are currently no available assets')))
     ]
   }
 }
