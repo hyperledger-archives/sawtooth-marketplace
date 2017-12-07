@@ -19,6 +19,7 @@ from marketplace_addressing import addresser
 
 from marketplace_processor.account import account_creation
 from marketplace_processor.asset import asset_creation
+from marketplace_processor.holding import holding_creation
 from marketplace_processor.marketplace_payload import MarketplacePayload
 from marketplace_processor.marketplace_state import MarketplaceState
 
@@ -50,5 +51,10 @@ class MarketplaceHandler(TransactionHandler):
         elif payload.is_create_asset():
             asset_creation.handle_asset_creation(
                 payload.create_asset(),
+                header=transaction.header,
+                state=state)
+        elif payload.create_holding().SerializeToString():
+            holding_creation.handle_holding_creation(
+                payload.create_holding(),
                 header=transaction.header,
                 state=state)
