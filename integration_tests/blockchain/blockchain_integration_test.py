@@ -54,8 +54,10 @@ class BlockchainTest(unittest.TestCase):
         wait_for_rest_apis([REST_URL])
         cls.client = MarketplaceClient(REST_URL)
 
-        cls.key1 = make_key()
+        cls.signer1 = make_key()
+        cls.signer2 = make_key()
         cls.asset_name = uuid4().hex
+        cls.holding_id = str(uuid4())
 
     def test_00_create_account(self):
         """Tests the CreateAccount validation rules.
@@ -67,18 +69,25 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(
             self.client.create_account(
-                key=self.key1,
+                key=self.signer1,
                 label=uuid4().hex,
                 description=uuid4().hex)[0]['status'],
             "COMMITTED")
 
         self.assertEqual(
             self.client.create_account(
-                key=self.key1,
+                key=self.signer1,
                 label=uuid4().hex,
                 description=uuid4().hex)[0]['status'],
             "INVALID",
             "There can only be 1 account per public key.")
+
+        self.assertEqual(
+            self.client.create_account(
+                key=self.signer2,
+                label=uuid4().hex,
+                description=uuid4().hex)[0]['status'],
+            "COMMITTED")
 
     def test_01_create_asset(self):
         """Tests the CreateAsset validation rules
@@ -91,7 +100,7 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(
             self.client.create_asset(
-                key=self.key1,
+                key=self.signer1,
                 name=self.asset_name,
                 description=uuid4().hex,
                 rules=[])[0]['status'],
@@ -99,7 +108,7 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(
             self.client.create_asset(
-                key=self.key1,
+                key=self.signer1,
                 name=self.asset_name,
                 description=uuid4().hex,
                 rules=[])[0]['status'],
@@ -115,6 +124,96 @@ class BlockchainTest(unittest.TestCase):
                 rules=[])[0]['status'],
             "INVALID",
             "The txn signer must have an account.")
+
+    def test_02_create_holding(self):
+        """Tests the CreateHolding validation rules.
+
+        Notes:
+            CreateHolding validation rules
+                - The Holding id must not already belong to a holding.
+                - The txn signer must own an Account.
+                - The asset must exist.
+                - If the quantity is not 0, then the txn signer must
+                  be an owner of the asset.
+        """
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=self.signer1,
+                identifier=self.holding_id,
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=self.asset_name,
+                quantity=2)[0]['status'],
+            "COMMITTED")
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=self.signer1,
+                identifier=self.holding_id,
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=self.asset_name,
+                quantity=3)[0]['status'],
+            "INVALID",
+            "The Holding Id must not already belong to a holding.")
+
+        no_account = make_key()
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=no_account,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=self.asset_name,
+                quantity=2)[0]['status'],
+            "INVALID",
+            "The Account must exist.")
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=self.signer2,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=self.asset_name,
+                quantity=2)[0]['status'],
+            "INVALID",
+            "The account must be owned by the txn signer.")
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=uuid4().hex,
+                quantity=3)[0]['status'],
+            "INVALID",
+            "The Asset/holding must exist")
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=self.signer2,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=self.asset_name,
+                quantity=2)[0]['status'],
+            "INVALID",
+            "The asset/holding must be owned by the txn signer if the "
+            "quantity of the Holding is not zero.")
+
+        self.assertEqual(
+            self.client.create_holding(
+                key=self.signer2,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                asset=self.asset_name,
+                quantity=0)[0]['status'],
+            "COMMITTED")
 
 
 class MarketplaceClient(object):
@@ -140,6 +239,25 @@ class MarketplaceClient(object):
             name=name,
             description=description,
             rules=rules)
+        batch_list = batch_pb2.BatchList(batches=batches)
+        self._client.send_batches(batch_list)
+        return self._client.get_statuses([signature], wait=10)
+
+    def create_holding(self,
+                       key,
+                       identifier,
+                       label,
+                       description,
+                       asset,
+                       quantity):
+        batches, signature = transaction_creation.create_holding(
+            txn_key=key,
+            batch_key=BATCH_KEY,
+            identifier=identifier,
+            label=label,
+            description=description,
+            asset=asset,
+            quantity=quantity)
         batch_list = batch_pb2.BatchList(batches=batches)
         self._client.send_batches(batch_list)
         return self._client.get_statuses([signature], wait=10)
