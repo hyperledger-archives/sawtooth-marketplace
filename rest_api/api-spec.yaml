@@ -76,7 +76,7 @@ paths:
               authorization:
                 $ref: '#/definitions/AuthToken'
               account:
-                $ref: '#/definitions/AccountObject'
+                $ref: '#/definitions/AuthorizedAccountObject'
         400:
           $ref: '#/responses/400BadRequest'
         500:
@@ -90,7 +90,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/AccountObject'
+              $ref: '#/definitions/BaseAccountObject'
         400:
           $ref: '#/responses/400BadRequest'
         500:
@@ -105,7 +105,7 @@ paths:
         200:
           description: Success response with the requested Account
           schema:
-            $ref: '#/definitions/AccountObject'
+            $ref: '#/definitions/AuthorizedAccountObject'
         400:
           $ref: '#/responses/400BadRequest'
         404:
@@ -398,7 +398,7 @@ definitions:
 
 # Accounts
 
-  AccountObject:
+  BaseAccountObject:
     description: An actor in the system controlling various Holdings of Assets
     type: object
     properties:
@@ -419,10 +419,17 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/HoldingObject'
-      email:
-        description: Unique email address used to authenticate Account's owner
-        type: string
-        example: suzie72@suze.au.co
+
+  AuthorizedAccountObject:
+    description: Account with additional information sent to authorized request
+    type: object
+    allOf:
+      - $ref: '#/definitions/BaseAccountObject'
+      - properties:
+          email:
+            description: Unique email address to authenticate the Account's owner
+            type: string
+            example: suzie72@suze.au.co
 
   NewAccountBody:
     description: Details provided to create a new Account
