@@ -15,6 +15,8 @@
 
 import bcrypt
 
+from itsdangerous import BadSignature
+
 from sanic import Blueprint
 from sanic.response import json
 
@@ -23,9 +25,9 @@ from sawtooth_signing import CryptoFactory
 from api import common
 from api import messaging
 from api.errors import ApiBadRequest
-from api.errors import ApiNotImplemented
 from api.errors import ApiInternalError
 
+from db import accounts_query
 from db import auth_query
 
 from marketplace_transaction import transaction_creation
@@ -73,19 +75,30 @@ async def create_account(request):
 @ACCOUNTS_BP.get('accounts')
 async def get_all_accounts(request):
     """Fetches complete details of all Accounts in state"""
-    raise ApiNotImplemented()
+    account_resources = await accounts_query.fetch_all_account_resources(
+        request.app.config.DB_CONN)
+    return json(account_resources)
 
 
-@ACCOUNTS_BP.get('accounts/<account_id>')
-async def get_account(request, account_id):
+@ACCOUNTS_BP.get('accounts/<key>')
+async def get_account(request, key):
     """Fetches the details of particular Account in state"""
-    raise ApiNotImplemented()
+    try:
+        auth_key = common.deserialize_auth_token(
+            request.app.config.SECRET_KEY,
+            request.token).get('public_key')
+    except (BadSignature, TypeError):
+        auth_key = None
+    account_resource = await accounts_query.fetch_account_resource(
+        request.app.config.DB_CONN, key, auth_key)
+    return json(account_resource)
 
 
 def _create_account_response(request, public_key):
     token = common.generate_auth_token(
         request.app.config.SECRET_KEY,
-        request.json.get('email'))
+        request.json.get('email'),
+        public_key)
     account_resource = {
         'public_key': public_key,
         'holdings': [],

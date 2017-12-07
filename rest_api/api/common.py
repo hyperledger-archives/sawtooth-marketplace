@@ -36,9 +36,9 @@ def encrypt_private_key(aes_key, public_key, private_key):
     return cipher.encrypt(private_key)
 
 
-def generate_auth_token(secret_key, email):
+def generate_auth_token(secret_key, email, public_key):
     serializer = Serializer(secret_key)
-    token = serializer.dumps({'email': email})
+    token = serializer.dumps({'email': email, 'public_key': public_key})
     return token.decode('ascii')
 
 

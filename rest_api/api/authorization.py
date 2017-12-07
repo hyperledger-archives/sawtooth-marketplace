@@ -44,7 +44,9 @@ async def authorize(request):
     if not bcrypt.checkpw(password, hashed_password):
         raise ApiUnauthorized("Unauthorized: Incorrect email or password")
     token = common.generate_auth_token(
-        request.app.config.SECRET_KEY, request.json.get('email'))
+        request.app.config.SECRET_KEY,
+        auth_info.get('email'),
+        auth_info.get('public_key'))
     return json(
         {
             'authorization': token
