@@ -23,7 +23,12 @@ const octicons = require('octicons')
 /**
  * Returns a header styled to be a page title
  */
-const title = title => m('h3.text-center.mb-3', title)
+const title = title => m('h2.text-center.mb-3', title)
+
+/**
+ * Returns a sub-header styled to contain a short description
+ */
+const description = desc => m('h4.text-center.text-muted.mb-3', desc)
 
 /**
  * Returns a row of any number of columns, suitable for placing in a container
@@ -40,6 +45,7 @@ const icon = name => m.trust(octicons[name].toSVG())
 
 module.exports = {
   title,
+  description,
   row,
   icon
 }

@@ -54,7 +54,7 @@ const getPublicKey = () => {
   if (!token) return null
 
   const content = window.atob(token.split('.')[1])
-  return JSON.parse(content)['public_key']
+  return JSON.parse(content).public_key
 }
 
 // Adds Authorization header and prepends API path to url
