@@ -27,7 +27,9 @@ INVALID_SPEC_IDS = [
 
 ACCOUNT = {
     'email': 'suzie72@suze.au.co',
-    'password': '12345'
+    'password': '12345',
+    'label': 'Susan',
+    'description': 'Susan\'s Account'
 }
 
 
