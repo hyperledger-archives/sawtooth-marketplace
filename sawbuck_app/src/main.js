@@ -25,9 +25,10 @@ const m = require('mithril')
 const api = require('./services/api')
 const navigation = require('./components/navigation')
 
+const AccountDetailPage = require('./views/account_detail')
+const AssetListPage = require('./views/asset_list')
 const LoginForm = require('./views/login_form')
 const SignupForm = require('./views/signup_form')
-const AccountDetailPage = require('./views/account_detail')
 
 /**
  * A basic layout component that adds the navbar to the view.
@@ -112,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '/': resolve(LoginForm),
     '/account': { onmatch: userAccount },
     '/accounts/:publicKey': resolve(AccountDetailPage),
+    '/assets': resolve(AssetListPage),
     '/login': resolve(LoginForm),
     '/logout': { onmatch: logout },
     '/signup': resolve(SignupForm)
