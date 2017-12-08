@@ -39,6 +39,32 @@ const row = columns => {
 }
 
 /**
+ * Divides columns into a series of rows with a number of columns per row
+ */
+const sectionedRows = (columns, count = 2) => {
+  return columns
+    .reduce((pairs, col) => {
+      if (_.last(pairs).length < 2) _.last(pairs).push(col)
+      if (_.last(pairs).length === 2) pairs.push([])
+      return pairs
+    }, [[]])
+    .map(pair => {
+      if (pair.length === 0) return null
+      return row(pair)
+    })
+}
+
+/**
+ * Returns a sub-header followed by related info
+ */
+const labeledField = (label, info) => {
+  return m('.labeled-field.mt-5', [
+    m('h5', label),
+    info
+  ])
+}
+
+/**
  * Returns a mithriled icon from Github's octicon set
  */
 const icon = name => m.trust(octicons[name].toSVG())
@@ -47,5 +73,7 @@ module.exports = {
   title,
   description,
   row,
+  sectionedRows,
+  labeledField,
   icon
 }
