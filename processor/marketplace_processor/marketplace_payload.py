@@ -25,26 +25,32 @@ class MarketplacePayload(object):
     def create_account(self):
         """Returns the value set in the create_account.
 
-        Used for both checking that the CreateAccount transaction exists
-        and returning that txn.
-
         Returns:
             payload_pb2.CreateAccount
         """
 
         return self._transaction.create_account
 
+    def is_create_account(self):
+
+        create_account = payload_pb2.TransactionPayload.CREATE_ACCOUNT
+
+        return self._transaction.payload_type == create_account
+
     def create_holding(self):
         """Returns the value set in the create_holding.
-
-        Used for both checking that the CreateHolding transaction exists
-        and returning the txn.
 
         Returns:
             payload_pb2.CreateHolding
         """
 
         return self._transaction.create_holding
+
+    def is_create_holding(self):
+
+        create_holding = payload_pb2.TransactionPayload.CREATE_HOLDING
+
+        return self._transaction.payload_type == create_holding
 
     def create_asset(self):
         """Returns the value set in the create_asset.
@@ -55,6 +61,12 @@ class MarketplacePayload(object):
 
         return self._transaction.create_asset
 
+    def is_create_asset(self):
+
+        create_asset = payload_pb2.TransactionPayload.CREATE_ASSET
+
+        return self._transaction.payload_type == create_asset
+
     def create_offer(self):
         """Returns the value set in the create_offer.
 
@@ -63,6 +75,12 @@ class MarketplacePayload(object):
         """
 
         return self._transaction.create_offer
+
+    def is_create_offer(self):
+
+        create_offer = payload_pb2.TransactionPayload.CREATE_OFFER
+
+        return self._transaction.payload_type == create_offer
 
     def accept_offer(self):
         """Returns the value set in accept_offer.
@@ -73,6 +91,12 @@ class MarketplacePayload(object):
 
         return self._transaction.accept_offer
 
+    def is_accept_offer(self):
+
+        accept_offer = payload_pb2.TransactionPayload.ACCEPT_OFFER
+
+        return self._transaction.payload_type == accept_offer
+
     def close_offer(self):
         """Returns the value set in close_offer.
 
@@ -81,3 +105,9 @@ class MarketplacePayload(object):
         """
 
         return self._transaction.close_offer
+
+    def is_close_offer(self):
+
+        close_offer = payload_pb2.TransactionPayload.CLOSE_OFFER
+
+        return self._transaction.payload_type == close_offer

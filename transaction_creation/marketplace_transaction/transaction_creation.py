@@ -41,7 +41,9 @@ def create_account(txn_key, batch_key, label, description):
     account = payload_pb2.CreateAccount(
         label=label,
         description=description)
-    payload = payload_pb2.TransactionPayload(create_account=account)
+    payload = payload_pb2.TransactionPayload(
+        payload_type=payload_pb2.TransactionPayload.CREATE_ACCOUNT,
+        create_account=account)
 
     return make_header_and_batch(
         payload=payload,
@@ -78,7 +80,9 @@ def create_asset(txn_key, batch_key, name, description, rules):
 
     asset.rules.extend(rules)
 
-    payload = payload_pb2.TransactionPayload(create_asset=asset)
+    payload = payload_pb2.TransactionPayload(
+        payload_type=payload_pb2.TransactionPayload.CREATE_ASSET,
+        create_asset=asset)
 
     return make_header_and_batch(
         payload=payload,
