@@ -111,7 +111,7 @@ paths:
         200:
           description: Success response with the updated Account
           schema:
-            $ref: '#/definitions/AccountObject'
+            $ref: '#/definitions/AuthorizedAccountObject'
         400:
           $ref: '#/responses/400BadRequest'
         401:
