@@ -26,6 +26,7 @@ const api = require('./services/api')
 const navigation = require('./components/navigation')
 
 const AccountDetailPage = require('./views/account_detail')
+const AssetDetailPage = require('./views/asset_detail')
 const AssetListPage = require('./views/asset_list')
 const LoginForm = require('./views/login_form')
 const SignupForm = require('./views/signup_form')
@@ -114,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '/account': { onmatch: userAccount },
     '/accounts/:publicKey': resolve(AccountDetailPage),
     '/assets': resolve(AssetListPage),
+    '/assets/:name': resolve(AssetDetailPage),
     '/login': resolve(LoginForm),
     '/logout': { onmatch: logout },
     '/signup': resolve(SignupForm)
