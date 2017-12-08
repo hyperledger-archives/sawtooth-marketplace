@@ -22,6 +22,8 @@ from api import messaging
 from api.errors import ApiBadRequest
 from api.errors import ApiNotImplemented
 
+from db import assets_query
+
 from marketplace_transaction import transaction_creation
 from marketplace_transaction.protobuf import rule_pb2
 
@@ -59,7 +61,9 @@ async def get_all_assets(request):
 @ASSETS_BP.get('assets/<name>')
 async def get_asset(request, name):
     """Fetches the details of particular Asset in state"""
-    raise ApiNotImplemented()
+    asset_resource = await assets_query.fetch_asset_resource(
+        request.app.config.DB_CONN, name)
+    return json(asset_resource)
 
 
 def _proto_wrap_rules(rules):
