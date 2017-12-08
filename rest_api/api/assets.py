@@ -14,9 +14,16 @@
 # ------------------------------------------------------------------------------
 
 from sanic import Blueprint
+from sanic.response import json
 
 from api.authorization import authorized
+from api import common
+from api import messaging
+from api.errors import ApiBadRequest
 from api.errors import ApiNotImplemented
+
+from marketplace_transaction import transaction_creation
+from marketplace_transaction.protobuf import rule_pb2
 
 
 ASSETS_BP = Blueprint('assets')
@@ -26,7 +33,21 @@ ASSETS_BP = Blueprint('assets')
 @authorized()
 async def create_asset(request):
     """Creates a new Asset in state"""
-    raise ApiNotImplemented()
+    required_fields = ['name']
+    common.validate_fields(required_fields, request.json)
+    signer = await common.get_signer(request)
+    batches, batch_id = transaction_creation.create_asset(
+        signer,
+        request.app.config.SIGNER,
+        request.json.get('name'),
+        request.json.get('description'),
+        _proto_wrap_rules(request.json.get('rules')))
+    await messaging.send(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        batches)
+    await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
+    return _create_asset_response(request, signer.get_public_key().as_hex())
 
 
 @ASSETS_BP.get('assets')
@@ -39,3 +60,29 @@ async def get_all_assets(request):
 async def get_asset(request, name):
     """Fetches the details of particular Asset in state"""
     raise ApiNotImplemented()
+
+
+def _proto_wrap_rules(rules):
+    rule_protos = []
+    if rules is not None:
+        for rule in rules:
+            try:
+                rule_proto = rule_pb2.Rule(type=rule['type'])
+                rule_protos.append(rule_proto)
+            except IndexError:
+                raise ApiBadRequest("Bad Request: Improper rule format")
+            except ValueError:
+                raise ApiBadRequest("Bad Request: Invalid rule type")
+    return rule_protos
+
+
+def _create_asset_response(request, public_key):
+    asset_resource = {
+        'name': request.json.get('name'),
+        'owners': [public_key]
+    }
+    if request.json.get('description'):
+        asset_resource['description'] = request.json.get('description')
+    if request.json.get('rules'):
+        asset_resource['rules'] = request.json.get('rules')
+    return json(asset_resource)
