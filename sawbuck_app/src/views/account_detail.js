@@ -98,14 +98,19 @@ const passwordField = state => {
 }
 
 const holdingRow = holding => {
-  return [
-    m('.row',
-      m('.col-md-8', holding.label),
-      m('.col-md-2', holding.quantity),
-      m('.col-md-2', holding.asset)),
-    m('.row.mb-3',
-      m('.col-md.text-muted', holding.description))
-  ]
+  return m('.row.mt-3', [
+    m('.col-md-7',
+      layout.row(m('h6', holding.label)),
+      layout.row(m('.text-muted', holding.description))),
+    m('.col-md-5',
+      m('.card.mr-3.border-success', [
+        m('.card-header.text-success.border-success.text-center',
+          {style: 'line-height:0.8;'},
+          holding.asset),
+        m('.card-body', {style: 'line-height:0.2;'},
+          m('p.card-text.text-right', m('em', holding.quantity)))
+      ]))
+  ])
 }
 
 /**
