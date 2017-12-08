@@ -17,7 +17,12 @@ from Crypto.Cipher import AES
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
+from sawtooth_signing import CryptoFactory
+from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
+
 from api.errors import ApiBadRequest
+
+from db import auth_query
 
 
 def validate_fields(required_fields, request_json):
@@ -34,6 +39,25 @@ def encrypt_private_key(aes_key, public_key, private_key):
     init_vector = bytes.fromhex(public_key[:32])
     cipher = AES.new(bytes.fromhex(aes_key), AES.MODE_CBC, init_vector)
     return cipher.encrypt(private_key)
+
+
+def decrypt_private_key(aes_key, public_key, encrypted_private_key):
+    init_vector = bytes.fromhex(public_key[:32])
+    cipher = AES.new(bytes.fromhex(aes_key), AES.MODE_CBC, init_vector)
+    return cipher.decrypt(encrypted_private_key)
+
+
+async def get_signer(request):
+    email = deserialize_auth_token(
+        request.app.config.SECRET_KEY, request.token).get('email')
+    auth_info = await auth_query.fetch_info_by_email(
+        request.app.config.DB_CONN, email)
+    private_key_hex = decrypt_private_key(
+        request.app.config.AES_KEY,
+        auth_info.get('public_key'),
+        auth_info.get('encrypted_private_key'))
+    private_key = Secp256k1PrivateKey.from_hex(private_key_hex)
+    return CryptoFactory(request.app.config.CONTEXT).new_signer(private_key)
 
 
 def generate_auth_token(secret_key, email, public_key):

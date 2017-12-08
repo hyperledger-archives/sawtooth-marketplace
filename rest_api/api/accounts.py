@@ -55,16 +55,18 @@ async def create_account(request):
         'email': request.json.get('email')
     }
     await auth_query.create_auth_entry(request.app.config.DB_CONN, auth_entry)
-    batches, _ = transaction_creation.create_account(
+    batches, batch_id = transaction_creation.create_account(
         signer,
         request.app.config.SIGNER,
         request.json.get('label'),
         request.json.get('description'))
+    await messaging.send(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        batches)
     try:
-        await messaging.send(
-            request.app.config.VAL_CONN,
-            request.app.config.TIMEOUT,
-            batches)
+        await messaging.check_batch_status(
+            request.app.config.VAL_CONN, batch_id)
     except (ApiBadRequest, ApiInternalError) as err:
         await auth_query.remove_auth_entry(
             request.app.config.DB_CONN, request.json.get('email'))

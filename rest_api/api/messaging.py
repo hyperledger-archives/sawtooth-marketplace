@@ -23,24 +23,28 @@ from api.errors import ApiInternalError
 async def send(conn, timeout, batches):
     batch_request = client_batch_submit_pb2.ClientBatchSubmitRequest()
     batch_request.batches.extend(batches)
-
-    validator_response = await conn.send(
+    await conn.send(
         validator_pb2.Message.CLIENT_BATCH_SUBMIT_REQUEST,
         batch_request.SerializeToString(),
         timeout)
 
-    client_response = client_batch_submit_pb2.ClientBatchSubmitResponse()
-    client_response.ParseFromString(validator_response.content)
 
-    if client_response == client_batch_submit_pb2.ClientBatchStatus.COMMITTED:
-        return client_response
-    elif client_response == client_batch_submit_pb2.ClientBatchStatus.INVALID:
-        raise ApiBadRequest(
-            "Bad Request: {}".format(
-                client_response.invalid_transactions[0].message))
-    elif client_response == client_batch_submit_pb2.ClientBatchStatus.PENDING:
+async def check_batch_status(conn, batch_id):
+    status_request = client_batch_submit_pb2.ClientBatchStatusRequest(
+        batch_ids=[batch_id], wait=True)
+    validator_response = await conn.send(
+        validator_pb2.Message.CLIENT_BATCH_STATUS_REQUEST,
+        status_request.SerializeToString())
+
+    status_response = client_batch_submit_pb2.ClientBatchStatusResponse()
+    status_response.ParseFromString(validator_response.content)
+    batch_status = status_response.batch_statuses[0].status
+    if batch_status == client_batch_submit_pb2.ClientBatchStatus.INVALID:
+        invalid = status_response.batch_statuses[0].invalid_transactions[0]
+        raise ApiBadRequest("Bad Request: {}".format(invalid.message))
+    elif batch_status == client_batch_submit_pb2.ClientBatchStatus.PENDING:
         raise ApiInternalError(
             "Internal Error: Transaction submitted but timed out")
-    elif client_response == client_batch_submit_pb2.ClientBatchStatus.UNKNOWN:
+    elif batch_status == client_batch_submit_pb2.ClientBatchStatus.UNKNOWN:
         raise ApiInternalError(
             "Internal Error: Something went wrong. Try again later")
