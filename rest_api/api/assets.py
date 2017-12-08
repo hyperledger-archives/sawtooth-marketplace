@@ -20,7 +20,6 @@ from api.authorization import authorized
 from api import common
 from api import messaging
 from api.errors import ApiBadRequest
-from api.errors import ApiNotImplemented
 
 from db import assets_query
 
@@ -55,7 +54,9 @@ async def create_asset(request):
 @ASSETS_BP.get('assets')
 async def get_all_assets(request):
     """Fetches complete details of all Assets in state"""
-    raise ApiNotImplemented()
+    asset_resources = await assets_query.fetch_all_asset_resources(
+        request.app.config.DB_CONN)
+    return json(asset_resources)
 
 
 @ASSETS_BP.get('assets/<name>')
