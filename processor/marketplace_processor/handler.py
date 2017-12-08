@@ -42,12 +42,12 @@ class MarketplaceHandler(TransactionHandler):
         state = MarketplaceState(context=context, timeout=2)
         payload = MarketplacePayload(payload=transaction.payload)
 
-        if payload.create_account().SerializeToString():
+        if payload.is_create_account():
             account_creation.handle_account_creation(
                 payload.create_account(),
                 header=transaction.header,
                 state=state)
-        elif payload.create_asset().SerializeToString():
+        elif payload.is_create_asset():
             asset_creation.handle_asset_creation(
                 payload.create_asset(),
                 header=transaction.header,
