@@ -61,6 +61,7 @@ def handle_holding_creation(create_holding, header, state):
         identifier=create_holding.id,
         label=create_holding.label,
         description=create_holding.description,
+        account=header.signer_public_key,
         asset=create_holding.asset,
         quantity=create_holding.quantity)
 

@@ -47,6 +47,7 @@ class MarketplaceState(object):
                     identifier,
                     label,
                     description,
+                    account,
                     asset,
                     quantity):
         address = addresser.make_holding_address(holding_id=identifier)
@@ -60,6 +61,7 @@ class MarketplaceState(object):
         holding.id = identifier
         holding.label = label
         holding.description = description
+        holding.account = account
         holding.asset = asset
         holding.quantity = quantity
 
