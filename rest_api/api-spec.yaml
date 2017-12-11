@@ -207,7 +207,7 @@ paths:
         200:
           description: Success response with the new Holding
           schema:
-            $ref: '#/definitions/AssetObject'
+            $ref: '#/definitions/HoldingObject'
         400:
           $ref: '#/responses/400BadRequest'
         401:
