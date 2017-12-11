@@ -13,10 +13,6 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
-# pylint: disable=no-name-in-module,import-error
-# needed for the google.protobuf imports to pass pylint
-from google.protobuf.json_format import MessageToDict
-
 from marketplace_addressing.addresser import address_is
 from marketplace_addressing.addresser import AddressSpace
 from marketplace_ledger_sync.protobuf.account_pb2 import AccountContainer
@@ -55,7 +51,24 @@ def _parse_proto(proto_class, data):
 
 
 def _proto_to_dict(proto):
-    return MessageToDict(
-        proto,
-        including_default_value_fields=True,
-        preserving_proto_field_name=True)
+    result = {}
+
+    for field in proto.DESCRIPTOR.fields:
+        key = field.name
+        value = getattr(proto, key)
+
+        if field.type == field.TYPE_MESSAGE:
+            if field.label == field.LABEL_REPEATED:
+                result[key] = [_proto_to_dict(p) for p in value]
+            else:
+                result[key] = _proto_to_dict(value)
+
+        elif field.type == field.TYPE_ENUM:
+            number = int(value)
+            name = field.enum_type.values_by_number.get(number).name
+            result[key] = name
+
+        else:
+            result[key] = value
+
+    return result
