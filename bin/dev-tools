@@ -23,11 +23,12 @@ usage() {
 
     cat << EOM
         Usage:
-            $0 [-p] [-t] [-l] [-a]
+            $0 [-p] [-c] [-d] [-t] [-l] [-a]
         Options:
             -h           print help text
             -p           build protobuf modules using docker containers
             -c           build static client files
+            -d           seed client data
             -l           lint source code
             -t           run unit and integration tests
             -a           protogen, client, lint, tests in order
@@ -47,13 +48,23 @@ protogen() {
 }
 
 build_client() {
-    info "Building Protobuf modules"
+    info "Building static client files"
     docker build . -f dev-tools/Dockerfile -t market-dev-env
     docker run --rm \
         -v $(pwd):/project/sawtooth-marketplace \
         -v /project/sawtooth-marketplace/sawbuck_app/node_modules \
         market-dev-env \
         bash -c "cd sawbuck_app/ && npm run build"
+}
+
+seed_data() {
+    info "Seeding client data"
+    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker run --rm \
+        --net="host" \
+        -v $(pwd):/project/sawtooth-marketplace \
+        market-dev-env \
+        bin/mktadm submit -u http://localhost:8040 -d sawbuck_app/seed_data.yaml
 }
 
 run_tests() {
@@ -69,7 +80,7 @@ lint() {
     docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_lint
 }
 
-while getopts hpclta opt;
+while getopts hpcdlta opt;
 do
     case $opt in
         h)
@@ -81,6 +92,9 @@ do
             ;;
         c)
             build_client
+            ;;
+        d)
+            seed_data
             ;;
         t)
             run_tests
