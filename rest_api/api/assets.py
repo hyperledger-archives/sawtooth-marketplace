@@ -13,6 +13,8 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
+from urllib.parse import unquote
+
 from sanic import Blueprint
 from sanic.response import json
 
@@ -62,8 +64,9 @@ async def get_all_assets(request):
 @ASSETS_BP.get('assets/<name>')
 async def get_asset(request, name):
     """Fetches the details of particular Asset in state"""
+    decoded_name = unquote(name)
     asset_resource = await assets_query.fetch_asset_resource(
-        request.app.config.DB_CONN, name)
+        request.app.config.DB_CONN, decoded_name)
     return json(asset_resource)
 
 
