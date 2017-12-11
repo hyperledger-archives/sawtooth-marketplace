@@ -21,8 +21,12 @@ from requests import request
 
 
 INVALID_SPEC_IDS = [
-        ('02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a',
-         lambda d: d['account']['public_key'])
+    ('02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a',
+     lambda d: d['account']['public_key']),
+
+    ('Sawbuck', lambda d: d['asset']['name']),
+
+    ('7ea843aa-1650-4530-94b1-a445d2a8193a', lambda d: d['holding']['id'])
 ]
 
 ACCOUNT = {
@@ -30,6 +34,28 @@ ACCOUNT = {
     'password': '12345',
     'label': 'Susan',
     'description': 'Susan\'s Account'
+}
+
+ASSET = {
+    'name': 'Suzebuck',
+    'description': 'The most valuable currency in the world!',
+    'rules': [
+        {
+            'type': 'OWNER_HOLDINGS_INFINITE'
+        },
+        {
+            'type': 'EXCHANGE_LIMITED_TO_ACCOUNTS',
+            'value': ('02178c1bcdb25407394348f1ff5273ada'
+                      'e287d8ea328184546837957e71c7de57a')
+        }
+    ]
+}
+
+HOLDING = {
+    "label": "Suzebucket",
+    "description": "The source for all Suzebucks.",
+    "asset": "Suzebuck",
+    "quantity": 1337
 }
 
 
@@ -89,6 +115,12 @@ def initialize_sample_resources(txns):
     seeded_data['auth'] = account_response['authorization']
     seeded_data['account'] = account_response['account']
 
+    # Create ASSET
+    seeded_data['asset'] = submit('assets', ASSET)
+
+    # Create HOLDING
+    seeded_data['holding'] = submit('holdings', HOLDING)
+
     # Replace example auth and identifiers with ones from seeded data
     for txn in txns:
         txn['request']['headers']['Authorization'] = seeded_data['auth']
@@ -103,3 +135,7 @@ def add_credentials(txn):
         'email': ACCOUNT['email'],
         'password': ACCOUNT['password']
     })
+
+@hooks.before('/holdings > POST > 200 > application/json')
+def add_asset_name(txn):
+    patch_body(txn, {'asset': seeded_data['asset']['name']})
