@@ -1,0 +1,87 @@
+# Copyright 2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# -----------------------------------------------------------------------------
+
+ACCOUNTS:
+
+  - label: US Federal Reserve
+    description: The central banking system of the United States
+    email: fed@us.gov
+    password: password
+    ASSETS:
+      - name: USD
+        desciption: United States Dollars (in thousandths of a cent)
+        rules:
+          - type: OWNER_HOLDINGS_INFINITE
+            value: ''
+    HOLDINGS: []
+    OFFERS: []
+
+  - label: Sawtooth Central
+    description: The source for all your Sawtooth products and services
+    email: sawtooth@hyperledger.org
+    password: password
+    ASSETS:
+      - name: Sawbuck
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules:
+          - type: OWNER_HOLDINGS_INFINITE
+            value: ''
+      - name: Bronze Status
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+            value: ''
+          - type: NOT_TRANSFERABLE
+            value: ''
+          - type: REQUIRE_SOURCE_TYPES
+            value: 'Sawbuck'
+      - name: Silver Status
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+            value: ''
+          - type: NOT_TRANSFERABLE
+            value: ''
+          - type: REQUIRE_SOURCE_TYPES
+            value: 'Sawbuck'
+      - name: Gold Status
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+            value: ''
+          - type: NOT_TRANSFERABLE
+            value: ''
+          - type: REQUIRE_SOURCE_TYPES
+            value: 'Sawbuck'
+      - name: Platinum Status
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+            value: ''
+          - type: NOT_TRANSFERABLE
+            value: ''
+          - type: REQUIRE_SOURCE_TYPES
+            value: 'Sawbuck'
+      - name: Coupon for one Sawtooth Sticker
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules: []
+      - name: Coupon for a free blockchain
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules: []
+      - name: Coupon for ten free fork resolutions
+        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        rules: []
+    HOLDINGS: []
+    OFFERS: []

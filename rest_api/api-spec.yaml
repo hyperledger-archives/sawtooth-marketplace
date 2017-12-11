@@ -698,6 +698,7 @@ definitions:
         enum:
           - OWNER_HOLDINGS_INFINITE
           - ALL_HOLDINGS_INFINITE
+          - NOT_TRANSFERABLE
           - REQUIRE_TARGET_TYPES
           - REQUIRE_TARGET_QUANTITIES
           - REQUIRE_SOURCE_QUANTITIES
