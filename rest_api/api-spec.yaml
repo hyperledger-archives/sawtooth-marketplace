@@ -708,7 +708,5 @@ definitions:
         description: |
           An optional value that modifies the Rule
           (e.g. a list of Account ids for `EXCHANGE_LIMITED_TO_ACCOUNTS`)
-        type: array
-        items:
-          type: string
-          example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
+        type: string
+        example: 02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a
