@@ -177,24 +177,6 @@ def main():
     app.blueprint(HOLDINGS_BP)
     app.blueprint(OFFERS_BP)
 
-    @app.middleware('request')
-    async def handle_options(request):  # pylint: disable=unused-variable
-        if request.method == 'OPTIONS':
-            return text('ok', headers={
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods':
-                    'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-            })
-
-    @app.middleware('response')
-    def allow_cors(request, response):  # pylint: disable=unused-variable
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] =\
-            'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] =\
-            'Content-Type, Authorization'
-
     load_config(app)
     zmq = ZMQEventLoop()
     asyncio.set_event_loop(zmq)
