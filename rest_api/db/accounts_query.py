@@ -27,6 +27,8 @@ async def fetch_all_account_resources(conn):
                 & (blocks_query.latest_block_num() < r.row['end_block_num']))\
         .map(lambda account: account.merge(
             {'publicKey': account['public_key']}))\
+        .map(lambda account: account.merge(
+            {'holdings': _fetch_holdings(account['holdings'])}))\
         .map(lambda account: (account['label'] == "").branch(
             account.without('label'), account))\
         .map(lambda account: (account['description'] == "").branch(
@@ -42,6 +44,7 @@ async def fetch_account_resource(conn, public_key, auth_key):
             .get_all(public_key, index='public_key')\
             .max('start_block_num')\
             .merge({'publicKey': r.row['public_key']})\
+            .merge({'holdings': _fetch_holdings(r.row['holdings'])})\
             .do(lambda account: (r.expr(auth_key).eq(public_key)).branch(
                 account.merge(_fetch_email(public_key)), account))\
             .do(lambda account: (account['label'] == "").branch(
@@ -62,3 +65,10 @@ def _fetch_email(public_key):
         .get_all(public_key, index='public_key')\
         .pluck('email')\
         .coerce_to('array')[0]
+
+
+def _fetch_holdings(holding_ids):
+    return r.table('holdings')\
+        .get_all(r.args(holding_ids), index='id')\
+        .without('start_block_num', 'end_block_num', 'delta_id', 'account')\
+        .coerce_to('array')
