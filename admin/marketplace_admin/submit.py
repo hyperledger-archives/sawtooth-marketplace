@@ -40,9 +40,16 @@ def _api_submit(api_url, path, body, auth=None):
     headers = {'Authorization': auth} if auth else None
 
     response = requests.post(url, json=body, headers=headers)
-    response.raise_for_status()
+    body = response.json()
 
-    return response.json()
+    if response.status_code > 299:
+        LOGGER.warn('Submit failed to URL: %s', path)
+        LOGGER.warn('%s %s: %s',
+                    response.status_code,
+                    response.reason,
+                    body.get('error'))
+
+    return body
 
 
 def do_submit(opts):
@@ -58,7 +65,19 @@ def do_submit(opts):
 
     for account in data['ACCOUNTS']:
         LOGGER.info('Submitting Account: %s', account['label'])
-        auth = submit('accounts', account)['authorization']
+        auth = submit('accounts', account).get('authorization')
+
+        if not auth:
+            credentials = {
+                'email': account['email'],
+                'password': account['password']
+            }
+            auth = submit('authorization', credentials).get('authorization')
+
+            if not auth:
+                LOGGER.warn('No auth token for %s, skipping dependent data',
+                            account['label'])
+                continue
 
         for asset in account['ASSETS']:
             LOGGER.debug('Submitting Asset: %s', asset['name'])
