@@ -21,7 +21,7 @@ ACCOUNTS:
     password: password
     ASSETS:
       - name: USD
-        desciption: United States Dollars (in thousandths of a cent)
+        description: United States Dollars (in thousandths of a cent)
         rules:
           - type: OWNER_HOLDINGS_INFINITE
             value: ''
@@ -34,12 +34,12 @@ ACCOUNTS:
     password: password
     ASSETS:
       - name: Sawbuck
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules:
           - type: OWNER_HOLDINGS_INFINITE
             value: ''
       - name: Bronze Status
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -48,7 +48,7 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Silver Status
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -57,7 +57,7 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Gold Status
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -66,7 +66,7 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Platinum Status
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -75,13 +75,13 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Coupon for one Sawtooth Sticker
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules: []
       - name: Coupon for a free blockchain
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules: []
       - name: Coupon for ten free fork resolutions
-        desciption: Sawtooth loyalty points, better than cryptocurrency!
+        description: Sawtooth loyalty points, better than cryptocurrency!
         rules: []
     HOLDINGS: []
     OFFERS: []
