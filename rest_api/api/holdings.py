@@ -13,14 +13,14 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
+from uuid import uuid4
+
 from sanic import Blueprint
 from sanic import response
-from uuid import uuid4
 
 from api import common
 from api import messaging
 from api.authorization import authorized
-from api.errors import ApiException
 
 from marketplace_transaction import transaction_creation
 
