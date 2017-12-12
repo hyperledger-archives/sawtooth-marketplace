@@ -39,7 +39,8 @@ ACCOUNTS:
           - type: OWNER_HOLDINGS_INFINITE
             value: ''
       - name: Bronze Status
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: |
+          You just started collecting Sawbucks, but you have a bright future.
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -48,7 +49,8 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Silver Status
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: |
+          You're moving up, but don't yet have the recognition you crave.
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -57,7 +59,7 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Gold Status
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: You're a serious Sawbuck contender.
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -66,7 +68,9 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Platinum Status
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: |
+          Only the most loyal and dedicated blockchain fans
+          will achieve this honor.
         rules:
           - type: ALL_HOLDINGS_INFINITE
             value: ''
@@ -75,13 +79,17 @@ ACCOUNTS:
           - type: REQUIRE_SOURCE_TYPES
             value: 'Sawbuck'
       - name: Coupon for one Sawtooth Sticker
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: |
+          Redeem for a coveted Sawtooth laptop sticker at select
+          participating locations.
         rules: []
       - name: Coupon for a free blockchain
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: |
+          Now you too can start up your very own blockchain at now cost!
+          (Terms and service fees may apply)
         rules: []
       - name: Coupon for ten free fork resolutions
-        description: Sawtooth loyalty points, better than cryptocurrency!
+        description: You got forks? Let us resolve them.
         rules: []
     HOLDINGS: []
     OFFERS: []
