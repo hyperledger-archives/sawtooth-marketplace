@@ -25,7 +25,11 @@ ACCOUNTS:
         rules:
           - type: OWNER_HOLDINGS_INFINITE
             value: ''
-    HOLDINGS: []
+    HOLDINGS:
+      - label: US Mint
+        description: An unlimited supply of printable dollars
+        asset: USD
+        quantity: 1
     OFFERS: []
 
   - label: Sawtooth Central
@@ -91,5 +95,37 @@ ACCOUNTS:
       - name: Coupon for ten free fork resolutions
         description: You got forks? Let us resolve them.
         rules: []
-    HOLDINGS: []
+    HOLDINGS:
+      - label: Sawbucket
+        description: An unlimited supply of precious precious Sawbucks
+        asset: Sawbuck
+        quantity: 1
+      - label: Bronze Dispenser
+        description: An unlimited supply of Bronze Statuses
+        asset: Bronze Status
+        quantity: 1
+      - label: Silver Dispenser
+        description: An unlimited supply of Silver Statuses
+        asset: Silver Status
+        quantity: 1
+      - label: Gold Dispenser
+        description: An unlimited supply of Gold Statuses
+        asset: Gold Status
+        quantity: 1
+      - label: Platinum Dispenser
+        description: An unlimited supply of Platinum Statuses
+        asset: Platinum Status
+        quantity: 1
+      - label: Sticker Supply
+        description: Coupons for a limited run of 1000 Sawtooth stickers
+        asset: Coupon for one Sawtooth Sticker
+        quantity: 1000
+      - label: Blockchain Coupons
+        description: Coupons to be redeemed for free blockchains
+        asset: Coupon for a free blockchain
+        quantity: 10000
+      - label: Fork Coupons
+        description: Use these to resolve your forks
+        asset: Coupon for ten free fork resolutions
+        quantity: 100000
     OFFERS: []
