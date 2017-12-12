@@ -17,6 +17,7 @@ from marketplace_addressing import addresser
 from marketplace_processor.protobuf import account_pb2
 from marketplace_processor.protobuf import asset_pb2
 from marketplace_processor.protobuf import holding_pb2
+from marketplace_processor.protobuf import offer_pb2
 
 
 class MarketplaceState(object):
@@ -25,6 +26,59 @@ class MarketplaceState(object):
         self._context = context
         self._timeout = timeout
         self._state_entries = []
+
+    def get_offer(self, identifier):
+        address = addresser.make_offer_address(offer_id=identifier)
+
+        self._state_entries.extend(self._context.get_state(
+            addresses=[address],
+            timeout=self._timeout))
+
+        container = _get_offer_container(self._state_entries, address)
+        offer = None
+        try:
+            offer = _get_offer_from_container(container, identifier)
+        except KeyError:
+            # We are fine with returning None
+            pass
+
+        return offer
+
+    def set_create_offer(self,
+                         identifier,
+                         label,
+                         description,
+                         owners,
+                         source,
+                         source_quantity,
+                         target,
+                         target_quantity,
+                         rules):
+        address = addresser.make_offer_address(offer_id=identifier)
+        container = _get_offer_container(self._state_entries, address)
+
+        try:
+            offer = _get_offer_from_container(container, identifier)
+
+        except KeyError:
+            offer = container.entries.add()
+
+        offer.id = identifier
+        offer.label = label
+        offer.description = description
+        offer.owners.extend(owners)
+        offer.source = source
+        offer.source_quantity = source_quantity
+        offer.target = target
+        offer.target_quantity = target_quantity
+        offer.rules.extend(rules)
+        offer.status = offer_pb2.Offer.OPEN
+
+        state_entries_send = {}
+        state_entries_send[address] = container.SerializeToString()
+        return self._context.set_state(
+            state_entries_send,
+            self._timeout)
 
     def get_holding(self, identifier):
         address = addresser.make_holding_address(holding_id=identifier)
@@ -171,6 +225,25 @@ class MarketplaceState(object):
         return self._context.set_state(
             state_entries_send,
             self._timeout)
+
+
+def _get_offer_container(state_entries, address):
+    try:
+        entry = _find_in_state(state_entries, address)
+        container = offer_pb2.OfferContainer()
+        container.ParseFromString(entry.data)
+    except KeyError:
+        container = offer_pb2.OfferContainer()
+
+    return container
+
+
+def _get_offer_from_container(container, offer_id):
+    for offer in container.entries:
+        if offer.id == offer_id:
+            return offer
+    raise KeyError(
+        "Offer with id {} is not in container".format(offer_id))
 
 
 def _get_holding_container(state_entries, address):
