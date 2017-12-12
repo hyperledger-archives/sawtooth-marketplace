@@ -21,12 +21,10 @@ from sanic.response import json
 from api.authorization import authorized
 from api import common
 from api import messaging
-from api.errors import ApiBadRequest
 
 from db import assets_query
 
 from marketplace_transaction import transaction_creation
-from marketplace_transaction.protobuf import rule_pb2
 
 
 ASSETS_BP = Blueprint('assets')
@@ -44,7 +42,7 @@ async def create_asset(request):
         request.app.config.SIGNER,
         request.json.get('name'),
         request.json.get('description'),
-        _proto_wrap_rules(request.json.get('rules')))
+        common.proto_wrap_rules(request.json.get('rules')))
     await messaging.send(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
@@ -68,20 +66,6 @@ async def get_asset(request, name):
     asset_resource = await assets_query.fetch_asset_resource(
         request.app.config.DB_CONN, decoded_name)
     return json(asset_resource)
-
-
-def _proto_wrap_rules(rules):
-    rule_protos = []
-    if rules is not None:
-        for rule in rules:
-            try:
-                rule_proto = rule_pb2.Rule(type=rule['type'])
-                rule_protos.append(rule_proto)
-            except IndexError:
-                raise ApiBadRequest("Improper rule format")
-            except ValueError:
-                raise ApiBadRequest("Invalid rule type")
-    return rule_protos
 
 
 def _create_asset_response(request, public_key):

@@ -696,6 +696,8 @@ definitions:
       A simple enum and with optional value, used to constrain and define the
       behavior of Assets or Offers
     type: object
+    required:
+      - type
     properties:
       type:
         description: The enum which defines the Rule

@@ -24,6 +24,8 @@ from api.errors import ApiBadRequest
 
 from db import auth_query
 
+from marketplace_transaction.protobuf import rule_pb2
+
 
 def validate_fields(required_fields, request_json):
     try:
@@ -68,3 +70,19 @@ def generate_auth_token(secret_key, email, public_key):
 def deserialize_auth_token(secret_key, token):
     serializer = Serializer(secret_key)
     return serializer.loads(token)
+
+
+def proto_wrap_rules(rules):
+    rule_protos = []
+    if rules is not None:
+        for rule in rules:
+            try:
+                rule_proto = rule_pb2.Rule(type=rule['type'])
+                rule_protos.append(rule_proto)
+            except IndexError:
+                raise ApiBadRequest("Improper rule format")
+            except ValueError:
+                raise ApiBadRequest("Invalid rule type")
+            except KeyError:
+                raise ApiBadRequest("Rule type is required")
+    return rule_protos
