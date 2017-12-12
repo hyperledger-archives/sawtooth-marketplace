@@ -143,3 +143,57 @@ def create_holding(txn_key,
         outputs=outputs,
         txn_key=txn_key,
         batch_key=batch_key)
+
+
+def create_offer(txn_key, batch_key, identifier, label, description,
+                 source, source_quantity, target, target_quantity, rules):
+    """Create a CreateOffer txn and wrap it in a batch and list.
+
+    Args:
+        txn_key (sawtooth_signing.Signer): The Txn signer key pair.
+        batch_key (sawtooth_signing.Signer): The Batch signer key pair.
+        identifier (str): The identifier of the Offer.
+        label (str): The offer's label.
+        description (str): The description of the offer.
+        source (str): The id of a Holding from which resources will be drawn.
+        source_quantity (int): The quantity of resources to send.
+        target (str): The id of a Holding which will receive resources.
+        target_quantity (int): The quantity of resources to require.
+        rules (list): List of protobuf.rule_pb2.Rule
+
+
+    Returns:
+        tuple: List of Batch, signature tuple
+    """
+
+    inputs = [
+        addresser.make_account_address(
+            account_id=txn_key.get_public_key().as_hex()),
+        addresser.make_holding_address(holding_id=source),
+        addresser.make_offer_address(offer_id=identifier)
+    ]
+    if target is not None:
+        inputs.append(addresser.make_holding_address(holding_id=target))
+
+    outputs = [addresser.make_offer_address(offer_id=identifier)]
+
+    offer_txn = payload_pb2.CreateOffer(
+        id=identifier,
+        label=label,
+        description=description,
+        source=source,
+        source_quantity=source_quantity,
+        target=target,
+        target_quantity=target_quantity,
+        rules=rules)
+
+    payload = payload_pb2.TransactionPayload(
+        payload_type=payload_pb2.TransactionPayload.CREATE_OFFER,
+        create_offer=offer_txn)
+
+    return make_header_and_batch(
+        payload=payload,
+        inputs=inputs,
+        outputs=outputs,
+        txn_key=txn_key,
+        batch_key=batch_key)
