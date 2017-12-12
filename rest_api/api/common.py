@@ -29,10 +29,9 @@ def validate_fields(required_fields, request_json):
     try:
         for field in required_fields:
             if request_json.get(field) is None:
-                raise ApiBadRequest(
-                    "Bad Request: {} is required".format(field))
+                raise ApiBadRequest("{} is required".format(field))
     except (ValueError, AttributeError):
-        raise ApiBadRequest("Bad Request: Improper JSON format")
+        raise ApiBadRequest("Improper JSON format")
 
 
 def encrypt_private_key(aes_key, public_key, private_key):

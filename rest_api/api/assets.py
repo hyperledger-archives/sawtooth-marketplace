@@ -78,9 +78,9 @@ def _proto_wrap_rules(rules):
                 rule_proto = rule_pb2.Rule(type=rule['type'])
                 rule_protos.append(rule_proto)
             except IndexError:
-                raise ApiBadRequest("Bad Request: Improper rule format")
+                raise ApiBadRequest("Improper rule format")
             except ValueError:
-                raise ApiBadRequest("Bad Request: Invalid rule type")
+                raise ApiBadRequest("Invalid rule type")
     return rule_protos
 
 
