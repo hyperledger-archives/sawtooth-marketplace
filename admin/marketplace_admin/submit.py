@@ -13,6 +13,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
+import re
 import yaml
 import logging
 import requests
@@ -51,8 +52,9 @@ def do_submit(opts):
     LOGGER.info('Reading data: %s', opts.data)
     data = yaml.load(open(opts.data, 'r'))
 
-    submit = lambda p, b, a=None: _api_submit(opts.url, p, b, a)
-    LOGGER.info('Submitting data to URL: %s', opts.url)
+    url = opts.url if re.match('://', opts.url) else 'http://' + opts.url
+    submit = lambda p, b, a=None: _api_submit(url, p, b, a)
+    LOGGER.info('Submitting data to URL: %s', url)
 
     for account in data['ACCOUNTS']:
         LOGGER.info('Submitting Account: %s', account['label'])
