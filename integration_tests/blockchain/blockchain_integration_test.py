@@ -58,6 +58,8 @@ class BlockchainTest(unittest.TestCase):
         cls.signer2 = make_key()
         cls.asset_name = uuid4().hex
         cls.holding_id = str(uuid4())
+        cls.offer1_id = str(uuid4())
+        cls.offer2_id = str(uuid4())
 
     def test_00_create_account(self):
         """Tests the CreateAccount validation rules.
@@ -215,6 +217,163 @@ class BlockchainTest(unittest.TestCase):
                 quantity=0)[0]['status'],
             "COMMITTED")
 
+    def test_03_create_offer(self):
+        """Tests the CreateOffer validation rules.
+
+        Notes:
+            CreateOffer validation rules
+                - No Offer already has the same id
+                - The transaction signer does not have an Account.
+                - The source is set.
+                - The source_quantity is not 0.
+                - The target or target_quantity must be both set or both unset.
+                - The source is a Holding.
+                - The target is a Holding.
+                - The txn signer must be the account holder of both Holdings.
+        """
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=self.offer1_id,
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "COMMITTED")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=self.offer1_id,
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The Offer id must not already exist.")
+
+        signer_invalid = make_key()
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=signer_invalid,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The Transaction signer must have an Account")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source='',
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The Source must be set.")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=None,
+                target=self.holding_id,
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The source quantity must be set and non-zero.")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=None,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The target and target_quantity must be both set or unset.")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target='',
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The target and target_quantity must be both set or unset.")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=str(uuid4()),
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The Source must be a Holding.")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target=str(uuid4()),
+                target_quantity=10,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The target must be a Holding.")
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer2,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=self.holding_id,
+                source_quantity=10,
+                target=self.holding_id,
+                target_quantity=11,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The txn signer must be the account holder for both source and "
+            "target Holdings.")
+
 
 class MarketplaceClient(object):
 
@@ -258,6 +417,31 @@ class MarketplaceClient(object):
             description=description,
             asset=asset,
             quantity=quantity)
+        batch_list = batch_pb2.BatchList(batches=batches)
+        self._client.send_batches(batch_list)
+        return self._client.get_statuses([signature], wait=10)
+
+    def create_offer(self,
+                     key,
+                     identifier,
+                     label,
+                     description,
+                     source,
+                     source_quantity,
+                     target,
+                     target_quantity,
+                     rules):
+        batches, signature = transaction_creation.create_offer(
+            txn_key=key,
+            batch_key=BATCH_KEY,
+            identifier=identifier,
+            label=label,
+            description=description,
+            source=source,
+            source_quantity=source_quantity,
+            target=target,
+            target_quantity=target_quantity,
+            rules=rules)
         batch_list = batch_pb2.BatchList(batches=batches)
         self._client.send_batches(batch_list)
         return self._client.get_statuses([signature], wait=10)
