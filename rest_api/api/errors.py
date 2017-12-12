@@ -97,7 +97,6 @@ class ApiInternalError(ApiException):
 
 @ERRORS_BP.exception(ApiException)
 def api_json_error(request, exception):
-    LOGGER.exception(exception)
     return json({
         'error': exception.message
     }, status=exception.status_code)
