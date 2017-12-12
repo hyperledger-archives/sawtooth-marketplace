@@ -59,6 +59,12 @@ HOLDING = {
 }
 
 
+AUTH_ACCOUNT = {
+    'email': 'qwerty@suze.au.co',
+    'password': '67890'
+}
+
+
 seeded_data = {}
 
 
@@ -121,6 +127,11 @@ def initialize_sample_resources(txns):
     # Create HOLDING
     seeded_data['holding'] = submit('holdings', HOLDING)
 
+    # Create AUTH_ACCOUNT
+    auth_account_response = submit('accounts', AUTH_ACCOUNT)
+    seeded_data['auth_auth'] = auth_account_response['authorization']
+    seeded_data['auth_account'] = auth_account_response['account']
+
     # Replace example auth and identifiers with ones from seeded data
     for txn in txns:
         txn['request']['headers']['Authorization'] = seeded_data['auth']
@@ -136,6 +147,12 @@ def add_credentials(txn):
         'password': ACCOUNT['password']
     })
 
+
 @hooks.before('/holdings > POST > 200 > application/json')
 def add_asset_name(txn):
     patch_body(txn, {'asset': seeded_data['asset']['name']})
+
+
+@hooks.before('/accounts > PATCH > 200 > application/json')
+def switch_auth_header(txn):
+    txn['request']['headers']['Authorization'] = seeded_data['auth_auth']

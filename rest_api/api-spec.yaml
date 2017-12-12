@@ -109,9 +109,14 @@ paths:
             $ref: '#/definitions/AuthCredentials'
       responses:
         200:
-          description: Success response with the updated Account
+          description: Success response with Account and authorization token
           schema:
-            $ref: '#/definitions/AuthorizedAccountObject'
+            type: object
+            properties:
+              authorization:
+                $ref: '#/definitions/AuthToken'
+              account:
+                $ref: '#/definitions/AuthorizedAccountObject'
         400:
           $ref: '#/responses/400BadRequest'
         401:

@@ -22,6 +22,7 @@ from sanic.response import json
 
 from sawtooth_signing import CryptoFactory
 
+from api.authorization import authorized
 from api import common
 from api import messaging
 from api.errors import ApiBadRequest
@@ -94,6 +95,44 @@ async def get_account(request, key):
     account_resource = await accounts_query.fetch_account_resource(
         request.app.config.DB_CONN, key, auth_key)
     return json(account_resource)
+
+
+@ACCOUNTS_BP.patch('accounts')
+@authorized()
+async def update_account_info(request):
+    """Updates auth information for the authorized account"""
+    token = common.deserialize_auth_token(
+        request.app.config.SECRET_KEY, request.token)
+
+    update = {}
+    if request.json.get('password'):
+        update['hashed_password'] = bcrypt.hashpw(
+            bytes(request.json.get('password'), 'utf-8'), bcrypt.gensalt())
+    if request.json.get('email'):
+        update['email'] = request.json.get('email')
+
+    if update:
+        updated_auth_info = await auth_query.update_auth_info(
+            request.app.config.DB_CONN,
+            token.get('email'),
+            token.get('public_key'),
+            update)
+        new_token = common.generate_auth_token(
+            request.app.config.SECRET_KEY,
+            updated_auth_info.get('email'),
+            updated_auth_info.get('publicKey'))
+    else:
+        updated_auth_info = await accounts_query.fetch_account_resource(
+            request.app.config.DB_CONN,
+            token.get('public_key'),
+            token.get('public_key'))
+        new_token = request.token
+
+    return json(
+        {
+            'authorization': new_token,
+            'account': updated_auth_info
+        })
 
 
 def _create_account_response(request, public_key):
