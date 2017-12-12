@@ -13,6 +13,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
+from sawtooth_sdk.processor.exceptions import InvalidTransaction
 from sawtooth_sdk.processor.handler import TransactionHandler
 
 from marketplace_addressing import addresser
@@ -20,6 +21,7 @@ from marketplace_addressing import addresser
 from marketplace_processor.account import account_creation
 from marketplace_processor.asset import asset_creation
 from marketplace_processor.holding import holding_creation
+from marketplace_processor.offer import offer_creation
 from marketplace_processor.marketplace_payload import MarketplacePayload
 from marketplace_processor.marketplace_state import MarketplaceState
 
@@ -53,8 +55,15 @@ class MarketplaceHandler(TransactionHandler):
                 payload.create_asset(),
                 header=transaction.header,
                 state=state)
-        elif payload.create_holding().SerializeToString():
+        elif payload.is_create_holding():
             holding_creation.handle_holding_creation(
                 payload.create_holding(),
                 header=transaction.header,
                 state=state)
+        elif payload.is_create_offer():
+            offer_creation.handle_offer_creation(
+                payload.create_offer(),
+                header=transaction.header,
+                state=state)
+        else:
+            raise InvalidTransaction("Transaction payload type unknown.")
