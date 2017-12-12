@@ -53,7 +53,6 @@ async def fetch_account_resource(conn, public_key, auth_key):
             .run(conn)
     except ReqlNonExistenceError:
         raise ApiBadRequest(
-            "Bad Request: "
             "No account with the public key {} exists".format(public_key))
 
 

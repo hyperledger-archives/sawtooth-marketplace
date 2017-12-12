@@ -25,4 +25,4 @@ def latest_block_num():
             .max(index='block_num')\
             .get_field('block_num')
     except ReqlNonExistenceError:
-        raise ApiInternalError('Internal Error: No block data found in state')
+        raise ApiInternalError('No block data found in state')

@@ -41,10 +41,8 @@ async def check_batch_status(conn, batch_id):
     batch_status = status_response.batch_statuses[0].status
     if batch_status == client_batch_submit_pb2.ClientBatchStatus.INVALID:
         invalid = status_response.batch_statuses[0].invalid_transactions[0]
-        raise ApiBadRequest("Bad Request: {}".format(invalid.message))
+        raise ApiBadRequest(invalid.message)
     elif batch_status == client_batch_submit_pb2.ClientBatchStatus.PENDING:
-        raise ApiInternalError(
-            "Internal Error: Transaction submitted but timed out")
+        raise ApiInternalError("Transaction submitted but timed out")
     elif batch_status == client_batch_submit_pb2.ClientBatchStatus.UNKNOWN:
-        raise ApiInternalError(
-            "Internal Error: Something went wrong. Try again later")
+        raise ApiInternalError("Something went wrong. Try again later")

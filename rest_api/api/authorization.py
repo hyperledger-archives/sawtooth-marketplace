@@ -39,10 +39,10 @@ async def authorize(request):
     auth_info = await auth_query.fetch_info_by_email(
         request.app.config.DB_CONN, request.json.get('email'))
     if auth_info is None:
-        raise ApiUnauthorized("Unauthorized: No user with that email exists")
+        raise ApiUnauthorized("No user with that email exists")
     hashed_password = auth_info.get('hashed_password')
     if not bcrypt.checkpw(password, hashed_password):
-        raise ApiUnauthorized("Unauthorized: Incorrect email or password")
+        raise ApiUnauthorized("Incorrect email or password")
     token = common.generate_auth_token(
         request.app.config.SECRET_KEY,
         auth_info.get('email'),
@@ -59,7 +59,7 @@ def authorized():
         @wraps(func)
         async def decorated_function(request, *args, **kwargs):
             if request.token is None:
-                raise ApiUnauthorized("Unauthorized: No bearer token provided")
+                raise ApiUnauthorized("No bearer token provided")
             try:
                 email = common.deserialize_auth_token(
                     request.app.config.SECRET_KEY,
@@ -68,10 +68,9 @@ def authorized():
                     request.app.config.DB_CONN, email)
                 if auth_info is None:
                     raise ApiUnauthorized(
-                        "Unauthorized: "
                         "Token does not belong to an existing user")
             except BadSignature:
-                raise ApiUnauthorized("Unauthorized: Invalid bearer token")
+                raise ApiUnauthorized("Invalid bearer token")
             response = await func(request, *args, **kwargs)
             return response
         return decorated_function

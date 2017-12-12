@@ -27,8 +27,7 @@ async def create_auth_entry(conn, auth_entry):
     result = await r.table('auth').insert(auth_entry).run(conn)
     if result.get('errors') > 0 and \
        "Duplicate primary key `email`" in result.get('first_error'):
-        raise ApiBadRequest(
-            "Bad Request: A user with that email already exists")
+        raise ApiBadRequest("A user with that email already exists")
 
 
 async def remove_auth_entry(conn, email):
