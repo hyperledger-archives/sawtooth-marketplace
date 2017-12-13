@@ -145,6 +145,7 @@ def add_holding(txn):
     patch_body(txn, {
             'source': seeded_data['holding']['id'],
             'target': seeded_data['holding']['id'],
+            'targetQuantity': 1337
         })
 
 
