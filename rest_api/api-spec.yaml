@@ -635,8 +635,6 @@ definitions:
     required:
       - source
       - sourceQuantity
-      - target
-      - targetQuantity
     properties:
       label:
         description: A human readable name for the Offer (not unique)
@@ -653,6 +651,7 @@ definitions:
       sourceQuantity:
         description: The proportion of resources to send out during exchange
         type: integer
+        minimum: 1
         example: 1
       target:
         description: The id of a Holding which will receive resources
@@ -661,6 +660,7 @@ definitions:
       targetQuantity:
         description: The proportion of resources to require for exchange
         type: integer
+        minimum: 1
         example: 1000
       rules:
         description: List of Rules which control Asset behavior
@@ -696,6 +696,8 @@ definitions:
       A simple enum and with optional value, used to constrain and define the
       behavior of Assets or Offers
     type: object
+    required:
+      - type
     properties:
       type:
         description: The enum which defines the Rule
