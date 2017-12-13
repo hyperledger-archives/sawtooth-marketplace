@@ -26,7 +26,11 @@ INVALID_SPEC_IDS = [
 
     ('Sawbuck', lambda d: d['asset']['name']),
 
-    ('7ea843aa-1650-4530-94b1-a445d2a8193a', lambda d: d['holding']['id'])
+    ('7ea843aa-1650-4530-94b1-a445d2a8193a', lambda d: d['holding']['id']),
+
+    ('ddb5b98b-8d34-466a-94cb-06288755312b', lambda d: d['holding_2']['id']),
+
+    ('1f68397b-5b38-4aec-9913-4541c7e1d4c4', lambda d: d['offer']['id'])
 ]
 
 ACCOUNT = {
@@ -59,9 +63,34 @@ HOLDING = {
 }
 
 
+HOLDING_2 = {
+    "label": "Suzebasket",
+    "description": "The source for even more Suzebucks.",
+    "asset": "Suzebuck",
+    "quantity": 1337
+}
+
+
 AUTH_ACCOUNT = {
     'email': 'qwerty@suze.au.co',
     'password': '67890'
+}
+
+OFFER = {
+    "label": "Get Platinum Status Now!",
+    "description": "Offer to get Platinum Status for 1000 Sawbucks!!!",
+    "sourceQuantity": 1,
+    "targetQuantity": 1000,
+    'rules': [
+        {
+            'type': 'OWNER_HOLDINGS_INFINITE'
+        },
+        {
+            'type': 'EXCHANGE_LIMITED_TO_ACCOUNTS',
+            'value': ('02178c1bcdb25407394348f1ff5273ada'
+                      'e287d8ea328184546837957e71c7de57a')
+        }
+    ]
 }
 
 
@@ -124,13 +153,19 @@ def initialize_sample_resources(txns):
     # Create ASSET
     seeded_data['asset'] = submit('assets', ASSET)
 
-    # Create HOLDING
+    # Create HOLDINGS
     seeded_data['holding'] = submit('holdings', HOLDING)
+    seeded_data['holding_2'] = submit('holdings', HOLDING_2)
 
     # Create AUTH_ACCOUNT
     auth_account_response = submit('accounts', AUTH_ACCOUNT)
     seeded_data['auth_auth'] = auth_account_response['authorization']
     seeded_data['auth_account'] = auth_account_response['account']
+
+    # Create OFFER
+    OFFER['source'] = seeded_data['holding']['id']
+    OFFER['target'] = seeded_data['holding_2']['id']
+    seeded_data['offer'] = submit('offers', OFFER)
 
     # Replace example auth and identifiers with ones from seeded data
     for txn in txns:
