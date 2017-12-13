@@ -23,7 +23,6 @@ import sys
 import rethinkdb as r
 
 from sanic import Sanic
-from sanic.response import text
 
 from sawtooth_signing import create_context
 from sawtooth_signing import ParseError
