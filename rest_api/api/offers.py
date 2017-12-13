@@ -67,7 +67,13 @@ async def create_offer(request):
 @OFFERS_BP.get('offers')
 async def get_all_offers(request):
     """Fetches complete details of all Offers in state"""
-    raise ApiNotImplemented()
+    keys = ['status', 'source', 'target']
+    query_params = {
+        k: request.args[k][0] for k in keys if request.args.get(k) is not None
+    }
+    offer_resources = await offers_query.fetch_all_offer_resources(
+        request.app.config.DB_CONN, query_params)
+    return response.json(offer_resources)
 
 
 @OFFERS_BP.get('offers/<offer_id>')
