@@ -140,6 +140,14 @@ def initialize_sample_resources(txns):
             sub_nested_strings(txn, spec_id, id_getter(seeded_data))
 
 
+@hooks.before('/offers > POST > 200 > application/json')
+def add_holding(txn):
+    patch_body(txn, {
+            'source': seeded_data['holding']['id'],
+            'target': seeded_data['holding']['id'],
+        })
+
+
 @hooks.before('/authorization > POST > 200 > application/json')
 def add_credentials(txn):
     patch_body(txn, {
