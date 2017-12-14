@@ -20,8 +20,9 @@ const m = require('mithril')
 const _ = require('lodash')
 
 const api = require('../services/api')
-const layout = require('../components/layout')
 const forms = require('../components/forms')
+const layout = require('../components/layout')
+const mkt = require('../components/marketplace')
 
 // Returns a string of bullets
 const bullets = count => _.fill(Array(count), '•').join('')
@@ -103,13 +104,7 @@ const holdingRow = holding => {
       layout.row(m('h6', holding.label)),
       layout.row(m('.text-muted', holding.description))),
     m('.col-md-5',
-      m('.card.mr-3.border-success', [
-        m('.card-header.text-success.border-success.text-center',
-          {style: 'line-height:0.8;'},
-          holding.asset),
-        m('.card-body', {style: 'line-height:0.2;'},
-          m('p.card-text.text-right', m('em', holding.quantity)))
-      ]))
+      mkt.holding(holding.asset, holding.quantity))
   ])
 }
 
