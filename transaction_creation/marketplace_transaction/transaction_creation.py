@@ -225,16 +225,20 @@ def accept_offer(txn_key,
         tuple: List of Batch, signature tuple
     """
 
-    inputs = [addresser.make_holding_address(receiver_source),
-              addresser.make_holding_address(receiver_target),
+    inputs = [addresser.make_holding_address(receiver_target),
               addresser.make_holding_address(offerer_source),
-              addresser.make_holding_address(offerer_target),
               addresser.make_offer_address(identifier)]
 
-    outputs = [addresser.make_holding_address(receiver_source),
-               addresser.make_holding_address(receiver_target),
-               addresser.make_holding_address(offerer_source),
-               addresser.make_holding_address(offerer_target)]
+    outputs = [addresser.make_holding_address(receiver_target),
+               addresser.make_holding_address(offerer_source)]
+
+    if receiver_source is not None:
+        inputs.append(addresser.make_holding_address(receiver_source))
+        outputs.append(addresser.make_holding_address(receiver_source))
+
+    if offerer_target is not None:
+        inputs.append(addresser.make_holding_address(offerer_target))
+        outputs.append(addresser.make_holding_address(offerer_target))
 
     accept_txn = payload_pb2.AcceptOffer(
         id=identifier,

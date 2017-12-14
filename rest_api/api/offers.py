@@ -13,6 +13,7 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
+import asyncio
 from uuid import uuid4
 
 from sanic import response
@@ -22,9 +23,9 @@ from api.authorization import authorized
 from api import common
 from api import messaging
 from api.errors import ApiBadRequest
-from api.errors import ApiNotImplemented
 
 from db import offers_query
+from db.common import fetch_holdings
 
 from marketplace_transaction import transaction_creation
 
@@ -88,14 +89,68 @@ async def get_offer(request, offer_id):
 @authorized()
 async def accept_offer(request, offer_id):
     """Request for authorized Account to accept Offer"""
-    raise ApiNotImplemented()
+    required_fields = ['count', 'target']
+    common.validate_fields(required_fields, request.json)
+
+    offer = await offers_query.fetch_offer_resource(
+        request.app.config.DB_CONN, offer_id)
+
+    signer = await common.get_signer(request)
+    batches, batch_id = transaction_creation.accept_offer(
+        txn_key=signer,
+        batch_key=request.app.config.SIGNER,
+        identifier=offer_id,
+        receiver_source=request.json.get('source'),
+        offerer_source=offer['source'],
+        receiver_target=request.json['target'],
+        offerer_target=offer.get('target'),
+        count=request.json['count'])
+
+    await messaging.send(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        batches)
+
+    await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
+
+    # Mitigate the race condition between ledger sync and db query
+    asyncio.sleep(0.5)
+
+    keys = ['source', 'target']
+
+    holdings = await fetch_holdings([
+        request.json.get(k) for k in keys if request.json.get(k) is not None
+    ]).run(request.app.config.DB_CONN)
+
+    holdings_dict = {
+        k: h for h in holdings for k in keys if request.json.get(k) == h['id']
+    }
+    return response.json(holdings_dict)
 
 
 @OFFERS_BP.patch('offers/<offer_id>/close')
 @authorized()
 async def close_offer(request, offer_id):
     """Request by owner of Offer to close it"""
-    raise ApiNotImplemented()
+    signer = await common.get_signer(request)
+    batches, batch_id = transaction_creation.close_offer(
+        txn_key=signer,
+        batch_key=request.app.config.SIGNER,
+        identifier=offer_id)
+
+    await messaging.send(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        batches)
+
+    await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
+
+    # Mitigate the race condition between ledger sync and db query
+    asyncio.sleep(0.5)
+
+    updated_offer = await offers_query.fetch_offer_resource(
+        request.app.config.DB_CONN, offer_id)
+    return response.json(updated_offer)
 
 
 def _create_offer_dict(body, public_key):
