@@ -65,6 +65,28 @@ const labeledField = (label, info) => {
 }
 
 /**
+ * Simple dropdown menu, options should be objects with a `text` property
+ * and any desired HTML attributes like `onclick`.
+ */
+const dropdown = (label, options, color = 'primary') => {
+  return m('.dropdown', [
+    m(`button.btn.btn-${color}.dropdown-toggle`, {
+      type: 'button',
+      'data-toggle': 'dropdown',
+      'aria-haspopup': 'true',
+      'aria-expanded': 'false'
+    }, label),
+    m('.dropdown-menu',
+      options.map(option => {
+        const attributes = _.omit(option, 'text')
+        return m('button.dropdown-item',
+                 _.assign({ type: 'button' }, attributes),
+                 option.text)
+      }))
+  ])
+}
+
+/**
  * Returns a mithriled icon from Github's octicon set
  */
 const icon = name => m.trust(octicons[name].toSVG())
@@ -75,5 +97,6 @@ module.exports = {
   row,
   sectionedRows,
   labeledField,
+  dropdown,
   icon
 }
