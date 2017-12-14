@@ -20,6 +20,7 @@ import requests
 
 
 LOGGER = logging.getLogger(__name__)
+REF_RE = re.compile('^\$REF=(.+)\[(.+):(.+)\]\.(.+)$')
 
 
 def init_subparser(subparsers):
@@ -32,24 +33,6 @@ def init_subparser(subparsers):
                         help='The path to the YAML data file',
                         required=True)
     return parser
-
-
-
-def _api_submit(api_url, path, body, auth=None):
-    url = '{}/{}'.format(api_url, path)
-    headers = {'Authorization': auth} if auth else None
-
-    response = requests.post(url, json=body, headers=headers)
-    body = response.json()
-
-    if response.status_code > 299:
-        LOGGER.warn('Submit failed to URL: %s', path)
-        LOGGER.warn('%s %s: %s',
-                    response.status_code,
-                    response.reason,
-                    body.get('error'))
-
-    return body
 
 
 def do_submit(opts):
@@ -79,16 +62,63 @@ def do_submit(opts):
                             account['label'])
                 continue
 
+        responses = {'ASSETS': [], 'HOLDINGS': [], 'OFFERS': []}
+
         for asset in account['ASSETS']:
             LOGGER.debug('Submitting Asset: %s', asset['name'])
-            submit('assets', asset, auth)
+            _swap_references(asset, responses)
+            responses['ASSETS'].append(submit('assets', asset, auth))
 
         for holding in account['HOLDINGS']:
             LOGGER.debug('Submitting Holding: %s', holding['label'])
-            submit('holdings', holding, auth)
+            _swap_references(holding, responses)
+            responses['HOLDINGS'].append(submit('holdings', holding, auth))
 
         for offer in account['OFFERS']:
             LOGGER.debug('Submitting Offer: %s', offer['label'])
-            submit('offers', offer, auth)
+            _swap_references(offer, responses)
+            responses['OFFERS'].append(submit('offers', offer, auth))
 
     LOGGER.info('Data submission complete.')
+
+
+def _api_submit(api_url, path, body, auth=None):
+    url = '{}/{}'.format(api_url, path)
+    headers = {'Authorization': auth} if auth else None
+
+    response = requests.post(url, json=body, headers=headers)
+    body = response.json()
+
+    if response.status_code > 299:
+        LOGGER.warn('Submit failed to URL: %s', path)
+        LOGGER.warn('%s %s: %s',
+                    response.status_code,
+                    response.reason,
+                    body.get('error'))
+
+    return body
+
+
+def _swap_references(resource, responses):
+    for key, value in resource.items():
+        try:
+            match = REF_RE.fullmatch(value)
+        except TypeError:
+            continue
+
+        if match is None:
+            continue
+
+        list_name = match.group(1)
+        filter_key = match.group(2)
+        filter_value = match.group(3)
+        swap_key = match.group(4)
+
+        try:
+            swap_value = next(r[swap_key] for r in responses[list_name]
+                              if r[filter_key] == filter_value)
+        except StopIteration:
+            LOGGER.warn('Unable to find match for ref: %s', value)
+            continue
+
+        resource[key] = swap_value
