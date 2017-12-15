@@ -19,10 +19,17 @@ from rethinkdb import ReqlNonExistenceError
 from api.errors import ApiInternalError
 
 
-def latest_block_num():
+def fetch_latest_block_num():
     try:
         return r.table('blocks')\
             .max(index='block_num')\
             .get_field('block_num')
     except ReqlNonExistenceError:
         raise ApiInternalError('No block data found in state')
+
+
+def fetch_holdings(holding_ids):
+    return r.table('holdings')\
+        .get_all(r.args(holding_ids), index='id')\
+        .without('start_block_num', 'end_block_num', 'delta_id', 'account')\
+        .coerce_to('array')

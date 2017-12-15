@@ -18,13 +18,13 @@ from rethinkdb.errors import ReqlNonExistenceError
 
 from api.errors import ApiBadRequest
 
-from db import blocks_query
+from db.common import fetch_latest_block_num
 
 
 async def fetch_all_offer_resources(conn, query_params):
     return await r.table('offers')\
-        .filter((blocks_query.latest_block_num() >= r.row['start_block_num'])
-                & (blocks_query.latest_block_num() < r.row['end_block_num']))\
+        .filter((fetch_latest_block_num() >= r.row['start_block_num'])
+                & (fetch_latest_block_num() < r.row['end_block_num']))\
         .filter(query_params)\
         .map(lambda offer: (offer['label'] == "").branch(
             offer.without('label'), offer))\
