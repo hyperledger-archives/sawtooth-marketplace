@@ -29,6 +29,7 @@ const AccountDetailPage = require('./views/account_detail')
 const AssetDetailPage = require('./views/asset_detail')
 const AssetListPage = require('./views/asset_list')
 const LoginForm = require('./views/login_form')
+const OfferDetailPage = require('./views/offer_detail')
 const OfferListPage = require('./views/offer_list')
 const SignupForm = require('./views/signup_form')
 
@@ -120,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '/login': resolve(LoginForm),
     '/logout': { onmatch: logout },
     '/offers': resolve(OfferListPage),
+    '/offers/:id': resolve(OfferDetailPage),
     '/signup': resolve(SignupForm)
   })
 })
