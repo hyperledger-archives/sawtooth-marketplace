@@ -197,3 +197,58 @@ def create_offer(txn_key, batch_key, identifier, label, description,
         outputs=outputs,
         txn_key=txn_key,
         batch_key=batch_key)
+
+
+def accept_offer(txn_key,
+                 batch_key,
+                 identifier,
+                 receiver_source,
+                 offerer_source,
+                 receiver_target,
+                 offerer_target,
+                 count):
+    """Create an AcceptOffer txn and wrap it in a Batch and list.
+
+    Args:
+        txn_key (sawtooth_signing.Signer): The Txn signer key pair.
+        batch_key (sawtooth_signing.Signer): The Batch signer key pair.
+        identifier (str): The identifier of the Offer.
+        receiver_source (str): The Holding that the receiver gives up.
+            Must be the same Asset as offerer_target.
+        offerer_source (str): The Holding that the Offerer gives up.
+        receiver_target (str): The Holding that the receiver receives.
+            Must be the same Asset as the offerer_source.
+        offerer_target (str): The Holding that the offerer receives.
+        count (int): The number of units of exchange.
+
+    Returns:
+        tuple: List of Batch, signature tuple
+    """
+
+    inputs = [addresser.make_holding_address(receiver_source),
+              addresser.make_holding_address(receiver_target),
+              addresser.make_holding_address(offerer_source),
+              addresser.make_holding_address(offerer_target),
+              addresser.make_offer_address(identifier)]
+
+    outputs = [addresser.make_holding_address(receiver_source),
+               addresser.make_holding_address(receiver_target),
+               addresser.make_holding_address(offerer_source),
+               addresser.make_holding_address(offerer_target)]
+
+    accept_txn = payload_pb2.AcceptOffer(
+        id=identifier,
+        source=receiver_source,
+        target=receiver_target,
+        count=count)
+
+    payload = payload_pb2.TransactionPayload(
+        payload_type=payload_pb2.TransactionPayload.ACCEPT_OFFER,
+        accept_offer=accept_txn)
+
+    return make_header_and_batch(
+        payload=payload,
+        inputs=inputs,
+        outputs=outputs,
+        txn_key=txn_key,
+        batch_key=batch_key)
