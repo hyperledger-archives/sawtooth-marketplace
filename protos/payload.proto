@@ -72,8 +72,8 @@ message CreateOffer {
 message AcceptOffer {
     string id = 1;
     string source = 2;
-    sint64 source_quantity = 3;
-    string target = 4;
+    string target = 3;
+    uint64 count = 4;
 }
 
 message CloseOffer {
