@@ -23,6 +23,8 @@ const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
 
+const findAsset = (id, holdings) => holdings.find(h => h.id === id).asset
+
 /**
  * Displays information for a particular Account.
  * The information can be edited if the user themself.
@@ -37,7 +39,11 @@ const OfferDetailPage = {
         }
       })
       .then(owner => {
-        if (owner && !owner.error) vnode.state.owner = owner
+        if (!owner || owner.error) return
+        const offer = vnode.state.offer
+        offer.sourceAsset = findAsset(offer.source, owner.holdings)
+        offer.targetAsset = findAsset(offer.target, owner.holdings)
+        vnode.state.owner = owner
       })
   },
 
@@ -53,10 +59,10 @@ const OfferDetailPage = {
       layout.description(offer.description),
       m('.container',
         mkt.bifold({
-          header: offer.source,
+          header: offer.sourceAsset,
           body: offer.sourceQuantity
         }, {
-          header: offer.target,
+          header: offer.targetAsset,
           body: offer.targetQuantity || m('em', 'free')
         }),
         layout.row(layout.labeledField('Administered by', ownerName)),
