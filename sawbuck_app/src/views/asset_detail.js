@@ -48,25 +48,29 @@ const AssetDetailPage = {
   },
 
   view (vnode) {
-    const rules = _.get(vnode.state, 'asset.rules', [])
-    const name = _.get(vnode.state, 'asset.name', '')
-    const ownerName = _.get(vnode.state, 'owner.label',
-                            _.get(vnode.state, 'owner.public_key',
-                                  ''))
+    const asset = _.get(vnode.state, 'asset', {})
+    const owner = _.get(vnode.state, 'owner', {})
+    const rules = asset.rules || []
+    const ownerName = owner.label || owner.publicKey
 
     return [
-      layout.title(name),
+      layout.title(asset.name),
       layout.description(_.get(vnode.state, 'asset.description', '')),
       m('.container',
-        layout.row(layout.labeledField('Administered by', ownerName)),
+        layout.row(layout.labeledField(
+          'Administered by',
+          m('a', {
+            href: `/accounts/${owner.publicKey}`,
+            oncreate: m.route.link
+          }, ownerName))),
         layout.row(layout.labeledField(
           'Rules',
           rules.length > 0
             ? layout.sectionedRows(rules.map(mkt.rule))
             : m('em', 'this asset has no special rules'))),
         m('.row.text-center.mt-5',
-          m('.col-md.m-3', offerButton(name)),
-          m('.col-md.m-3', offerButton(name, 'target'))))
+          m('.col-md.m-3', offerButton(asset.name)),
+          m('.col-md.m-3', offerButton(asset.name, 'target'))))
     ]
   }
 }
