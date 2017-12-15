@@ -89,7 +89,7 @@ const dropdown = (label, options, color = 'primary') => {
 /**
  * Returns a mithriled icon from Github's octicon set
  */
-const icon = name => m.trust(octicons[name].toSVG())
+const icon = (name, opts = {}) => m.trust(octicons[name].toSVG(opts))
 
 module.exports = {
   title,

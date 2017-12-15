@@ -29,6 +29,7 @@ const AccountDetailPage = require('./views/account_detail')
 const AssetDetailPage = require('./views/asset_detail')
 const AssetListPage = require('./views/asset_list')
 const LoginForm = require('./views/login_form')
+const OfferListPage = require('./views/offer_list')
 const SignupForm = require('./views/signup_form')
 
 /**
@@ -111,13 +112,14 @@ const userAccount = () => {
  */
 document.addEventListener('DOMContentLoaded', () => {
   m.route(document.querySelector('#app'), '/', {
-    '/': resolve(LoginForm),
+    '/': resolve(OfferListPage),
     '/account': { onmatch: userAccount },
     '/accounts/:publicKey': resolve(AccountDetailPage),
     '/assets': resolve(AssetListPage),
     '/assets/:name': resolve(AssetDetailPage),
     '/login': resolve(LoginForm),
     '/logout': { onmatch: logout },
+    '/offers': resolve(OfferListPage),
     '/signup': resolve(SignupForm)
   })
 })
