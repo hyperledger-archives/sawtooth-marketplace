@@ -36,16 +36,19 @@ const filterDropdown = (label, assets, setter) => {
   return layout.dropdown(label, options, 'success')
 }
 
-const acceptButton = offer => {
+const acceptButton = (offer, account = null) => {
   const onclick = () => console.log(`Accepting offer ${offer.id}...`)
+  const disabled = !account || (
+    offer.targetQuantity !== 0 &&
+    account.quantities[offer.targetAsset] < offer.targetQuantity)
 
   return m(
-    'button.btn.btn-lg.btn-outline-primary.mr-3',
-    { onclick },
+    `button.btn.btn-lg.btn-outline-${disabled ? 'secondary' : 'primary'}`,
+    { onclick, disabled },
     'Accept')
 }
 
-const offerRow = offer => {
+const offerRow = account => offer => {
   return [
     m('.row.my-2',
       m('.col-md-9',
@@ -53,7 +56,7 @@ const offerRow = offer => {
           href: `/offers/${offer.id}`,
           oncreate: m.route.link
         }, offer.label || offer.id)),
-      m('.col-md-3.text-right', acceptButton(offer))),
+      m('.col-md-3.text-right', acceptButton(offer, account))),
     mkt.bifold({
       header: offer.sourceAsset,
       body: offer.sourceQuantity
@@ -91,6 +94,22 @@ const OfferListPage = {
             targetAsset: holdingAssets[offer.target]
           }, offer)
         })
+
+        // If logged in, save account to state with asset quantities
+        const publicKey = api.getPublicKey()
+        if (publicKey) {
+          const account = accounts
+            .find(account => account.publicKey === publicKey)
+
+          const quantities = account.holdings
+            .reduce((quantities, { asset, quantity }) => {
+              if (!quantities[asset]) quantities[asset] = quantity
+              else quantities[asset] = Math.max(quantities[asset], quantity)
+              return quantities
+            }, {})
+
+          vnode.state.account = _.assign({ quantities }, account)
+        }
       })
   },
 
@@ -127,7 +146,7 @@ const OfferListPage = {
               targetAssets,
               asset => () => { vnode.state.target = asset }))),
         offers.length > 0
-          ? offers.map(offerRow)
+          ? offers.map(offerRow(vnode.state.account))
           : m('.text-center.font-italic',
               'there are currently no available offers'))
     ]

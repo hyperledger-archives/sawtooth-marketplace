@@ -29,7 +29,7 @@ ACCOUNTS:
       - label: US Mint
         description: An unlimited supply of printable dollars
         asset: USD
-        quantity: 1
+        quantity: 9007199254740991
     OFFERS:
       - label: Account Provision
         description: A one-time payout of 100 USD for each Account
@@ -98,23 +98,23 @@ ACCOUNTS:
       - label: Sawbucket
         description: An unlimited supply of precious precious Sawbucks
         asset: Sawbuck
-        quantity: 1
+        quantity: 9007199254740991
       - label: Bronze Dispenser
         description: An unlimited supply of Bronze Statuses
         asset: Bronze Status
-        quantity: 1
+        quantity: 9007199254740991
       - label: Silver Dispenser
         description: An unlimited supply of Silver Statuses
         asset: Silver Status
-        quantity: 1
+        quantity: 9007199254740991
       - label: Gold Dispenser
         description: An unlimited supply of Gold Statuses
         asset: Gold Status
-        quantity: 1
+        quantity: 9007199254740991
       - label: Platinum Dispenser
         description: An unlimited supply of Platinum Statuses
         asset: Platinum Status
-        quantity: 1
+        quantity: 9007199254740991
       - label: Sticker Supply
         description: Coupons for a limited run of 1000 Sawtooth stickers
         asset: Coupon for one Sawtooth Sticker
