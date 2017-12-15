@@ -252,3 +252,33 @@ def accept_offer(txn_key,
         outputs=outputs,
         txn_key=txn_key,
         batch_key=batch_key)
+
+
+def close_offer(txn_key, batch_key, identifier):
+    """Create a CloseOffer txn and wrap it in a Batch and list.
+
+    Args:
+        txn_key (sawtooth_signing.Signer): The Txn signer key pair.
+        batch_key (sawtooth_signing.Signer): The Batch signer key pair.
+        identifier (str): The Offer identifier.
+
+    Returns:
+        tuple: List of Batch, signature tuple
+    """
+
+    inputs = [addresser.make_offer_address(identifier)]
+
+    outputs = [addresser.make_offer_address(identifier)]
+
+    close_txn = payload_pb2.CloseOffer(id=identifier)
+
+    payload = payload_pb2.TransactionPayload(
+        payload_type=payload_pb2.TransactionPayload.CLOSE_OFFER,
+        close_offer=close_txn)
+
+    return make_header_and_batch(
+        payload=payload,
+        inputs=inputs,
+        outputs=outputs,
+        txn_key=txn_key,
+        batch_key=batch_key)
