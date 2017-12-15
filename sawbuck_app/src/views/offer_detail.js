@@ -25,18 +25,50 @@ const mkt = require('../components/marketplace')
 
 const findAsset = (id, holdings) => holdings.find(h => h.id === id).asset
 
+const acceptButton = (label, onclick, disabled = false) => {
+  return m(`button.btn-lg.btn-outline-${disabled ? 'secondary' : 'primary'}`,
+           { onclick, disabled },
+           label)
+}
+
 /**
  * Displays information for a particular Account.
  * The information can be edited if the user themself.
  */
 const OfferDetailPage = {
   oninit (vnode) {
-    api.get(`offers/${vnode.attrs.id}`)
-      .then(offer => {
+    const publicKey = api.getPublicKey()
+    Promise.all([
+      api.get(`offers/${vnode.attrs.id}`),
+      publicKey ? api.get(`accounts/${publicKey}`) : null
+    ])
+      .then(([ offer, user ]) => {
         vnode.state.offer = offer
-        if (offer.owners.length > 0) {
-          return api.get(`accounts/${offer.owners[0]}`)
+
+        if (!user) {
+          vnode.state.disabled = true
+        } else if (offer.targetQuantity === 0) {
+          vnode.state.disabled = false
+        } else {
+          const quantities = user.holdings
+            .reduce((quantities, { asset, quantity }) => {
+              if (!quantities[asset]) quantities[asset] = quantity
+              else quantities[asset] = Math.max(quantities[asset], quantity)
+              return quantities
+            }, {})
+
+          if (!quantities[offer.targetAsset]) {
+            vnode.state.disabled = true
+          } else if (quantities[offer.targetAsset] < offer.targetQuantity) {
+            vnode.state.disabled = true
+          } else {
+            vnode.state.disabled = false
+          }
         }
+
+        const owner = offer.owners[0]
+        if (user && publicKey === owner) return user
+        return api.get(`accounts/${owner}`)
       })
       .then(owner => {
         if (!owner || owner.error) return
@@ -78,9 +110,10 @@ const OfferDetailPage = {
             : m('em', 'this offer has no special rules'))),
         m('.row.text-center.mt-5',
           m('.col-md.m-3',
-            m('button.btn-lg.btn-outline-primary', {
-              onclick: () => console.log(`Accepting offer ${offer.id}...`)
-            }, name))))
+            acceptButton(
+              name,
+              () => console.log(`Accepting offer ${offer.id}...`),
+              vnode.state.disabled))))
     ]
   }
 }

@@ -38,9 +38,13 @@ const filterDropdown = (label, assets, setter) => {
 
 const acceptButton = (offer, account = null) => {
   const onclick = () => console.log(`Accepting offer ${offer.id}...`)
-  const disabled = !account || (
-    offer.targetQuantity !== 0 &&
-    account.quantities[offer.targetAsset] < offer.targetQuantity)
+  let disabled = false
+  if (!account) disabled = true
+  else if (offer.targetQuantity === 0) disabled = false
+  else if (!account.quantities[offer.targetAsset]) disabled = true
+  else if (account.quantities[offer.targetAsset] < offer.targetQuantity) {
+    disabled = true
+  }
 
   return m(
     `button.btn.btn-lg.btn-outline-${disabled ? 'secondary' : 'primary'}`,
