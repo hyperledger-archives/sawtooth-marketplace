@@ -17,6 +17,7 @@
 'use strict'
 
 const m = require('mithril')
+const layout = require('./layout')
 
 /**
  * Returns a simple stylized card element for displaying a holding
@@ -31,6 +32,21 @@ const holding = (header, body, color = 'success') => {
   ])
 }
 
+/**
+ * Returns two holding cards in a row with a large arrow between
+ */
+const bifold = (left, right) => {
+  return m('.row.mb-5', [
+    m('.col-md-5',
+      holding(left.header, left.body, left.color)),
+    m('.col-md-2.text-center',
+      m('.my-auto', layout.icon('arrow-right', {height: 60}))),
+    m('.col-md-5',
+      holding(right.header, right.body, right.color))
+  ])
+}
+
 module.exports = {
-  holding
+  holding,
+  bifold
 }
