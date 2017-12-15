@@ -65,7 +65,12 @@ const OfferDetailPage = {
           header: offer.targetAsset,
           body: offer.targetQuantity || m('em', 'free')
         }),
-        layout.row(layout.labeledField('Administered by', ownerName)),
+        layout.row(layout.labeledField(
+          'Administered by',
+          m('a', {
+            href: `/accounts/${owner.publicKey}`,
+            oncreate: m.route.link
+          }, ownerName))),
         layout.row(layout.labeledField(
           'Rules',
           rules.length > 0
