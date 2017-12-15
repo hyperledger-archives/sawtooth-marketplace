@@ -21,14 +21,7 @@ const _ = require('lodash')
 
 const api = require('../services/api')
 const layout = require('../components/layout')
-
-const ruleSection = ({ type, value }) => {
-  return m('.rule-section', [
-    m('span.text-success', layout.icon('check'), ' '),
-    type,
-    value ? m('span.text-muted', ' : ', value) : null
-  ])
-}
+const mkt = require('../components/marketplace')
 
 const offerButton = (name, key = 'source') => {
   const label = key === 'target' ? 'Request' : 'Offer'
@@ -69,7 +62,7 @@ const AssetDetailPage = {
         layout.row(layout.labeledField(
           'Rules',
           rules.length > 0
-            ? layout.sectionedRows(rules.map(ruleSection))
+            ? layout.sectionedRows(rules.map(mkt.rule))
             : m('em', 'this asset has no special rules'))),
         m('.row.text-center.mt-5',
           m('.col-md.m-3', offerButton(name)),
