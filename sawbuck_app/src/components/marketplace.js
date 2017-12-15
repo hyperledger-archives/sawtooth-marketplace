@@ -46,7 +46,19 @@ const bifold = (left, right) => {
   ])
 }
 
+/**
+ * Converts a single rule into a simple div for display
+ */
+const rule = ({ type, value }) => {
+  return m('.rule-section', [
+    m('span.text-success', layout.icon('check'), ' '),
+    type,
+    value ? m('span.text-muted', ' : ', value) : null
+  ])
+}
+
 module.exports = {
   holding,
-  bifold
+  bifold,
+  rule
 }
