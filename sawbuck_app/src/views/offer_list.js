@@ -23,6 +23,19 @@ const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
 
+const filterDropdown = (label, assets, setter) => {
+  const options = assets.map(asset => ({
+    text: asset,
+    onclick: setter(asset)
+  }))
+  options.push({
+    text: m('em', 'clear filter'),
+    onclick: setter(null)
+  })
+
+  return layout.dropdown(label, options, 'success')
+}
+
 const acceptButton = offer => {
   const onclick = () => console.log(`Accepting offer ${offer.id}...`)
 
@@ -50,6 +63,8 @@ const offerRow = offer => {
     })
   ]
 }
+
+const pluckUniq = (items, key) => _.uniq(items.map(item => item[key]))
 
 /**
  * A page displaying each Asset, with links to create an Offer,
@@ -80,11 +95,37 @@ const OfferListPage = {
   },
 
   view (vnode) {
-    const offers = _.get(vnode.state, 'offers', [])
+    let offers = _.get(vnode.state, 'offers', [])
+    const sourceAssets = pluckUniq(offers, 'sourceAsset')
+    const targetAssets = pluckUniq(offers, 'targetAsset')
+
+    if (vnode.state.source) {
+      offers = offers.filter(offer => {
+        return offer.sourceAsset === vnode.state.source
+      })
+    }
+
+    if (vnode.state.target) {
+      offers = offers.filter(offer => {
+        return offer.targetAsset === vnode.state.target
+      })
+    }
 
     return [
       layout.title('Available Offers'),
       m('.container',
+        m('.row.text-center.my-4',
+          m('.col-md-5',
+            filterDropdown(
+              vnode.state.source || 'Offered',
+              sourceAssets,
+              asset => () => { vnode.state.source = asset })),
+          m('.col-md-2'),
+          m('.col-md-5',
+            filterDropdown(
+              vnode.state.target || 'Requested',
+              targetAssets,
+              asset => () => { vnode.state.target = asset }))),
         offers.length > 0
           ? offers.map(offerRow)
           : m('.text-center.font-italic',
