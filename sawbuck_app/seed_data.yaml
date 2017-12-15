@@ -57,8 +57,6 @@ ACCOUNTS:
             value: ''
           - type: NOT_TRANSFERABLE
             value: ''
-          - type: REQUIRE_SOURCE_TYPES
-            value: 'Sawbuck'
       - name: Silver Status
         description: |
           You're moving up, but don't yet have the recognition you crave.
@@ -67,8 +65,6 @@ ACCOUNTS:
             value: ''
           - type: NOT_TRANSFERABLE
             value: ''
-          - type: REQUIRE_SOURCE_TYPES
-            value: 'Sawbuck'
       - name: Gold Status
         description: You're a serious Sawbuck contender.
         rules:
@@ -76,8 +72,6 @@ ACCOUNTS:
             value: ''
           - type: NOT_TRANSFERABLE
             value: ''
-          - type: REQUIRE_SOURCE_TYPES
-            value: 'Sawbuck'
       - name: Platinum Status
         description: |
           Only the most loyal and dedicated blockchain fans
@@ -87,8 +81,6 @@ ACCOUNTS:
             value: ''
           - type: NOT_TRANSFERABLE
             value: ''
-          - type: REQUIRE_SOURCE_TYPES
-            value: 'Sawbuck'
       - name: Coupon for one Sawtooth Sticker
         description: |
           Redeem for a coveted Sawtooth laptop sticker at select
