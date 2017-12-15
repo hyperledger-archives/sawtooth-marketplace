@@ -22,7 +22,7 @@ from requests import request
 
 INVALID_SPEC_IDS = [
     ('02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a',
-     lambda d: d['account']['public_key']),
+     lambda d: d['account']['publicKey']),
 
     ('Sawbuck', lambda d: d['asset']['name']),
 

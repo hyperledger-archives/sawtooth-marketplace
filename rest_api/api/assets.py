@@ -16,7 +16,7 @@
 from urllib.parse import unquote
 
 from sanic import Blueprint
-from sanic.response import json
+from sanic import response
 
 from api.authorization import authorized
 from api import common
@@ -36,19 +36,25 @@ async def create_asset(request):
     """Creates a new Asset in state"""
     required_fields = ['name']
     common.validate_fields(required_fields, request.json)
+
     signer = await common.get_signer(request)
+    asset = _create_asset_dict(request.json, signer.get_public_key().as_hex())
+
     batches, batch_id = transaction_creation.create_asset(
-        signer,
-        request.app.config.SIGNER,
-        request.json.get('name'),
-        request.json.get('description'),
-        common.proto_wrap_rules(request.json.get('rules')))
+        txn_key=signer,
+        batch_key=request.app.config.SIGNER,
+        name=asset.get('name'),
+        description=asset.get('description'),
+        rules=common.proto_wrap_rules(asset.get('rules')))
+
     await messaging.send(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         batches)
+
     await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
-    return _create_asset_response(request, signer.get_public_key().as_hex())
+
+    return response.json(asset)
 
 
 @ASSETS_BP.get('assets')
@@ -56,7 +62,7 @@ async def get_all_assets(request):
     """Fetches complete details of all Assets in state"""
     asset_resources = await assets_query.fetch_all_asset_resources(
         request.app.config.DB_CONN)
-    return json(asset_resources)
+    return response.json(asset_resources)
 
 
 @ASSETS_BP.get('assets/<name>')
@@ -65,16 +71,13 @@ async def get_asset(request, name):
     decoded_name = unquote(name)
     asset_resource = await assets_query.fetch_asset_resource(
         request.app.config.DB_CONN, decoded_name)
-    return json(asset_resource)
+    return response.json(asset_resource)
 
 
-def _create_asset_response(request, public_key):
-    asset_resource = {
-        'name': request.json.get('name'),
-        'owners': [public_key]
-    }
-    if request.json.get('description'):
-        asset_resource['description'] = request.json.get('description')
-    if request.json.get('rules'):
-        asset_resource['rules'] = request.json.get('rules')
-    return json(asset_resource)
+def _create_asset_dict(body, public_key):
+    keys = ['name', 'description', 'rules']
+
+    asset = {k: body[k] for k in keys if body.get(k) is not None}
+    asset['owners'] = [public_key]
+
+    return asset
