@@ -21,6 +21,7 @@ from marketplace_addressing import addresser
 from marketplace_processor.account import account_creation
 from marketplace_processor.asset import asset_creation
 from marketplace_processor.holding import holding_creation
+from marketplace_processor.offer import offer_acceptance
 from marketplace_processor.offer import offer_creation
 from marketplace_processor.marketplace_payload import MarketplacePayload
 from marketplace_processor.marketplace_state import MarketplaceState
@@ -63,6 +64,11 @@ class MarketplaceHandler(TransactionHandler):
         elif payload.is_create_offer():
             offer_creation.handle_offer_creation(
                 payload.create_offer(),
+                header=transaction.header,
+                state=state)
+        elif payload.is_accept_offer():
+            offer_acceptance.handle_accept_offer(
+                payload.accept_offer(),
                 header=transaction.header,
                 state=state)
         else:

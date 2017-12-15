@@ -125,6 +125,26 @@ class MarketplaceState(object):
             state_entries_send,
             self._timeout)
 
+    def change_holding_quantity(self,
+                                identifier,
+                                new_quantity):
+        address = addresser.make_holding_address(holding_id=identifier)
+        container = _get_holding_container(self._state_entries, address)
+
+        try:
+            holding = _get_holding_from_container(container, identifier)
+        except KeyError:
+            holding = container.entries.add()
+
+        holding.quantity = new_quantity
+
+        state_entries_send = {}
+        state_entries_send[address] = container.SerializeToString()
+
+        return self._context.set_state(
+            state_entries_send,
+            self._timeout)
+
     def get_asset(self, name):
         address = addresser.make_asset_address(asset_id=name)
 
