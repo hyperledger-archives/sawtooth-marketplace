@@ -24,6 +24,8 @@ from api import messaging
 from api.errors import ApiBadRequest
 from api.errors import ApiNotImplemented
 
+from db import offers_query
+
 from marketplace_transaction import transaction_creation
 
 
@@ -65,13 +67,21 @@ async def create_offer(request):
 @OFFERS_BP.get('offers')
 async def get_all_offers(request):
     """Fetches complete details of all Offers in state"""
-    raise ApiNotImplemented()
+    keys = ['status', 'source', 'target']
+    query_params = {
+        k: request.args[k][0] for k in keys if request.args.get(k) is not None
+    }
+    offer_resources = await offers_query.fetch_all_offer_resources(
+        request.app.config.DB_CONN, query_params)
+    return response.json(offer_resources)
 
 
 @OFFERS_BP.get('offers/<offer_id>')
 async def get_offer(request, offer_id):
     """Fetches the details of particular Offer in state"""
-    raise ApiNotImplemented()
+    offer_resource = await offers_query.fetch_offer_resource(
+        request.app.config.DB_CONN, offer_id)
+    return response.json(offer_resource)
 
 
 @OFFERS_BP.patch('offers/<offer_id>/accept')
