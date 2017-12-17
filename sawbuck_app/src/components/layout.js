@@ -43,10 +43,10 @@ const row = columns => {
  */
 const sectionedRows = (columns, count = 2) => {
   return columns
-    .reduce((pairs, col) => {
-      if (_.last(pairs).length < 2) _.last(pairs).push(col)
-      if (_.last(pairs).length === 2) pairs.push([])
-      return pairs
+    .reduce((groups, col) => {
+      if (_.last(groups).length < count) _.last(groups).push(col)
+      if (_.last(groups).length === count) groups.push([])
+      return groups
     }, [[]])
     .map(pair => {
       if (pair.length === 0) return null
