@@ -109,8 +109,11 @@ const show = (modal, attrs, children) => {
   })
 
   const container = document.getElementById('modal-container')
-  m.render(container,
-           m(modal, _.assign(attrs, { acceptFn, cancelFn }, children)))
+  m.mount(container, {
+    view () {
+      return m(modal, _.assign(attrs, { acceptFn, cancelFn }, children))
+    }
+  })
   const $modal = $('#modal')
   $modal.on('hidden.bs.modal', () => m.mount(container, null))
   $modal.modal('show')
