@@ -21,6 +21,60 @@ const _ = require('lodash')
 const $ = require('jquery')
 
 /**
+ * The surrounding div for a Bootstrap modal
+ */
+const base = (header, body, footer) => {
+  return m('.modal.fade#modal', {
+    tabindex: '-1',
+    role: 'dialog',
+    'aria-labelby': 'modal'
+  }, [
+    m('.modal-dialog', { role: 'document' },
+      m('form',
+        m('.modal-content',
+          header,
+          body,
+          footer)))
+  ])
+}
+
+/**
+ * The header div for a Bootstrap modal, including X to close
+ */
+const header = (title, cancelFn) => {
+  return m('.modal-header', [
+    m('h5.modal-title', title),
+    m('button.close', {
+      type: 'button',
+      onclick: cancelFn,
+      'data-dismiss': 'modal',
+      'aria-label': 'Close'
+    }, m('span', { 'aria-hidden': 'true' }, m.trust('&times;')))
+  ])
+}
+
+/**
+ * The body div for a Bootstrap modal
+ */
+const body = content => m('.modal-body', content)
+
+/**
+ * The footer div for a Bootstrap modal, takes any number of buttons
+ */
+const footer = (...buttons) => m('.modal-footer', buttons)
+
+/**
+ * A button which will dismiss a Bootstrap modal
+ */
+const button = (label, onclick, color = 'primary') => {
+ return m(`button.btn.btn-${color}`, {
+    type: 'button',
+    onclick,
+    'data-dismiss': 'modal'
+  }, label)
+}
+
+/**
  * A basic Bootstrap modal. Requires at least a title and body be set in
  * attributes. Also accepts text and functions for accepting/canceling.
  */
@@ -32,36 +86,12 @@ const BasicModal = {
     const acceptFn = vnode.attrs.acceptFn || _.identity
     const cancelFn = vnode.attrs.cancelFn || _.identity
 
-    return m('.modal.fade#modal', {
-      tabindex: '-1',
-      role: 'dialog',
-      'aria-labelby': 'modal'
-    }, [
-      m('.modal-dialog', { role: 'document' },
-        m('form',
-          m('.modal-content',
-            m('.modal-header',
-              m('h5.modal-title', vnode.attrs.title),
-              m('button.close', {
-                type: 'button',
-                onclick: cancelFn,
-                'data-dismiss': 'modal',
-                'aria-label': 'Close'
-              }, m('span', { 'aria-hidden': 'true' }, m.trust('&times;')))
-              ),
-            m('.modal-body', vnode.attrs.body),
-            m('.modal-footer',
-              m('button.btn.btn-secondary', {
-                type: 'button',
-                onclick: cancelFn,
-                'data-dismiss': 'modal'
-              }, cancelText),
-              m('button.btn.btn-primary', {
-                type: 'submit',
-                onclick: acceptFn,
-                'data-dismiss': 'modal'
-              }, acceptText)))))
-    ])
+    return base(
+      header(vnode.attrs.title, cancelFn),
+      body(vnode.attrs.body),
+      footer(
+        button(cancelText, cancelFn, 'secondary'),
+        button(acceptText, acceptFn)))
   }
 }
 
@@ -89,6 +119,11 @@ const show = (modal, attrs, children) => {
 }
 
 module.exports = {
+  base,
+  header,
+  body,
+  footer,
+  button,
   BasicModal,
   show
 }
