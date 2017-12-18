@@ -22,6 +22,7 @@ from marketplace_processor.account import account_creation
 from marketplace_processor.asset import asset_creation
 from marketplace_processor.holding import holding_creation
 from marketplace_processor.offer import offer_acceptance
+from marketplace_processor.offer import offer_closure
 from marketplace_processor.offer import offer_creation
 from marketplace_processor.marketplace_payload import MarketplacePayload
 from marketplace_processor.marketplace_state import MarketplaceState
@@ -71,5 +72,11 @@ class MarketplaceHandler(TransactionHandler):
                 payload.accept_offer(),
                 header=transaction.header,
                 state=state)
+        elif payload.is_close_offer():
+            offer_closure.handle_close_offer(
+                payload.close_offer(),
+                header=transaction.header,
+                state=state)
+
         else:
             raise InvalidTransaction("Transaction payload type unknown.")
