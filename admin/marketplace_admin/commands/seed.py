@@ -23,8 +23,8 @@ LOGGER = logging.getLogger(__name__)
 REF_RE = re.compile('^\$REF=(.+)\[(.+):(.+)\]\.(.+)$')
 
 
-def init_subparser(subparsers):
-    parser = subparsers.add_parser('submit',
+def init_seed_parser(subparsers):
+    parser = subparsers.add_parser('seed',
                                    help='Submits data to the REST API')
     parser.add_argument('-u', '--url',
                         help='The url of the REST API to submit to',
@@ -35,7 +35,7 @@ def init_subparser(subparsers):
     return parser
 
 
-def do_submit(opts):
+def do_seed(opts):
     if not opts.data:
         raise RuntimeError('No data file specified, use -d or --data')
 

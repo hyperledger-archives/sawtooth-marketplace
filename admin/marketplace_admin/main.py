@@ -17,7 +17,7 @@ import sys
 import argparse
 import logging
 
-from marketplace_admin import submit
+from marketplace_admin.commands import seed
 
 
 LOGGER = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def parse_args(args):
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
     subparsers.required = True
 
-    submit.init_subparser(subparsers)
+    seed.init_seed_parser(subparsers)
 
     return parser.parse_args(args)
 
@@ -54,7 +54,7 @@ def main():
     opts = parse_args(sys.argv[1:])
     init_logger(opts.verbose)
 
-    if opts.command == 'submit':
-        submit.do_submit(opts)
+    if opts.command == 'seed':
+        seed.do_seed(opts)
     else:
         raise RuntimeError('Unrecognized command: {}'.format(opts.command))
