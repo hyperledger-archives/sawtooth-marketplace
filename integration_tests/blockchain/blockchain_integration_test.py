@@ -456,6 +456,42 @@ class BlockchainTest(unittest.TestCase):
                 target=self.holding1_id2)[0]['status'],
             "COMMITTED")
 
+    def test_05_close_offer(self):
+        """Tests the CloseOffer validation rules.
+
+        Notes
+            CloseOffer
+                - The Offer exists and is Open.
+                - The txn signer is a member of the Offer owners.
+        """
+
+        self.assertEqual(
+            self.client.close_offer(
+                self.signer2,
+                str(uuid4()))[0]['status'],
+            "INVALID",
+            "The Offer must exist")
+
+        self.assertEqual(
+            self.client.close_offer(
+                self.signer2,
+                self.sawbucks_for_pickles)[0]['status'],
+            "INVALID",
+            "The txn signer must be an owner of the Offer.")
+
+        self.assertEqual(
+            self.client.close_offer(
+                self.signer1,
+                self.sawbucks_for_pickles)[0]['status'],
+            "COMMITTED")
+
+        self.assertEqual(
+            self.client.close_offer(
+                self.signer1,
+                self.sawbucks_for_pickles)[0]['status'],
+            "INVALID",
+            "The Offer must be Open.")
+
 
 class MarketplaceClient(object):
 
@@ -545,6 +581,18 @@ class MarketplaceClient(object):
             count=count,
             offerer_source=source,
             offerer_target=target)
+        batch_list = batch_pb2.BatchList(batches=batches)
+        self._client.send_batches(batch_list)
+        return self._client.get_statuses([signature], wait=10)
+
+    def close_offer(self,
+                    key,
+                    identifier):
+        batches, signature = transaction_creation.close_offer(
+            txn_key=key,
+            batch_key=BATCH_KEY,
+            identifier=identifier)
+
         batch_list = batch_pb2.BatchList(batches=batches)
         self._client.send_batches(batch_list)
         return self._client.get_statuses([signature], wait=10)
