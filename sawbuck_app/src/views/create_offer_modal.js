@@ -108,6 +108,31 @@ const holdingField = (placeholder, onValue) => {
   return forms.field(onValue, { placeholder, required: false })
 }
 
+// A labeled checkbox that will set or unset a rule in state
+const ruleCheckbox = (state, name, label) => {
+  const path = ['holding', 'rules', name, 'isSet']
+  return m('.form-check', [
+    m('label.form-check-label',
+      m('input.form-check-input', {
+        type: 'checkbox',
+        onclick: () => _.set(state, path, !_.get(state, path))
+      }), label)
+  ])
+}
+
+// Convert booleans and values in state to proper rule objects
+const getRules = state => {
+  const ruleObj = _.get(state, 'holding.rules', {})
+  return _.reduce(ruleObj, (rules, rule, type) => {
+    if (rule.isSet) {
+      const newRule = { type }
+      if (rule.keys) newRule.value = rule.keys.split(',')
+      rules = rules.concat(newRule)
+    }
+    return rules
+  }, [])
+}
+
 // Returns true or false depending on whether or not the form is valid
 const isFormValid = state => {
   if (!state.offer.source) return false
@@ -133,10 +158,11 @@ const submitter = (state, onDone) => () => {
     .then(holding => {
       const offerKeys = [
         'label', 'description', 'source', 'sourceQuantity',
-        'target', 'targetQuantity', 'rules'
+        'target', 'targetQuantity'
       ]
       const offer = _.pick(state.offer, offerKeys)
       if (holding) offer.target = holding.id
+      offer.rules = getRules(state)
       return api.post('offers', offer)
     })
     .then(onDone)
@@ -199,6 +225,7 @@ const CreateOfferModal = {
             forms.textInput(setter('offer.label'), 'Label', false),
             forms.textInput(setter('offer.description'), 'Description', false)
           ]),
+          m('hr'),
           mkt.bifold({
             header: layout.dropdown(
               getLabel(vnode.state.sourceLabel, 'Offered'),
@@ -229,7 +256,26 @@ const CreateOfferModal = {
                 holdingField('Label', setter('holding.label')),
                 holdingField('Description', setter('holding.description'))
               ])
-            ])
+            ]),
+          m('hr'),
+          forms.group('Rules', [
+            layout.row([
+              ruleCheckbox(
+                vnode.state,
+                'EXCHANGE_ONCE',
+                'Exchange only once'),
+              ruleCheckbox(
+                vnode.state,
+                'EXCHANGE_ONCE_PER_ACCOUNT',
+                'Exchange once per account')
+            ]),
+            layout.row(ruleCheckbox(
+              vnode.state,
+              'EXCHANGE_LIMITED_TO_ACCOUNTS',
+              holdingField(
+                'Limit to public key',
+                setter('holding.rules.EXCHANGE_LIMITED_TO_ACCOUNTS.keys'))))
+          ])
         ])),
       modals.footer(
         modals.button('Cancel', vnode.attrs.cancelFn, 'secondary'),
