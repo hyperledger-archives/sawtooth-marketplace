@@ -38,6 +38,7 @@ ACCOUNTS:
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
             value: ''
+    RENEWABLES: []
 
   - label: Sawtooth Central
     description: The source for all your Sawtooth products and services
@@ -192,3 +193,12 @@ ACCOUNTS:
         target: $REF=HOLDINGS[label:Sawbucket].id
         targetQuantity: 50
         rules: []
+    RENEWABLES:
+      - label: Daily Loyalty Bonus!
+        description: |
+          Refreshed each day, get yourself 500 Sawbucks just for being here!
+        source: $REF=holdings[label:Sawbucket].id
+        sourceQuantity: 500
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT
+            value: ''
