@@ -16,7 +16,8 @@
 import re
 import yaml
 import logging
-import requests
+
+from marketplace_admin.services import api
 
 
 LOGGER = logging.getLogger(__name__)
@@ -25,10 +26,8 @@ REF_RE = re.compile('^\$REF=(.+)\[(.+):(.+)\]\.(.+)$')
 
 def init_seed_parser(subparsers):
     parser = subparsers.add_parser('seed',
-                                   help='Submits data to the REST API')
-    parser.add_argument('-u', '--url',
-                        help='The url of the REST API to submit to',
-                        default='http://localhost:8000')
+                                   help='Submits data to the REST API',
+                                   parents=[api.get_parser()])
     parser.add_argument('-d', '--data',
                         help='The path to the YAML data file',
                         required=True)
@@ -42,9 +41,8 @@ def do_seed(opts):
     LOGGER.info('Reading data: %s', opts.data)
     data = yaml.load(open(opts.data, 'r'))
 
-    url = opts.url if re.search('://', opts.url) else 'http://' + opts.url
-    submit = lambda p, b, a=None: _api_submit(url, p, b, a)
-    LOGGER.info('Submitting data to URL: %s', url)
+    LOGGER.info('Submitting data to URL: %s', opts.url)
+    submit = lambda p, b, a=None: api.post(opts.url, p, b, a)
 
     for account in data['ACCOUNTS']:
         LOGGER.info('Submitting Account: %s', account['label'])
@@ -80,23 +78,6 @@ def do_seed(opts):
             responses['OFFERS'].append(submit('offers', offer, auth))
 
     LOGGER.info('Data submission complete.')
-
-
-def _api_submit(api_url, path, body, auth=None):
-    url = '{}/{}'.format(api_url, path)
-    headers = {'Authorization': auth} if auth else None
-
-    response = requests.post(url, json=body, headers=headers)
-    body = response.json()
-
-    if response.status_code > 299:
-        LOGGER.warn('Submit failed to URL: %s', path)
-        LOGGER.warn('%s %s: %s',
-                    response.status_code,
-                    response.reason,
-                    body.get('error'))
-
-    return body
 
 
 def _swap_references(resource, responses):
