@@ -18,6 +18,7 @@ import argparse
 import logging
 
 from marketplace_admin.commands import seed
+from marketplace_admin.commands import renew
 
 
 LOGGER = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ def parse_args(args):
     subparsers.required = True
 
     seed.init_seed_parser(subparsers)
+    renew.init_renew_parser(subparsers)
 
     return parser.parse_args(args)
 
@@ -56,5 +58,7 @@ def main():
 
     if opts.command == 'seed':
         seed.do_seed(opts)
+    elif opts.command == 'renew':
+        renew.do_renew(opts)
     else:
         raise RuntimeError('Unrecognized command: {}'.format(opts.command))

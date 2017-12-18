@@ -14,8 +14,10 @@
 # -----------------------------------------------------------------------------
 
 import re
+import json
 import yaml
 import logging
+from base64 import b64decode
 from argparse import ArgumentParser
 
 
@@ -58,3 +60,14 @@ def swap_refs(resource, data):
             continue
 
         resource[key] = swap_value
+
+
+def parse_jwt(token):
+    payload = token.split('.')[1]
+
+    # Python's base64 can't handle JWT tokens, which are sent without padding
+    missing_padding = len(token) % 4
+    if missing_padding != 0:
+        payload += '=' * (4 - missing_padding)
+
+    return json.loads(b64decode(payload))
