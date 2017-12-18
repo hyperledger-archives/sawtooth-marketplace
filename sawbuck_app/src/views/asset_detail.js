@@ -22,10 +22,13 @@ const _ = require('lodash')
 const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
+const { createOffer } = require('./create_offer_modal')
 
 const offerButton = (name, key = 'source') => {
   const label = key === 'target' ? 'Request' : 'Offer'
-  const onclick = () => console.log(`Offering ${name} as ${key}...`)
+  const onclick = key === 'target'
+    ? () => createOffer(null, name)
+    : () => createOffer(name)
 
   return m('button.btn-lg.btn-outline-primary', { onclick }, label)
 }

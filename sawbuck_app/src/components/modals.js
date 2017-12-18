@@ -66,12 +66,12 @@ const footer = (...buttons) => m('.modal-footer', buttons)
 /**
  * A button which will dismiss a Bootstrap modal
  */
-const button = (label, onclick, color = 'primary') => {
- return m(`button.btn.btn-${color}`, {
+const button = (label, onclick, color = 'primary', attrs = {}) => {
+  return m(`button.btn.btn-${color}`, _.assign({
     type: 'button',
     onclick,
     'data-dismiss': 'modal'
-  }, label)
+  }, attrs), label)
 }
 
 /**
