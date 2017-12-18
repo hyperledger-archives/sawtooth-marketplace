@@ -55,6 +55,11 @@ ASSET = {
     ]
 }
 
+ASSET_2 = {
+    'name': 'Imperial Credit',
+    'description': 'Standard form of currency throughout the Galactic Empire'
+}
+
 HOLDING = {
     "label": "Suzebucket",
     "description": "The source for all Suzebucks.",
@@ -70,6 +75,17 @@ HOLDING_2 = {
     "quantity": 1337
 }
 
+HOLDING_3 = {
+    "label": "Credit chip 0",
+    "asset": "Imperial Credit",
+    "quantity": 3000
+}
+
+HOLDING_4 = {
+    "label": "Credit chip 1",
+    "asset": "Imperial Credit",
+    "quantity": 3000
+}
 
 AUTH_ACCOUNT = {
     'email': 'qwerty@suze.au.co',
@@ -152,10 +168,13 @@ def initialize_sample_resources(txns):
 
     # Create ASSET
     seeded_data['asset'] = submit('assets', ASSET)
+    seeded_data['asset_2'] = submit('assets', ASSET_2)
 
     # Create HOLDINGS
     seeded_data['holding'] = submit('holdings', HOLDING)
     seeded_data['holding_2'] = submit('holdings', HOLDING_2)
+    seeded_data['holding_3'] = submit('holdings', HOLDING_3)
+    seeded_data['holding_4'] = submit('holdings', HOLDING_4)
 
     # Create AUTH_ACCOUNT
     auth_account_response = submit('accounts', AUTH_ACCOUNT)
@@ -164,7 +183,7 @@ def initialize_sample_resources(txns):
 
     # Create OFFER
     OFFER['source'] = seeded_data['holding']['id']
-    OFFER['target'] = seeded_data['holding_2']['id']
+    OFFER['target'] = seeded_data['holding_3']['id']
     seeded_data['offer'] = submit('offers', OFFER)
 
     # Replace example auth and identifiers with ones from seeded data
@@ -179,8 +198,16 @@ def initialize_sample_resources(txns):
 def add_holding(txn):
     patch_body(txn, {
             'source': seeded_data['holding']['id'],
-            'target': seeded_data['holding']['id'],
+            'target': seeded_data['holding_3']['id'],
             'targetQuantity': 1337
+        })
+
+@hooks.before('/offers/{id}/accept > PATCH > 200 > application/json')
+def add_accept_info(txn):
+    patch_body(txn, {
+            'source': seeded_data['holding_4']['id'],
+            'count': 1,
+            'target': seeded_data['holding_2']['id']
         })
 
 

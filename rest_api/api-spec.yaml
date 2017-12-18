@@ -673,14 +673,14 @@ definitions:
     type: object
     required:
       - source
-      - sourceQuantity
+      - count
       - target
     properties:
       source:
         description: The id of a Holding from which resources will be drawn
         type: string
         example: 0ab3febf-e7a3-4b90-966a-68e2f273c7a5
-      sourceQuantity:
+      count:
         description: The number of resources to send out during exchange
         type: integer
         example: 1000

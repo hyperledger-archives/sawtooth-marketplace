@@ -18,13 +18,13 @@ from rethinkdb.errors import ReqlNonExistenceError
 
 from api.errors import ApiBadRequest
 
-from db import blocks_query
+from db.common import fetch_latest_block_num
 
 
 async def fetch_all_asset_resources(conn):
     return await r.table('assets')\
-        .filter((blocks_query.latest_block_num() >= r.row['start_block_num'])
-                & (blocks_query.latest_block_num() < r.row['end_block_num']))\
+        .filter((fetch_latest_block_num() >= r.row['start_block_num'])
+                & (fetch_latest_block_num() < r.row['end_block_num']))\
         .map(lambda asset: (asset['description'] == "").branch(
             asset.without('description'), asset))\
         .map(lambda asset: (asset['rules'] == []).branch(
