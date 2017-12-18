@@ -13,38 +13,30 @@
 # limitations under the License.
 # -----------------------------------------------------------------------------
 
-import re
-import yaml
 import logging
-
 from marketplace_admin.services import api
+from marketplace_admin.services import data
 
 
 LOGGER = logging.getLogger(__name__)
-REF_RE = re.compile('^\$REF=(.+)\[(.+):(.+)\]\.(.+)$')
 
 
 def init_seed_parser(subparsers):
-    parser = subparsers.add_parser('seed',
-                                   help='Submits data to the REST API',
-                                   parents=[api.get_parser()])
-    parser.add_argument('-d', '--data',
-                        help='The path to the YAML data file',
-                        required=True)
+    parser = subparsers.add_parser(
+        'seed',
+        help='Submits data to the REST API',
+        parents=[api.get_parser(), data.get_parser()])
     return parser
 
 
 def do_seed(opts):
-    if not opts.data:
-        raise RuntimeError('No data file specified, use -d or --data')
-
     LOGGER.info('Reading data: %s', opts.data)
-    data = yaml.load(open(opts.data, 'r'))
+    seed_data = data.load(opts.data)
 
     LOGGER.info('Submitting data to URL: %s', opts.url)
     submit = lambda p, b, a=None: api.post(opts.url, p, b, a)
 
-    for account in data['ACCOUNTS']:
+    for account in seed_data['ACCOUNTS']:
         LOGGER.info('Submitting Account: %s', account['label'])
         auth = submit('accounts', account).get('authorization')
 
@@ -64,42 +56,17 @@ def do_seed(opts):
 
         for asset in account['ASSETS']:
             LOGGER.debug('Submitting Asset: %s', asset['name'])
-            _swap_references(asset, responses)
+            data.swap_refs(asset, responses)
             responses['ASSETS'].append(submit('assets', asset, auth))
 
         for holding in account['HOLDINGS']:
             LOGGER.debug('Submitting Holding: %s', holding['label'])
-            _swap_references(holding, responses)
+            data.swap_refs(holding, responses)
             responses['HOLDINGS'].append(submit('holdings', holding, auth))
 
         for offer in account['OFFERS']:
             LOGGER.debug('Submitting Offer: %s', offer['label'])
-            _swap_references(offer, responses)
+            data.swap_refs(offer, responses)
             responses['OFFERS'].append(submit('offers', offer, auth))
 
     LOGGER.info('Data submission complete.')
-
-
-def _swap_references(resource, responses):
-    for key, value in resource.items():
-        try:
-            match = REF_RE.fullmatch(value)
-        except TypeError:
-            continue
-
-        if match is None:
-            continue
-
-        list_name = match.group(1)
-        filter_key = match.group(2)
-        filter_value = match.group(3)
-        swap_key = match.group(4)
-
-        try:
-            swap_value = next(r[swap_key] for r in responses[list_name]
-                              if r[filter_key] == filter_value)
-        except StopIteration:
-            LOGGER.warn('Unable to find match for ref: %s', value)
-            continue
-
-        resource[key] = swap_value
