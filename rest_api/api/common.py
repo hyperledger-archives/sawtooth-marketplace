@@ -78,11 +78,21 @@ def proto_wrap_rules(rules):
         for rule in rules:
             try:
                 rule_proto = rule_pb2.Rule(type=rule['type'])
-                rule_protos.append(rule_proto)
             except IndexError:
                 raise ApiBadRequest("Improper rule format")
             except ValueError:
                 raise ApiBadRequest("Invalid rule type")
             except KeyError:
                 raise ApiBadRequest("Rule type is required")
+            if rule.get('value') is not None:
+                rule_proto.value = value_to_csv(rule['value'])
+            rule_protos.append(rule_proto)
     return rule_protos
+
+
+def value_to_csv(value):
+    if isinstance(value, (list, tuple)):
+        csv = ",".join(map(str, value))
+        return bytes(csv, 'utf-8')
+    else:
+        raise ApiBadRequest("Rule value must be a JSON array")

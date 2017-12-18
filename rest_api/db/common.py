@@ -19,6 +19,11 @@ from rethinkdb import ReqlNonExistenceError
 from api.errors import ApiInternalError
 
 
+VAL_TYPE_INT = r.expr([
+    "REQUIRE_SOURCE_QUANTITIES", "REQUIRE_TARGET_QUANTITIES"
+])
+
+
 def fetch_latest_block_num():
     try:
         return r.table('blocks')\
@@ -40,3 +45,22 @@ def fetch_holdings(holding_ids):
             holding.without('description'), holding))\
         .without('start_block_num', 'end_block_num', 'delta_id', 'account')\
         .coerce_to('array')
+
+
+def parse_rules(rules):
+    return r.expr(
+        {
+            'rules': rules.map(lambda rule: (
+                rule['value'] == bytes('', 'utf-8')).branch(
+                    rule.without('value'),
+                    rule.merge(
+                        {
+                            'value': _value_to_array(rule)
+                        })))
+        })
+
+
+def _value_to_array(rule):
+    val_array = rule['value'].coerce_to('string').split(",")
+    return VAL_TYPE_INT.contains(rule['type']).branch(
+        val_array.map(lambda val: val.coerce_to('number')), val_array)
