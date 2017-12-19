@@ -19,6 +19,7 @@ import logging
 
 from marketplace_admin.commands import seed
 from marketplace_admin.commands import renew
+from marketplace_admin.commands import schedule
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ def parse_args(args):
 
     seed.init_seed_parser(subparsers)
     renew.init_renew_parser(subparsers)
+    schedule.init_schedule_parser(subparsers)
 
     return parser.parse_args(args)
 
@@ -60,5 +62,7 @@ def main():
         seed.do_seed(opts)
     elif opts.command == 'renew':
         renew.do_renew(opts)
+    elif opts.command == 'schedule':
+        schedule.do_schedule(opts)
     else:
         raise RuntimeError('Unrecognized command: {}'.format(opts.command))
