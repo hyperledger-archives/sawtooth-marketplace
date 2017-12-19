@@ -17,6 +17,7 @@ import re
 import json
 import yaml
 import logging
+from os import path
 from base64 import b64decode
 from argparse import ArgumentParser
 
@@ -28,13 +29,20 @@ REF_REG_EX = re.compile('^\$REF=(.+)\[(.+):(.+)\]\.(.+)$')
 def get_parser():
     parser = ArgumentParser(add_help=False)
     parser.add_argument('-d', '--data',
-                        help='The path to the YAML data file',
+                        help=('Path to YAML file, absolute or relative to '
+                              'root project directory'),
                         required=True)
     return parser
 
 
-def load(path):
-    return yaml.load(open(path, 'r'))
+def load(data_path):
+    if path.isabs(data_path):
+        data_abs = data_path
+    else:
+        mkt_rel = '../../../'
+        mkt_abs = path.realpath(path.join(path.dirname(__file__), mkt_rel))
+        data_abs = path.join(mkt_abs, data_path)
+    return yaml.load(open(data_abs, 'r'))
 
 
 def swap_refs(resource, data):
