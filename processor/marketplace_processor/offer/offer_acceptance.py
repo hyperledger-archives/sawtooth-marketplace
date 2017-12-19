@@ -17,6 +17,7 @@ from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
 from marketplace_processor.offer.accept_calc import AcceptOfferCalculator
 from marketplace_processor.protobuf import offer_pb2
+from marketplace_processor.protobuf import rule_pb2
 
 
 def handle_accept_offer(accept_offer, header, state):
@@ -99,81 +100,156 @@ class OfferAcceptance(object):
 
         self._state = state
 
-        self._off_source_hldng = state.get_holding(offer.source)
+        source_hldng = state.get_holding(offer.source)
+        target_hldng = state.get_holding(
+            offer.target) if offer.target else None
+        asset = state.get_asset(target_hldng.asset) if target_hldng else None
 
-        self._off_target_hldng = state.get_holding(offer.target) \
-            if offer.target else None
+        self._offerer = _OfferParticipant(
+            source=source_hldng,
+            target=target_hldng,
+            source_asset=state.get_asset(source_hldng.asset),
+            target_asset=asset)
 
-        self._rec_source_hldng = state.get_holding(accept_offer.source) \
+        source = state.get_holding(accept_offer.source) \
             if accept_offer.source else None
+        src_asset = state.get_asset(
+            source.asset) if source else None
+        target = state.get_holding(accept_offer.target)
 
-        self._rec_target_hldng = state.get_holding(accept_offer.target)
+        self._receiver = _OfferParticipant(
+            source=source,
+            source_asset=src_asset,
+            target=target,
+            target_asset=state.get_asset(target.asset))
 
     def validate_output_holding_exists(self):
         if self._offer.target and self._accept_offer.source:
-            if self._off_target_hldng and not self._rec_source_hldng:
+            if self._offerer.target and not self._receiver.source:
                 raise InvalidTransaction(
                     "Failed to accept offer, holding specified as source,{},"
                     " does not exist.".format(self._accept_offer.source))
 
     def validate_input_holding_exists(self):
-        if not self._rec_target_hldng:
+        if not self._receiver.target:
             raise InvalidTransaction(
                 "Failed to accept offer, holding specified as target, {},"
                 " does not exist".format(self._accept_offer.target))
 
     def validate_input_holding_assets(self):
-        if not self._off_source_hldng.asset == self._rec_target_hldng.asset:
+        if not self._offerer.source.asset == self._receiver.target.asset:
             raise InvalidTransaction(
                 "Failed to accept offer, expected Holding asset {}, got "
-                "asset {}".format(self._off_source_hldng.asset,
-                                  self._rec_target_hldng.asset))
+                "asset {}".format(self._offerer.source.asset,
+                                  self._receiver.target.asset))
 
     def validate_output_holding_assets(self):
         if self._offer.target \
-                and self._off_target_hldng \
+                and self._offerer.target \
                 and not \
-                self._off_target_hldng.asset == self._rec_source_hldng.asset:
+                self._offerer.target.asset == self._receiver.source.asset:
             raise InvalidTransaction(
                 "Failed to accept offer, expected Holding asset {}, got "
-                "asset {}.".format(self._off_target_hldng.asset,
-                                   self._rec_source_hldng.asset))
+                "asset {}.".format(self._offerer.target.asset,
+                                   self._receiver.source.asset))
 
     def validate_output_enough(self, output_quantity):
-        if self._accept_offer.source and \
-                output_quantity > self._rec_source_hldng.quantity:
+        if self._accept_offer.source and not _holding_is_infinite(
+                self._receiver.source_asset,
+                self._receiver.source.account) and \
+                output_quantity > self._receiver.source.quantity:
             raise InvalidTransaction(
                 "Failed to accept offer, needed quantity {}, but only had {} "
                 "of {}".format(output_quantity,
-                               self._rec_source_hldng.quantity,
-                               self._rec_source_hldng.asset))
+                               self._receiver.source.quantity,
+                               self._receiver.source.asset))
 
     def validate_input_enough(self, input_quantity):
-        if input_quantity > self._off_source_hldng.quantity:
+        if not _holding_is_infinite(self._offerer.source_asset,
+                                    self._offerer.source.account) and \
+                input_quantity > self._offerer.source.quantity:
             raise InvalidTransaction(
                 "Failed to accept offer, needed quantity {}, but only had {} "
                 "of {}".format(input_quantity,
-                               self._off_source_hldng.quantity,
-                               self._off_source_hldng.asset))
+                               self._offerer.source.quantity,
+                               self._offerer.source.asset))
 
     def handle_offerer_source(self, input_quantity):
-        self._state.change_holding_quantity(
-            self._off_source_hldng.id,
-            self._off_source_hldng.quantity - input_quantity)
+        if not _holding_is_infinite(self._offerer.source_asset,
+                                    self._offerer.source.account):
+            self._state.change_holding_quantity(
+                self._offerer.source.id,
+                self._offerer.source.quantity - input_quantity)
 
     def handle_offerer_target(self, output_quantity):
         if self._offer.target:
             self._state.change_holding_quantity(
-                self._off_target_hldng.id,
-                self._off_target_hldng.quantity + output_quantity)
+                self._offerer.target.id,
+                self._offerer.target.quantity + output_quantity)
 
     def handle_receiver_source(self, output_quantity):
-        if self._accept_offer.source:
+        if self._accept_offer.source and not _holding_is_infinite(
+                self._receiver.source_asset,
+                self._receiver.source.account):
             self._state.change_holding_quantity(
-                self._rec_source_hldng.id,
-                self._rec_source_hldng.quantity - output_quantity)
+                self._receiver.source.id,
+                self._receiver.source.quantity - output_quantity)
 
     def handle_receiver_target(self, input_quantity):
         self._state.change_holding_quantity(
-            self._rec_target_hldng.id,
-            self._rec_target_hldng.quantity + input_quantity)
+            self._receiver.target.id,
+            self._receiver.target.quantity + input_quantity)
+
+
+def _has_rule(rules, rule_type):
+    for rule in rules:
+        if rule.type == rule_type:
+            return True
+    return False
+
+
+def _holding_is_infinite(asset, owner):
+    if asset and (_has_rule(
+            asset.rules,
+            rule_pb2.Rule.ALL_HOLDINGS_INFINITE) or
+                  _has_rule(
+                      asset.rules,
+                      rule_pb2.Rule.OWNER_HOLDINGS_INFINITE) and
+                  owner in asset.owners):
+        return True
+    return False
+
+
+class _OfferParticipant(object):
+
+    def __init__(self, source, target, source_asset, target_asset):
+        """Constructor.
+
+        Args:
+            source (Holding): The source Holding.
+            target (Holding): The target Holding.
+            source_asset (Asset): The source Asset.
+            target_asset (Asset): The target Asset.
+        """
+
+        self._source = source
+        self._source_asset = source_asset
+
+        self._target = target
+        self._target_asset = target_asset
+
+    @property
+    def source(self):
+        return self._source
+
+    @property
+    def source_asset(self):
+        return self._source_asset
+
+    @property
+    def target(self):
+        return self._target
+
+    @property
+    def target_asset(self):
+        return self._target_asset
