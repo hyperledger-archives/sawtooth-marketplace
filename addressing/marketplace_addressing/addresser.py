@@ -23,8 +23,13 @@ FAMILY_NAME = 'marketplace'
 NS = hashlib.sha512(FAMILY_NAME.encode()).hexdigest()[:6]
 
 
-class AssetSpace(enum.IntEnum):
+class OfferHistorySpace(enum.IntEnum):
     START = 0
+    STOP = 1
+
+
+class AssetSpace(enum.IntEnum):
+    START = 1
     STOP = 50
 
 
@@ -49,6 +54,7 @@ class AddressSpace(enum.IntEnum):
     HOLDING = 1
     ACCOUNT = 2
     OFFER = 3
+    OFFER_HISTORY = 4
 
     OTHER_FAMILY = 100
 
@@ -59,6 +65,19 @@ def _hash(identifier):
 
 def _compress(address, start, stop):
     return "%.2X".lower() % (int(address, base=16) % (stop - start) + start)
+
+
+def make_offer_account_address(offer_id, account):
+    offer_hash = _hash(offer_id)
+    account_hash = _hash(account)
+
+    return NS + '00' + offer_hash[:60] + _compress(account_hash, 1, 256)
+
+
+def make_offer_history_address(offer_id):
+    offer_hash = _hash(offer_id)
+
+    return NS + '00' + offer_hash[:60] + '00'
 
 
 def make_asset_address(asset_id):
@@ -119,3 +138,5 @@ def address_is(address):
 
     elif _contains(infix, OfferSpace):
         return AddressSpace.OFFER
+    else:
+        return AddressSpace.OTHER_FAMILY
