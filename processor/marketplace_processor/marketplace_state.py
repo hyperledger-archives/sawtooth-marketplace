@@ -19,6 +19,12 @@ from marketplace_processor.protobuf import asset_pb2
 from marketplace_processor.protobuf import holding_pb2
 from marketplace_processor.protobuf import offer_pb2
 from marketplace_processor.protobuf import offer_history_pb2
+from marketplace_processor.protobuf import rule_pb2
+
+
+OFFER_RULES = [rule_pb2.Rule.EXCHANGE_ONCE_PER_ACCOUNT,
+               rule_pb2.Rule.EXCHANGE_ONCE,
+               rule_pb2.Rule.EXCHANGE_LIMITED_TO_ACCOUNTS]
 
 
 class MarketplaceState(object):
@@ -30,10 +36,13 @@ class MarketplaceState(object):
 
     def get_offer(self, identifier):
         address = addresser.make_offer_address(offer_id=identifier)
-
         self._state_entries.extend(self._context.get_state(
             addresses=[address],
             timeout=self._timeout))
+
+        return self._get_offer(address=address, identifier=identifier)
+
+    def _get_offer(self, address, identifier):
 
         container = _get_offer_container(self._state_entries, address)
         offer = None
@@ -75,11 +84,21 @@ class MarketplaceState(object):
         offer.rules.extend(rules)
         offer.status = offer_pb2.Offer.OPEN
 
+        offer.rules.extend(self._return_offer_rules(source))
+        if target:
+            offer.rules.extend(self._return_offer_rules(target))
+
         state_entries_send = {}
         state_entries_send[address] = container.SerializeToString()
         return self._context.set_state(
             state_entries_send,
             self._timeout)
+
+    def _return_offer_rules(self, holding_id,):
+        holding_addr = addresser.make_holding_address(holding_id)
+        holding = self._get_holding(holding_addr, holding_id)
+        asset = self.get_asset(holding.asset)
+        return [r for r in asset.rules if r.type in OFFER_RULES]
 
     def close_offer(self, identifier):
         address = addresser.make_offer_address(offer_id=identifier)
@@ -105,6 +124,10 @@ class MarketplaceState(object):
         self._state_entries.extend(self._context.get_state(
             addresses=[address],
             timeout=self._timeout))
+
+        return self._get_holding(address=address, identifier=identifier)
+
+    def _get_holding(self, address, identifier):
 
         container = _get_holding_container(self._state_entries, address)
 
@@ -170,6 +193,10 @@ class MarketplaceState(object):
         self._state_entries.extend(self._context.get_state(
             addresses=[address],
             timeout=self._timeout))
+
+        return self._get_asset(address=address, name=name)
+
+    def _get_asset(self, address, name):
 
         container = _get_asset_container(self._state_entries, address)
 
