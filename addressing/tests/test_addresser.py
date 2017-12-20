@@ -57,3 +57,10 @@ class AddresserTest(unittest.TestCase):
         self.assertEqual(addresser.address_is(holding_address),
                          addresser.AddressSpace.HOLDING,
                          "The address is correctly identified as an Holding.")
+
+    def test_offer_history_address(self):
+        offer_history_address = addresser.make_offer_account_address(
+            uuid4().hex,
+            uuid4().hex)
+
+        self.assertEqual(len(offer_history_address), 70, "The address is valid")
