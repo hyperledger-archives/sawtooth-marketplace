@@ -45,7 +45,11 @@ def handle_accept_offer(accept_offer, header, state):
 
     check_validity_of_offer(offer, accept_offer)
 
-    offer_accept = OfferAcceptance(offer, accept_offer, state)
+    offer_accept = OfferAcceptance(offer, accept_offer, header, state)
+
+    offer_accept.validate_exchange_once()
+
+    offer_accept.validate_once_per_account()
 
     # The holding ids referernce Holdings.
     offer_accept.validate_output_holding_exists()
@@ -69,6 +73,9 @@ def handle_accept_offer(accept_offer, header, state):
     offer_accept.handle_offerer_target(calculator.output_quantity())
     offer_accept.handle_receiver_source(calculator.output_quantity())
     offer_accept.handle_receiver_target(calculator.input_quantity())
+
+    offer_accept.handle_once_per_account()
+    offer_accept.handle_exchange_once()
 
 
 def check_validity_of_offer(offer, accept_offer):
@@ -94,9 +101,10 @@ def check_validity_of_offer(offer, accept_offer):
 
 class OfferAcceptance(object):
 
-    def __init__(self, offer, accept_offer, state):
+    def __init__(self, offer, accept_offer, header, state):
         self._offer = offer
         self._accept_offer = accept_offer
+        self._header = header
 
         self._state = state
 
@@ -174,6 +182,23 @@ class OfferAcceptance(object):
                                self._offerer.source.quantity,
                                self._offerer.source.asset))
 
+    def validate_once_per_account(self):
+        if _exchange_once_per_account(self._offer):
+            if self._state.get_offer_account_receipt(
+                    offer_id=self._offer.id,
+                    account=self._header.signer_public_key):
+                raise InvalidTransaction(
+                    "Failed to accept offer, EXCHANGE ONCE PER ACCOUNT set "
+                    "and account {} already has "
+                    "accepted offer.".format(self._header.signer_public_key))
+
+    def validate_exchange_once(self):
+        if _exchange_once(self._offer):
+            if self._state.offer_has_receipt(offer_id=self._offer.id):
+                raise InvalidTransaction(
+                    "Failed to accept offer, offer has already been accepted "
+                    "and EXCHANGE ONCE is set.")
+
     def handle_offerer_source(self, input_quantity):
         if not _holding_is_infinite(self._offerer.source_asset,
                                     self._offerer.source.account):
@@ -200,11 +225,33 @@ class OfferAcceptance(object):
             self._receiver.target.id,
             self._receiver.target.quantity + input_quantity)
 
+    def handle_once_per_account(self):
+        if _exchange_once_per_account(self._offer):
+            self._state.save_offer_account_receipt(
+                offer_id=self._offer.id,
+                account=self._header.signer_public_key)
+
+    def handle_exchange_once(self):
+        if _exchange_once(self._offer):
+            self._state.save_offer_receipt(offer_id=self._offer.id)
+
 
 def _has_rule(rules, rule_type):
     for rule in rules:
         if rule.type == rule_type:
             return True
+    return False
+
+
+def _exchange_once(offer):
+    if _has_rule(offer.rules, rule_pb2.Rule.EXCHANGE_ONCE):
+        return True
+    return False
+
+
+def _exchange_once_per_account(offer):
+    if _has_rule(offer.rules, rule_pb2.Rule.EXCHANGE_ONCE_PER_ACCOUNT):
+        return True
     return False
 
 
