@@ -16,6 +16,7 @@
 import re
 import logging
 import requests
+from functools import partial
 from argparse import ArgumentParser
 
 
@@ -47,14 +48,6 @@ def request(method, base_url, path, body=None, auth=None):
 
     return response_body
 
-
-def get(base_url, path, auth=None):
-    return request('GET', base_url, path, None, auth)
-
-
-def post(base_url, path, body, auth=None):
-    return request('POST', base_url, path, body, auth)
-
-
-def patch(base_url, path, body, auth=None):
-    return request('PATCH', base_url, path, body, auth)
+get = partial(request, 'GET')
+post = partial(request, 'POST')
+patch = partial(request, 'PATCH')
