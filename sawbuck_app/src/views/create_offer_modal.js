@@ -19,6 +19,7 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const forms = require('../components/forms')
 const layout = require('../components/layout')
@@ -172,16 +173,16 @@ const submitter = (state, onDone) => () => {
 // A versatile modal allowing users to create new offers (and new holdings)
 const CreateOfferModal = {
   oninit (vnode) {
-    const publicKey = api.getPublicKey()
     vnode.state.offer = {}
     vnode.state.holding = {}
     vnode.state.hasNewHolding = false
 
     return Promise.all([
-      api.get(`accounts/${publicKey}`),
+      acct.getUserAccount(),
       vnode.attrs.target ? null : api.get('assets')
     ])
       .then(([ account, assets ]) => {
+        if (!account) return vnode.attrs.cancelFn()
         if (assets && assets.error) return console.error(account.error)
         if (account.error) return console.error(account.error)
         vnode.state.assets = assets
