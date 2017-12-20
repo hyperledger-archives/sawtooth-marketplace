@@ -22,6 +22,7 @@ const _ = require('lodash')
 const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
+const { acceptOffer } = require('./accept_offer_modal')
 
 const filterDropdown = (label, assets, setter) => {
   const options = assets.map(asset => ({
@@ -37,7 +38,7 @@ const filterDropdown = (label, assets, setter) => {
 }
 
 const acceptButton = (offer, account = null) => {
-  const onclick = () => console.log(`Accepting offer ${offer.id}...`)
+  const onclick = () => acceptOffer(offer.id)
   let disabled = false
   if (!account) disabled = true
   else if (offer.targetQuantity === 0) disabled = false
