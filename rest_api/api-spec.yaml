@@ -309,14 +309,7 @@ paths:
             $ref: '#/definitions/AcceptOfferBody'
       responses:
         200:
-          description: Success response with the updated Holdings
-          schema:
-            type: object
-            properties:
-              source:
-                $ref: '#/definitions/HoldingObject'
-              target:
-                $ref: '#/definitions/HoldingObject'
+          description: Success response indicating offer has been accepted
         400:
           $ref: '#/responses/400BadRequest'
         401:
@@ -335,9 +328,7 @@ paths:
         - AuthToken: []
       responses:
         200:
-          description: Success response with the updated Offer
-          schema:
-            $ref: '#/definitions/OfferObject'
+          description: Success response indicating Offer was closed
         400:
           $ref: '#/responses/400BadRequest'
         401:
