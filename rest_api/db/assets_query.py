@@ -27,8 +27,6 @@ async def fetch_all_asset_resources(conn):
                 & (fetch_latest_block_num() < r.row['end_block_num']))\
         .map(lambda asset: (asset['description'] == "").branch(
             asset.without('description'), asset))\
-        .map(lambda asset: (asset['rules'] == []).branch(
-            asset.without('rules'), asset))\
         .without('start_block_num', 'end_block_num', 'delta_id')\
         .coerce_to('array').run(conn)
 
@@ -40,8 +38,6 @@ async def fetch_asset_resource(conn, name):
             .max('start_block_num')\
             .do(lambda asset: (asset['description'] == "").branch(
                 asset.without('description'), asset))\
-            .do(lambda asset: (asset['rules'] == []).branch(
-                asset.without('rules'), asset))\
             .without('start_block_num', 'end_block_num', 'delta_id')\
             .run(conn)
     except ReqlNonExistenceError:
