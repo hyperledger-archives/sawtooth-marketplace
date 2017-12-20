@@ -14,6 +14,7 @@
 # -----------------------------------------------------------------------------
 
 import logging
+from functools import partial
 from marketplace_admin.services import api
 from marketplace_admin.services import data
 
@@ -34,7 +35,7 @@ def do_seed(opts):
     seed_data = data.load(opts.data)
 
     LOGGER.info('Submitting data to URL: %s', opts.url)
-    submit = lambda p, b, a=None: api.post(opts.url, p, b, a)
+    submit = partial(api.post, opts.url)
 
     for account in seed_data['ACCOUNTS']:
         LOGGER.info('Submitting Account: %s', account['label'])

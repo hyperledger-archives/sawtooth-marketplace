@@ -14,6 +14,7 @@
 # -----------------------------------------------------------------------------
 
 import logging
+from functools import partial
 from marketplace_admin.services import api
 from marketplace_admin.services import data
 
@@ -34,9 +35,9 @@ def do_renew(opts):
     renew_data = data.load(opts.data)
 
     LOGGER.info('Submitting data to URL: %s', opts.url)
-    fetch = lambda path: api.get(opts.url, path)
-    submit = lambda p, b, a=None: api.post(opts.url, p, b, a)
-    update = lambda p, b, a: api.patch(opts.url, p, b, a)
+    fetch = partial(api.get, opts.url)
+    submit = partial(api.post, opts.url)
+    update = partial(api.patch, opts.url)
 
     LOGGER.debug('Fetching all existing open offers')
     open_offers = [o for o in fetch('offers') if o['status'] == 'OPEN']
