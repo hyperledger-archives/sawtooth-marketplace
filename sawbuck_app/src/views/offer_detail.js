@@ -19,6 +19,7 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
@@ -38,10 +39,9 @@ const acceptButton = (label, onclick, disabled = false) => {
  */
 const OfferDetailPage = {
   oninit (vnode) {
-    const publicKey = api.getPublicKey()
     Promise.all([
       api.get(`offers/${vnode.attrs.id}`),
-      publicKey ? api.get(`accounts/${publicKey}`) : null
+      acct.getUserAccount()
     ])
       .then(([ offer, user ]) => {
         vnode.state.offer = offer
@@ -68,7 +68,7 @@ const OfferDetailPage = {
         }
 
         const owner = offer.owners[0]
-        if (user && publicKey === owner) return user
+        if (user && user.publicKey === owner) return user
         return api.get(`accounts/${owner}`)
       })
       .then(owner => {
