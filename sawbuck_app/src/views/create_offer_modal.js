@@ -244,7 +244,7 @@ const CreateOfferModal = {
               required: false,
               disabled: vnode.state.noTarget
             })
-          }),
+          }, 'right'),
           !vnode.state.hasNewHolding
             ? null
             : forms.group('New Holding', [
