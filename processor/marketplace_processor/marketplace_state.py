@@ -18,6 +18,7 @@ from marketplace_processor.protobuf import account_pb2
 from marketplace_processor.protobuf import asset_pb2
 from marketplace_processor.protobuf import holding_pb2
 from marketplace_processor.protobuf import offer_pb2
+from marketplace_processor.protobuf import offer_history_pb2
 
 
 class MarketplaceState(object):
@@ -263,6 +264,103 @@ class MarketplaceState(object):
         return self._context.set_state(
             state_entries_send,
             self._timeout)
+
+    def save_offer_account_receipt(self, offer_id, account):
+        address = addresser.make_offer_account_address(
+            offer_id=offer_id,
+            account=account)
+
+        container = _get_history_container(self._state_entries, address)
+        offer_history = container.entries.add()
+
+        offer_history.offer_id = offer_id
+        offer_history.account_id = account
+
+        state_entries_send = {}
+        state_entries_send[address] = container.SerializeToString()
+        return self._context.set_state(
+            state_entries_send,
+            self._timeout)
+
+    def save_offer_receipt(self, offer_id):
+        address = addresser.make_offer_history_address(offer_id=offer_id)
+
+        container = _get_history_container(self._state_entries, address)
+        offer_history = container.entries.add()
+
+        offer_history.offer_id = offer_id
+
+        state_entries_send = {}
+        state_entries_send[address] = container.SerializeToString()
+        return self._context.set_state(
+            state_entries_send,
+            self._timeout)
+
+    def offer_has_receipt(self, offer_id):
+        address = addresser.make_offer_history_address(
+            offer_id=offer_id)
+
+        self._state_entries.extend(self._context.get_state(
+            addresses=[address],
+            timeout=self._timeout))
+
+        container = _get_history_container(self._state_entries, address)
+
+        try:
+            _get_history_by_offer_id(
+                container,
+                offer_id=offer_id)
+            return True
+        except KeyError:
+            return False
+
+    def get_offer_account_receipt(self, offer_id, account):
+        address = addresser.make_offer_account_address(
+            offer_id=offer_id,
+            account=account)
+
+        self._state_entries.extend(self._context.get_state(
+            addresses=[address],
+            timeout=self._timeout))
+
+        container = _get_history_container(self._state_entries, address)
+        offer_history = None
+        try:
+            offer_history = _get_history_from_container(
+                container,
+                offer_id=offer_id,
+                account=account)
+        except KeyError:
+            # we are fine returning None
+            pass
+
+        return offer_history
+
+
+def _get_history_container(state_entries, address):
+    try:
+        entry = _find_in_state(state_entries, address)
+        container = offer_history_pb2.OfferHistoryContainer()
+        container.ParseFromString(entry.data)
+    except KeyError:
+        container = offer_history_pb2.OfferHistoryContainer()
+
+    return container
+
+
+def _get_history_by_offer_id(container, offer_id):
+    for offer_history in container.entries:
+        if offer_history.offer_id == offer_id:
+            return offer_history
+    raise KeyError("OfferHistory not found in container.")
+
+
+def _get_history_from_container(container, offer_id, account):
+    for offer_history in container.entries:
+        if offer_history.offer_id == offer_id \
+                and offer_history.account_id == account:
+            return offer_history
+    raise KeyError("OfferHistory not found in container.")
 
 
 def _get_offer_container(state_entries, address):
