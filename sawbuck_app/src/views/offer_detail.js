@@ -22,6 +22,7 @@ const _ = require('lodash')
 const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
+const { acceptOffer } = require('./accept_offer_modal')
 
 const findAsset = (id, holdings) => holdings.find(h => h.id === id).asset
 
@@ -112,7 +113,7 @@ const OfferDetailPage = {
           m('.col-md.m-3',
             acceptButton(
               name,
-              () => console.log(`Accepting offer ${offer.id}...`),
+              () => acceptOffer(offer.id),
               vnode.state.disabled))))
     ]
   }

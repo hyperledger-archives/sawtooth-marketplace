@@ -74,7 +74,8 @@ const dropdown = (label, options, color = 'primary') => {
       type: 'button',
       'data-toggle': 'dropdown',
       'aria-haspopup': 'true',
-      'aria-expanded': 'false'
+      'aria-expanded': 'false',
+      disabled: options.length === 0
     }, label),
     m('.dropdown-menu',
       options.map(option => {
