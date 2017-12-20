@@ -663,7 +663,6 @@ definitions:
     description: Details provided in body to accept an Offer
     type: object
     required:
-      - source
       - count
       - target
     properties:
