@@ -24,7 +24,6 @@ ACCOUNTS:
         description: United States Dollars (in thousandths of a cent)
         rules:
           - type: OWNER_HOLDINGS_INFINITE
-            value: ''
     HOLDINGS:
       - label: US Mint
         description: An unlimited supply of printable dollars
@@ -37,7 +36,6 @@ ACCOUNTS:
         sourceQuantity: 10000000
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
     RENEWABLES: []
 
   - label: Sawtooth Central
@@ -49,39 +47,30 @@ ACCOUNTS:
         description: Sawtooth loyalty points, better than cryptocurrency!
         rules:
           - type: OWNER_HOLDINGS_INFINITE
-            value: ''
       - name: Bronze Status
         description: |
           You just started collecting Sawbucks, but you have a bright future.
         rules:
           - type: ALL_HOLDINGS_INFINITE
-            value: ''
           - type: NOT_TRANSFERABLE
-            value: ''
       - name: Silver Status
         description: |
           You're moving up, but don't yet have the recognition you crave.
         rules:
           - type: ALL_HOLDINGS_INFINITE
-            value: ''
           - type: NOT_TRANSFERABLE
-            value: ''
       - name: Gold Status
         description: You're a serious Sawbuck contender.
         rules:
           - type: ALL_HOLDINGS_INFINITE
-            value: ''
           - type: NOT_TRANSFERABLE
-            value: ''
       - name: Platinum Status
         description: |
           Only the most loyal and dedicated blockchain fans
           will achieve this honor.
         rules:
           - type: ALL_HOLDINGS_INFINITE
-            value: ''
           - type: NOT_TRANSFERABLE
-            value: ''
       - name: Coupon for one Sawtooth Sticker
         description: |
           Redeem for a coveted Sawtooth laptop sticker at select
@@ -135,7 +124,6 @@ ACCOUNTS:
         sourceQuantity: 1000
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
       - label: Claim Bronze Status
         description: Show off your Sawtooth loyalty with Bronze Status.
         source: $REF=HOLDINGS[label:Bronze Dispenser].id
@@ -144,7 +132,6 @@ ACCOUNTS:
         targetQuantity: 100
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
       - label: Claim Silver Status
         description: Show off your Sawtooth loyalty with Silver Status.
         source: $REF=HOLDINGS[label:Silver Dispenser].id
@@ -153,7 +140,6 @@ ACCOUNTS:
         targetQuantity: 1000
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
       - label: Claim Gold Status
         description: Show off your Sawtooth loyalty with Gold Status.
         source: $REF=HOLDINGS[label:Gold Dispenser].id
@@ -162,7 +148,6 @@ ACCOUNTS:
         targetQuantity: 10000
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
       - label: Claim Platinum Status
         description: Show off your Sawtooth loyalty with Platinum Status.
         source: $REF=HOLDINGS[label:Platinum Dispenser].id
@@ -171,7 +156,6 @@ ACCOUNTS:
         targetQuantity: 1000000
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
       - label: Get a sticker coupon!
         description: Sawtooth stickers are stylish and eco-friendly.
         source: $REF=HOLDINGS[label:Sticker Supply].id
@@ -201,4 +185,3 @@ ACCOUNTS:
         sourceQuantity: 500
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
-            value: ''
