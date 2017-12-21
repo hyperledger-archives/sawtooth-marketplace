@@ -25,3 +25,5 @@ RUN pip3 install \
     dredd-hooks
 
 WORKDIR /project/sawtooth-marketplace
+
+ENV PATH $PATH:/project/sawtooth-marketplace/bin

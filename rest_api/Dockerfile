@@ -33,6 +33,8 @@ RUN pip3 install \
 
 WORKDIR /project/sawtooth-marketplace
 
+ENV PATH $PATH:/project/sawtooth-marketplace/bin
+
 EXPOSE 8000/tcp
 
-CMD ["./bin/marketplace-rest-api"]
+CMD ["marketplace-rest-api"]

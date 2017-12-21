@@ -32,12 +32,13 @@ RUN pip3 install \
 
 WORKDIR /project/sawtooth-marketplace
 
+ENV PATH $PATH:/project/sawtooth-marketplace/bin
+
 # Note that the context must be set to the project's root directory
-COPY bin/protogen bin/protogen
-COPY protos/ protos/
-RUN bin/protogen
 COPY . .
+
+RUN market-protogen
 
 EXPOSE 8000/tcp
 
-CMD ["./bin/marketplace-rest-api"]
+CMD ["marketplace-rest-api"]
