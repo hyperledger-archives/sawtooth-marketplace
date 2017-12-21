@@ -43,7 +43,7 @@ services:
         sawadm keygen &&
         sawtooth keygen my_key &&
         sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
-        sawadm genesis config-genesis.batch && 
+        sawadm genesis config-genesis.batch &&
         sawtooth-validator -vv \
           --endpoint tcp://validator:8800 \
           --bind component:tcp://eth0:4004 \
@@ -57,7 +57,7 @@ services:
   test-runner:
     build:
       context: ../../
-      dockerfile: ./dev-tools/Dockerfile
+      dockerfile: ./dev_env/Dockerfile
     volumes:
       - '../../:/project/sawtooth-marketplace'
     command: bash -c "cd integration_tests/blockchain && python3 -m nose2 -v blockchain_integration_test"
