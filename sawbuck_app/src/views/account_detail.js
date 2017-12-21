@@ -72,6 +72,7 @@ const editField = (state, label, key) => {
   const onSubmit = () => {
     return api.patch('accounts', _.pick(state.update, key))
       .then(() => { state.account[key] = state.update[key] })
+      .catch(api.alertError)
   }
 
   return labeledField(
@@ -88,6 +89,7 @@ const passwordField = state => {
       password: state.update.password
     })
       .then(() => m.redraw())
+      .catch(api.alertError)
   }
 
   return labeledField(
@@ -118,6 +120,7 @@ const AccountDetailPage = {
     vnode.state.update = {}
     api.get(`accounts/${vnode.attrs.publicKey}`)
       .then(account => { vnode.state.account = account })
+      .catch(api.ignoreError)
   },
 
   view (vnode) {

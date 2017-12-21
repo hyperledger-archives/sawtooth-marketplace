@@ -61,6 +61,7 @@ const AssetDetailPage = {
         }
       })
       .then(owner => { if (owner) vnode.state.owner = owner })
+      .catch(api.ignoreError)
   },
 
   view (vnode) {

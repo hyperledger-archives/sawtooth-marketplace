@@ -167,7 +167,8 @@ const submitter = (state, onDone) => () => {
       return api.post('offers', offer)
     })
     .then(onDone)
-    .then(() => m.route.set('/'))
+    .then(() => m.route.set('/offers'))
+    .catch(api.alertError)
 }
 
 // A versatile modal allowing users to create new offers (and new holdings)

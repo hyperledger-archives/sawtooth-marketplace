@@ -41,6 +41,7 @@ const LoginForm = {
               api.setAuth(res.authorization)
               m.route.set('/')
             })
+            .catch(api.alertError)
         }
       },
       m('legend', 'Login Account'),

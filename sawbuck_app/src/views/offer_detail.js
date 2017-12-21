@@ -73,6 +73,7 @@ const OfferDetailPage = {
         offer.targetAsset = findAsset(offer.target, owner.holdings)
         vnode.state.owner = owner
       })
+      .catch(api.ignoreError)
   },
 
   view (vnode) {

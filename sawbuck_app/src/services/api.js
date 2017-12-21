@@ -84,6 +84,24 @@ const get = _.partial(request, 'GET')
 const post = _.partial(request, 'POST')
 const patch = _.partial(request, 'PATCH')
 
+/**
+ * Sends the user an alert with the error message and reloads the page.
+ * Appropriate for requests triggered by user action.
+ */
+const alertError = err => {
+  console.error(err)
+  window.alert(err.error || err.message || err)
+  window.location.reload()
+}
+
+/**
+ * Logs the error but otherwise ignores it.
+ * Appropriate for requests triggered in the background.
+ */
+const ignoreError = err => {
+  console.error(err)
+}
+
 module.exports = {
   getAuth,
   setAuth,
@@ -92,5 +110,7 @@ module.exports = {
   request,
   get,
   post,
-  patch
+  patch,
+  alertError,
+  ignoreError
 }

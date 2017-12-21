@@ -31,6 +31,7 @@ const accountSubmitter = state => e => {
   api.post('accounts', account)
     .then(res => api.setAuth(res.authorization))
     .then(() => m.route.set('/'))
+    .catch(api.alertError)
 }
 
 /**
