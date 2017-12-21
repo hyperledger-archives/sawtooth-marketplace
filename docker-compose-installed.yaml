@@ -21,6 +21,7 @@ services:
       context: .
       dockerfile: ./dev_env/Dockerfile-file
     image: market-dev-env-installed
+    container_name: market-shell-installed
     depends_on:
       - market-processor
       - market-ledger-sync
@@ -36,6 +37,7 @@ services:
         - https_proxy
         - no_proxy
     image: market-tp-installed
+    container_name: market-tp-installed
     command: marketplace-tp -v -C tcp://validator:4004
 
   market-rest-api:
@@ -73,6 +75,7 @@ services:
         - https_proxy
         - no_proxy
     image: market-ledger-sync-installed
+    container_name: market-ledger-sync-installed
     depends_on:
       - rethink
       - validator
@@ -90,6 +93,7 @@ services:
       context: ./sawbuck_app
       dockerfile: ./Dockerfile-installed
     image: market-sawbuck-app-installed
+    container_name: market-sawbuck-app-installed
     expose:
       - 80
     ports:
@@ -99,17 +103,20 @@ services:
 
   rethink:
     image: rethinkdb:2.3
+    container_name: rethink-installed
     expose:
       - 28015
 
   settings-tp:
     image: hyperledger/sawtooth-settings-tp:1.0
+    container_name: sawtooth-settings-tp-installed
     depends_on:
       - validator
     command: settings-tp -v -C tcp://validator:4004
 
   validator:
     image: hyperledger/sawtooth-validator:1.0
+    container_name: sawtooth-validator-installed
     expose:
       - 4004
     command: |

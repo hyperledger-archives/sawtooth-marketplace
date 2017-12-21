@@ -85,6 +85,101 @@ container), you can simply run:
 exit
 ```
 
+## Development
+
+The default Docker containers use the `volumes` command to link directly to the
+source code on your local machine. As a result any changes you make will
+immediately be reflected in the Marketplace components without having to
+rebuild them. However, typically you _will_ have to restart a component before
+it can take advantage of any changes. This can be done from separate terminal
+than the one running your docker containers, using docker and the container
+name. For example:
+
+```bash
+docker container restart market-rest-api
+```
+
+The available container names include:
+- market-shell
+- market-processor
+- market-rest-api
+- market-ledger-sync
+- market-sawbuck-app
+- rethink-db
+- sawtooth-shell
+- sawtooth-rest-api
+- sawtooth-settings-tp
+- sawtooth-validator
+
+You can also shutdown _every_ container from the terminal running your
+containers. In bash this is typically done by pressing the key combination:
+`ctrl-C`. Once shutdown is complete you can restart them (without rebuilding
+them), by re-running docker compose up:
+
+```bash
+docker-compose up
+```
+
+If you want to rebuild the containers (but not the images), before running up,
+run down first:
+
+```bash
+docker-compose down
+```
+
+This will destroy the containers, including any app data that has been saved,
+and build them fresh from the original images. This will allow you to start
+with a clean slate, but _do not run down_ if you wish to retain your app data.
+
+### Static Client Files and Protobufs
+
+In addition to the above commands, some source code is used to generate
+run-time code, and this run-time code will have to be re-generated for changes
+to be reflected. The happens automatically anytime you run `up`, but this can
+be time consuming if you are rapidly iterating on the code. Dev scripts are
+provided to to quickly do this code generation in a temporary docker container
+(note that these commands require _bash_).
+
+To generate Protobuf files:
+
+```bash
+bin/dev-tools -p
+```
+
+To generate static client files:
+
+```bash
+bin/dev-tools -c
+```
+
+You can also run these scripts directly using the same market-shell container
+used to run `mktadm` above. This can be useful if you are on a Windows machine
+without access to a bash terminal, or simply want to save yourself the 5-10
+seconds required to build and tear down a temporary docker container. First, if
+you haven't already, `exec` into the shell:
+
+```bash
+docker exec -it market-shell bash
+```
+
+Then run the command to generate Protobuf files:
+
+```bash
+market-protogen
+```
+
+Or the command to generate static client files:
+
+```bash
+cd sawbuck_app/
+npm run build
+```
+
+Note that the static server running _SawbuckManager_ serves the generated
+client files directly from your local machine on each page load. This means you
+only need to generate the files and refresh your browser to see changes. You do
+_not_ need to restart the _SawbuckManager_ container.
+
 ## Deployment
 
 Dockerfiles are also available to build images suitable for deployment, and are

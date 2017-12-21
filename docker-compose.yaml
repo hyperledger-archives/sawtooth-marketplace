@@ -43,6 +43,7 @@ services:
         - https_proxy
         - no_proxy
     image: market-tp
+    container_name: market-processor
     volumes:
       - '.:/project/sawtooth-marketplace'
     depends_on:
@@ -63,6 +64,7 @@ services:
         - https_proxy
         - no_proxy
     image: market-rest-api
+    container_name: market-rest-api
     volumes:
       - .:/project/sawtooth-marketplace
     ports:
@@ -90,6 +92,7 @@ services:
         - https_proxy
         - no_proxy
     image: market-ledger-sync
+    container_name: market-ledger-sync
     volumes:
       - .:/project/sawtooth-marketplace
     depends_on:
@@ -108,6 +111,7 @@ services:
   market-sawbuck-app:
     build: ./sawbuck_app
     image: market-sawbuck-app
+    container_name: market-sawbuck-app
     volumes:
       - ./sawbuck_app/public/:/usr/local/apache2/htdocs/
     expose:
@@ -120,6 +124,7 @@ services:
 
   rethink:
     image: rethinkdb:2.3
+    container_name: rethink-db
     expose:
       - 8080
       - 28015
@@ -143,6 +148,7 @@ services:
 
   sawtooth-shell:
     image: hyperledger/sawtooth-shell:1.0
+    container_name: sawtooth-shell
     volumes:
       - '.:/project/sawtooth-marketplace'
     working_dir: /project/sawtooth-marketplace
@@ -158,12 +164,14 @@ services:
       "
   settings-tp:
     image: hyperledger/sawtooth-settings-tp:1.0
+    container_name: sawtooth-settings-tp
     depends_on:
       - validator
     command: settings-tp -vv --connect tcp://validator:4004
 
   validator:
     image: hyperledger/sawtooth-validator:1.0
+    container_name: sawtooth-validator
     expose:
       - 4004
     ports:
