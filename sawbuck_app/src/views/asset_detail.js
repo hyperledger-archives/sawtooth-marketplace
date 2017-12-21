@@ -19,18 +19,21 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
 const { createOffer } = require('./create_offer_modal')
 
-const offerButton = (name, key = 'source') => {
+const offerButton = (name, disabled, key = 'source') => {
   const label = key === 'target' ? 'Request' : 'Offer'
   const onclick = key === 'target'
     ? () => createOffer(null, name)
     : () => createOffer(name)
 
-  return m('button.btn-lg.btn-outline-primary', { onclick }, label)
+  return m(`button.btn-lg.btn-outline-${disabled ? 'seconday' : 'primary'}`,
+           { onclick, disabled },
+           label)
 }
 
 /**
@@ -40,9 +43,19 @@ const offerButton = (name, key = 'source') => {
 const AssetDetailPage = {
   oninit (vnode) {
     const safeName = window.encodeURI(vnode.attrs.name)
-    api.get(`assets/${safeName}`)
-      .then(asset => {
+    Promise.all([acct.getUserAccount(), api.get(`assets/${safeName}`)])
+      .then(([ user, asset ]) => {
         vnode.state.asset = asset
+
+        if (user) {
+          const quantities = acct.getAssetQuantities(user)
+          vnode.state.user = _.assign({ quantities }, user)
+
+          if (asset.owners.find(owner => user.publicKey === owner)) {
+            return user
+          }
+        }
+
         if (asset.owners.length > 0) {
           return api.get(`accounts/${asset.owners[0]}`)
         }
@@ -51,10 +64,15 @@ const AssetDetailPage = {
   },
 
   view (vnode) {
-    const asset = _.get(vnode.state, 'asset', {})
+    const asset = _.get(vnode.state, 'asset', { rules: [], owners: [] })
     const owner = _.get(vnode.state, 'owner', {})
-    const rules = asset.rules || []
-    const ownerName = owner.label || owner.publicKey
+
+    const user = vnode.state.user
+    const offerDisabled = !user ||
+      !user.quantities[asset.name] ||
+      (asset.rules.find(({ type }) => type === 'NOT_TRANSFERABLE') &&
+        !asset.owners.find(owner => owner === user.publicKey))
+    const requestDisabled = !user
 
     return [
       layout.title(asset.name),
@@ -65,15 +83,15 @@ const AssetDetailPage = {
           m('a', {
             href: `/accounts/${owner.publicKey}`,
             oncreate: m.route.link
-          }, ownerName))),
+          }, owner.label || owner.publicKey))),
         layout.row(layout.labeledField(
           'Rules',
-          rules.length > 0
-            ? layout.sectionedRows(rules.map(mkt.rule))
+          asset.rules.length > 0
+            ? layout.sectionedRows(asset.rules.map(mkt.rule))
             : m('em', 'this asset has no special rules'))),
         m('.row.text-center.mt-5',
-          m('.col-md.m-3', offerButton(asset.name)),
-          m('.col-md.m-3', offerButton(asset.name, 'target'))))
+          m('.col-md.m-3', offerButton(asset.name, offerDisabled)),
+          m('.col-md.m-3', offerButton(asset.name, requestDisabled, 'target'))))
     ]
   }
 }
