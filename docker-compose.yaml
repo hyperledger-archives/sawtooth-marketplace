@@ -16,6 +16,24 @@
 version: '2.1'
 
 services:
+  market-shell:
+    build:
+      context: .
+      dockerfile: ./dev_env/Dockerfile
+    image: market-dev-env
+    container_name: market-shell
+    volumes:
+      - .:/project/sawtooth-marketplace
+      - /project/sawtooth-marketplace/sawbuck_app/node_modules
+    command: |
+      bash -c "
+        market-protogen &&
+        cd sawbuck_app/ &&
+        npm run build &&
+        cd ../ &&
+        tail -f /dev/null
+      "
+
   market-processor:
     build:
       context: .
@@ -27,7 +45,14 @@ services:
     image: market-tp
     volumes:
       - '.:/project/sawtooth-marketplace'
-    command: marketplace-tp -v -C tcp://validator:4004
+    depends_on:
+      - market-shell
+    command: |
+      bash -c "
+        sleep 1 &&
+        marketplace-tp -v \
+          -C tcp://validator:4004
+      "
 
   market-rest-api:
     build:
@@ -43,6 +68,7 @@ services:
     ports:
       - '8040:8000'
     depends_on:
+      - market-shell
       - market-ledger-sync
       - rethink
       - validator
@@ -67,6 +93,7 @@ services:
     volumes:
       - .:/project/sawtooth-marketplace
     depends_on:
+      - market-shell
       - rethink
       - validator
     command: |
@@ -88,6 +115,7 @@ services:
     ports:
       - '8041:80'
     depends_on:
+      - market-shell
       - market-rest-api
 
   rethink:
@@ -113,7 +141,7 @@ services:
         --connect tcp://validator:4004
         --bind sawtooth-rest-api:8008
 
-  shell:
+  sawtooth-shell:
     image: hyperledger/sawtooth-shell:1.0
     volumes:
       - '.:/project/sawtooth-marketplace'

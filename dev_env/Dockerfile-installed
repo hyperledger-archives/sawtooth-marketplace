@@ -50,3 +50,8 @@ COPY sawbuck_app/package.json /project/sawtooth-marketplace/sawbuck_app/
 RUN cd sawbuck_app/ && npm install
 
 ENV PATH $PATH:/project/sawtooth-marketplace/bin
+
+# Note that the context must be set to the project's root directory
+COPY . .
+
+RUN market-protogen
