@@ -28,12 +28,19 @@ CONTAINERS = {
     AddressSpace.OFFER: OfferContainer
 }
 
+IGNORE = {
+    AddressSpace.OFFER_HISTORY: True
+}
+
 
 def data_to_dicts(address, data):
     """Deserializes a protobuf "container" binary based on its address. Returns
     a list of the decoded objects which were stored at that address.
     """
     data_type = address_is(address)
+
+    if (IGNORE.get(data_type)):
+        return []
 
     try:
         container = CONTAINERS[data_type]
