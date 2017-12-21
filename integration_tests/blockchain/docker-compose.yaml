@@ -26,7 +26,7 @@ services:
         - no_proxy
     volumes:
       - '../..:/project/sawtooth-marketplace'
-    command: ./bin/marketplace-tp -vv -C tcp://validator:4004
+    command: marketplace-tp -vv -C tcp://validator:4004
 
   settings-tp:
     image: hyperledger/sawtooth-settings-tp:1.0

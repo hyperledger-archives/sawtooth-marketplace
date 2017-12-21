@@ -27,7 +27,7 @@ services:
     image: market-tp
     volumes:
       - '.:/project/sawtooth-marketplace'
-    command: ./bin/marketplace-tp -v -C tcp://validator:4004
+    command: marketplace-tp -v -C tcp://validator:4004
 
   market-rest-api:
     build:
@@ -49,7 +49,7 @@ services:
     command: |
       bash -c "
         sleep 3 &&
-        ./bin/marketplace-rest-api \
+        marketplace-rest-api \
           --host market-rest-api \
           --db-host rethink \
           --validator tcp://validator:4004
@@ -72,8 +72,8 @@ services:
     command: |
       bash -c "
         sleep 1 &&
-        bin/setup_db --host rethink &&
-        bin/marketplace-ledger-sync -vv \
+        market-setup-db --host rethink &&
+        marketplace-ledger-sync -vv \
           --db-host rethink \
           --validator tcp://validator:4004
       "

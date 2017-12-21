@@ -44,7 +44,7 @@ info() {
 protogen() {
     info "Building Protobuf modules"
     docker build . -f dev_env/Dockerfile -t market-dev-env
-    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/protogen
+    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env market-protogen
 }
 
 build_client() {
@@ -64,20 +64,19 @@ seed_data() {
         --net="host" \
         -v $(pwd):/project/sawtooth-marketplace \
         market-dev-env \
-        bin/mktadm seed -u http://localhost:8040 -d sawbuck_app/app_data.yaml
+        mktadm seed -u http://localhost:8040 -d sawbuck_app/app_data.yaml
 }
 
 run_tests() {
     info "Running Tests"
     docker build . -f dev_env/Dockerfile -t market-dev-env
-    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_unit_tests
-
+    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env market-unit-tests
 }
 
 lint() {
     info "Running lint"
     docker build . -f dev_env/Dockerfile -t market-dev-env
-    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_lint
+    docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env market-lint
 }
 
 while getopts hpcdlta opt;

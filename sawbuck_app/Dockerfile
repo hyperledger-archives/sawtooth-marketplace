@@ -18,6 +18,8 @@
 
 FROM httpd:2.4
 
+ENV PATH $PATH:/project/sawtooth-marketplace/bin
+
 RUN echo "\
 \n\
 ServerName sawbuck_app\n\

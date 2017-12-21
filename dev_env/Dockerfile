@@ -31,8 +31,6 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install -y nodejs
 
-WORKDIR /project/sawtooth-marketplace
-
 RUN pip3 install \
     pylint==1.7.4 \
     pycodestyle==2.3.1 \
@@ -44,10 +42,10 @@ RUN pip3 install \
     sanic \
     itsdangerous
 
+WORKDIR /project/sawtooth-marketplace
+
 COPY sawbuck_app/package.json /project/sawtooth-marketplace/sawbuck_app/
 
-WORKDIR /project/sawtooth-marketplace/sawbuck_app
+RUN cd sawbuck_app/ && npm install
 
-RUN npm install
-
-WORKDIR /project/sawtooth-marketplace
+ENV PATH $PATH:/project/sawtooth-marketplace/bin

@@ -24,7 +24,7 @@ run_test() {
   cd $TOP_DIR/$TEST_DIR/$1
 
   docker-compose rm -fs
-  docker-compose up --abort-on-container-exit || true
+  docker-compose up --abort-on-container-exit --build || true
   docker-compose down
 
   cd -

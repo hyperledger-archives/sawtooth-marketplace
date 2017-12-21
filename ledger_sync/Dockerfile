@@ -26,4 +26,6 @@ RUN pip3 install rethinkdb
 
 WORKDIR /project/sawtooth-marketplace
 
-CMD ["echo \"No ledger_sync command set\""]
+ENV PATH $PATH:/project/sawtooth-marketplace/bin
+
+CMD ["marketplace-ledger-sync"]
