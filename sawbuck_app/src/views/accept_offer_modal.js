@@ -126,7 +126,8 @@ const submitter = (state, onDone) => () => {
       return api.patch(`offers/${state.offer.id}/accept`, acceptance)
     })
     .then(onDone)
-    .then(() => m.route.set('/'))
+    .then(() => m.route.set('/account'))
+    .catch(api.alertError)
 }
 
 const getAsset = (id, holdings) => {

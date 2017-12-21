@@ -73,6 +73,7 @@ const AssetListPage = {
           vnode.state.account = _.assign({ quantities }, account)
         }
       })
+      .catch(api.ignoreError)
   },
 
   view (vnode) {
