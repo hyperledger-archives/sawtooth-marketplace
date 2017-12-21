@@ -45,7 +45,7 @@ async def create_asset(request):
         batch_key=request.app.config.SIGNER,
         name=asset.get('name'),
         description=asset.get('description'),
-        rules=common.proto_wrap_rules(asset.get('rules')))
+        rules=asset.get('rules'))
 
     await messaging.send(
         request.app.config.VAL_CONN,
@@ -53,6 +53,9 @@ async def create_asset(request):
         batches)
 
     await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
+
+    if asset.get('rules'):
+        asset['rules'] = request.json['rules']
 
     return response.json(asset)
 
@@ -75,9 +78,12 @@ async def get_asset(request, name):
 
 
 def _create_asset_dict(body, public_key):
-    keys = ['name', 'description', 'rules']
+    keys = ['name', 'description']
 
     asset = {k: body[k] for k in keys if body.get(k) is not None}
     asset['owners'] = [public_key]
+
+    if body.get('rules'):
+        asset['rules'] = common.proto_wrap_rules(body['rules'])
 
     return asset

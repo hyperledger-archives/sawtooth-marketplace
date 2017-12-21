@@ -75,10 +75,9 @@ def create_asset(txn_key, batch_key, name, description, rules):
 
     asset = payload_pb2.CreateAsset(
         name=name,
-        description=description
+        description=description,
+        rules=rules
     )
-
-    asset.rules.extend(rules)
 
     payload = payload_pb2.TransactionPayload(
         payload_type=payload_pb2.TransactionPayload.CREATE_ASSET,

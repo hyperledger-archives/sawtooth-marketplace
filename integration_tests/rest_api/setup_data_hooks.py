@@ -49,8 +49,8 @@ ASSET = {
         },
         {
             'type': 'EXCHANGE_LIMITED_TO_ACCOUNTS',
-            'value': ('02178c1bcdb25407394348f1ff5273ada'
-                      'e287d8ea328184546837957e71c7de57a')
+            'value': (['02178c1bcdb25407394348f1ff5273ada'
+                      'e287d8ea328184546837957e71c7de57a'])
         }
     ]
 }
@@ -103,8 +103,8 @@ OFFER = {
         },
         {
             'type': 'EXCHANGE_LIMITED_TO_ACCOUNTS',
-            'value': ('02178c1bcdb25407394348f1ff5273ada'
-                      'e287d8ea328184546837957e71c7de57a')
+            'value': (['02178c1bcdb25407394348f1ff5273ada'
+                      'e287d8ea328184546837957e71c7de57a'])
         }
     ]
 }

@@ -52,7 +52,7 @@ async def create_offer(request):
         source_quantity=offer['sourceQuantity'],
         target=offer.get('target'),
         target_quantity=offer.get('targetQuantity'),
-        rules=common.proto_wrap_rules(offer.get('rules')))
+        rules=offer.get('rules'))
 
     await messaging.send(
         request.app.config.VAL_CONN,
@@ -60,6 +60,9 @@ async def create_offer(request):
         batches)
 
     await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
+
+    if offer.get('rules'):
+        offer['rules'] = request.json['rules']
 
     return response.json(offer)
 
@@ -136,8 +139,8 @@ async def close_offer(request, offer_id):
 
 
 def _create_offer_dict(body, public_key):
-    keys = ['label', 'description', 'source', 'rules',
-            'sourceQuantity', 'target', 'targetQuantity']
+    keys = ['label', 'description', 'source', 'target',
+            'sourceQuantity', 'targetQuantity']
 
     offer = {k: body[k] for k in keys if body.get(k) is not None}
 
@@ -149,5 +152,8 @@ def _create_offer_dict(body, public_key):
     offer['id'] = str(uuid4())
     offer['owners'] = [public_key]
     offer['status'] = "OPEN"
+
+    if body.get('rules'):
+        offer['rules'] = common.proto_wrap_rules(body['rules'])
 
     return offer
