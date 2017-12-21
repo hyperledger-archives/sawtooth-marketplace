@@ -16,6 +16,17 @@
 version: '2.1'
 
 services:
+  market-shell:
+    build:
+      context: .
+      dockerfile: ./dev_env/Dockerfile-file
+    image: market-dev-env-installed
+    depends_on:
+      - market-processor
+      - market-ledger-sync
+      - market-rest-api
+    command: tail -f /dev/null
+
   market-processor:
     build:
       context: .
