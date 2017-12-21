@@ -43,13 +43,13 @@ info() {
 
 protogen() {
     info "Building Protobuf modules"
-    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker build . -f dev_env/Dockerfile -t market-dev-env
     docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/protogen
 }
 
 build_client() {
     info "Building static client files"
-    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker build . -f dev_env/Dockerfile -t market-dev-env
     docker run --rm \
         -v $(pwd):/project/sawtooth-marketplace \
         -v /project/sawtooth-marketplace/sawbuck_app/node_modules \
@@ -59,7 +59,7 @@ build_client() {
 
 seed_data() {
     info "Seeding client data"
-    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker build . -f dev_env/Dockerfile -t market-dev-env
     docker run --rm \
         --net="host" \
         -v $(pwd):/project/sawtooth-marketplace \
@@ -69,14 +69,14 @@ seed_data() {
 
 run_tests() {
     info "Running Tests"
-    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker build . -f dev_env/Dockerfile -t market-dev-env
     docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_unit_tests
 
 }
 
 lint() {
     info "Running lint"
-    docker build . -f dev-tools/Dockerfile -t market-dev-env
+    docker build . -f dev_env/Dockerfile -t market-dev-env
     docker run --rm -v $(pwd):/project/sawtooth-marketplace market-dev-env bin/run_lint
 }
 
