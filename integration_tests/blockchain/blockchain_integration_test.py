@@ -58,10 +58,10 @@ class BlockchainTest(unittest.TestCase):
         cls.signer2 = make_key()
         cls.sawbucks = uuid4().hex
         cls.pickles = uuid4().hex
-        cls.holding1_id = str(uuid4())
-        cls.holding2_id = str(uuid4())
-        cls.holding1_id2 = str(uuid4())
-        cls.holding2_id2 = str(uuid4())
+        cls.signer1_sawbucks = str(uuid4())
+        cls.signer1_pickles = str(uuid4())
+        cls.signer2_sawbucks = str(uuid4())
+        cls.signer2_pickles = str(uuid4())
         cls.sawbucks_for_pickles = str(uuid4())
         cls.pickles_for_sawbucks = str(uuid4())
 
@@ -154,7 +154,7 @@ class BlockchainTest(unittest.TestCase):
         self.assertEqual(
             self.client.create_holding(
                 key=self.signer1,
-                identifier=self.holding1_id,
+                identifier=self.signer1_sawbucks,
                 label=uuid4().hex,
                 description=uuid4().hex,
                 asset=self.sawbucks,
@@ -164,7 +164,7 @@ class BlockchainTest(unittest.TestCase):
         self.assertEqual(
             self.client.create_holding(
                 key=self.signer1,
-                identifier=self.holding1_id,
+                identifier=self.signer1_sawbucks,
                 label=uuid4().hex,
                 description=uuid4().hex,
                 asset=self.sawbucks,
@@ -222,7 +222,7 @@ class BlockchainTest(unittest.TestCase):
         self.assertEqual(
             self.client.create_holding(
                 key=self.signer1,
-                identifier=self.holding1_id2,
+                identifier=self.signer2_sawbucks,
                 label=uuid4().hex,
                 description=uuid4().hex,
                 asset=self.pickles,
@@ -232,7 +232,7 @@ class BlockchainTest(unittest.TestCase):
         self.assertEqual(
             self.client.create_holding(
                 key=self.signer2,
-                identifier=self.holding2_id,
+                identifier=self.signer1_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
                 asset=self.sawbucks,
@@ -242,7 +242,7 @@ class BlockchainTest(unittest.TestCase):
         self.assertEqual(
             self.client.create_holding(
                 key=self.signer2,
-                identifier=self.holding2_id2,
+                identifier=self.signer2_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
                 asset=self.pickles,
@@ -270,9 +270,9 @@ class BlockchainTest(unittest.TestCase):
                 identifier=self.sawbucks_for_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=1,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=1,
                 rules=[])[0]['status'],
             "COMMITTED")
@@ -283,9 +283,9 @@ class BlockchainTest(unittest.TestCase):
                 identifier=self.sawbucks_for_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=10,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=10,
                 rules=[])[0]['status'],
             "INVALID",
@@ -299,9 +299,9 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=10,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=10,
                 rules=[])[0]['status'],
             "INVALID",
@@ -315,7 +315,7 @@ class BlockchainTest(unittest.TestCase):
                 description=uuid4().hex,
                 source='',
                 source_quantity=10,
-                target=self.holding1_id,
+                target=self.signer1_sawbucks,
                 target_quantity=10,
                 rules=[])[0]['status'],
             "INVALID",
@@ -327,9 +327,9 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=None,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=10,
                 rules=[])[0]['status'],
             "INVALID",
@@ -341,9 +341,9 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=10,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=None,
                 rules=[])[0]['status'],
             "INVALID",
@@ -355,7 +355,7 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=10,
                 target='',
                 target_quantity=10,
@@ -371,7 +371,7 @@ class BlockchainTest(unittest.TestCase):
                 description=uuid4().hex,
                 source=str(uuid4()),
                 source_quantity=10,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=10,
                 rules=[])[0]['status'],
             "INVALID",
@@ -383,7 +383,7 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=10,
                 target=str(uuid4()),
                 target_quantity=10,
@@ -397,9 +397,9 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.holding1_id,
+                source=self.signer1_sawbucks,
                 source_quantity=10,
-                target=self.holding1_id2,
+                target=self.signer2_sawbucks,
                 target_quantity=11,
                 rules=[])[0]['status'],
             "INVALID",
@@ -421,15 +421,24 @@ class BlockchainTest(unittest.TestCase):
                   same asset.
         """
 
+        offerer = transaction_creation.OfferParticipant(
+            source=self.signer1_sawbucks,
+            source_asset=self.sawbucks,
+            target=self.signer2_sawbucks,
+            target_asset=self.sawbucks)
+        receiver = transaction_creation.OfferParticipant(
+            source=self.signer2_pickles,
+            source_asset=self.pickles,
+            target=self.signer1_pickles,
+            target_asset=self.pickles)
+
         self.assertEqual(
             self.client.accept_offer(
                 key=self.signer2,
                 identifier=str(uuid4()),
-                rec_source=self.holding2_id2,
-                rec_target=self.holding2_id,
-                count=1,
-                source=self.holding1_id,
-                target=self.holding1_id2)[0]['status'],
+                receiver=receiver,
+                offerer=offerer,
+                count=1)[0]['status'],
             "INVALID",
             "The offer must exist")
 
@@ -437,11 +446,9 @@ class BlockchainTest(unittest.TestCase):
             self.client.accept_offer(
                 key=self.signer2,
                 identifier=self.sawbucks_for_pickles,
-                rec_source=self.holding2_id2,
-                rec_target=self.holding2_id,
-                count=20,
-                source=self.holding1_id,
-                target=self.holding1_id2)[0]['status'],
+                offerer=offerer,
+                receiver=receiver,
+                count=20)[0]['status'],
             "INVALID",
             "There are not enough source quantities for the AcceptOffer.")
 
@@ -449,11 +456,9 @@ class BlockchainTest(unittest.TestCase):
             self.client.accept_offer(
                 key=self.signer2,
                 identifier=self.sawbucks_for_pickles,
-                rec_source=self.holding2_id2,
-                rec_target=self.holding2_id,
-                count=2,
-                source=self.holding1_id,
-                target=self.holding1_id2)[0]['status'],
+                receiver=receiver,
+                offerer=offerer,
+                count=2)[0]['status'],
             "COMMITTED")
 
     def test_05_close_offer(self):
@@ -567,20 +572,16 @@ class MarketplaceClient(object):
     def accept_offer(self,
                      key,
                      identifier,
-                     rec_source,
-                     rec_target,
-                     count,
-                     source,
-                     target):
+                     receiver,
+                     offerer,
+                     count):
         batches, signature = transaction_creation.accept_offer(
             txn_key=key,
             batch_key=BATCH_KEY,
             identifier=identifier,
-            receiver_source=rec_source,
-            receiver_target=rec_target,
-            count=count,
-            offerer_source=source,
-            offerer_target=target)
+            offerer=offerer,
+            receiver=receiver,
+            count=count)
         batch_list = batch_pb2.BatchList(batches=batches)
         self._client.send_batches(batch_list)
         return self._client.get_statuses([signature], wait=10)

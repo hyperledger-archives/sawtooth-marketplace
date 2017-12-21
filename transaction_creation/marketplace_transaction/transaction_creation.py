@@ -201,10 +201,8 @@ def create_offer(txn_key, batch_key, identifier, label, description,
 def accept_offer(txn_key,
                  batch_key,
                  identifier,
-                 receiver_source,
-                 offerer_source,
-                 receiver_target,
-                 offerer_target,
+                 offerer,
+                 receiver,
                  count):
     """Create an AcceptOffer txn and wrap it in a Batch and list.
 
@@ -212,37 +210,38 @@ def accept_offer(txn_key,
         txn_key (sawtooth_signing.Signer): The Txn signer key pair.
         batch_key (sawtooth_signing.Signer): The Batch signer key pair.
         identifier (str): The identifier of the Offer.
-        receiver_source (str): The Holding that the receiver gives up.
-            Must be the same Asset as offerer_target.
-        offerer_source (str): The Holding that the Offerer gives up.
-        receiver_target (str): The Holding that the receiver receives.
-            Must be the same Asset as the offerer_source.
-        offerer_target (str): The Holding that the offerer receives.
+        offerer (OfferParticipant): The participant who made the offer.
+        receiver (OfferParticipant): The participant who is accepting
+            the offer.
         count (int): The number of units of exchange.
 
     Returns:
         tuple: List of Batch, signature tuple
     """
 
-    inputs = [addresser.make_holding_address(receiver_target),
-              addresser.make_holding_address(offerer_source),
+    inputs = [addresser.make_holding_address(receiver.target),
+              addresser.make_holding_address(offerer.source),
+              addresser.make_asset_address(receiver.target_asset),
+              addresser.make_asset_address(offerer.source_asset),
               addresser.make_offer_address(identifier)]
 
-    outputs = [addresser.make_holding_address(receiver_target),
-               addresser.make_holding_address(offerer_source)]
+    outputs = [addresser.make_holding_address(receiver.target),
+               addresser.make_holding_address(offerer.source)]
 
-    if receiver_source is not None:
-        inputs.append(addresser.make_holding_address(receiver_source))
-        outputs.append(addresser.make_holding_address(receiver_source))
+    if receiver.source is not None:
+        inputs.append(addresser.make_holding_address(receiver.source))
+        inputs.append(addresser.make_asset_address(receiver.source_asset))
+        outputs.append(addresser.make_holding_address(receiver.source))
 
-    if offerer_target is not None:
-        inputs.append(addresser.make_holding_address(offerer_target))
-        outputs.append(addresser.make_holding_address(offerer_target))
+    if offerer.target is not None:
+        inputs.append(addresser.make_holding_address(offerer.target))
+        inputs.append(addresser.make_asset_address(offerer.target_asset))
+        outputs.append(addresser.make_holding_address(offerer.target))
 
     accept_txn = payload_pb2.AcceptOffer(
         id=identifier,
-        source=receiver_source,
-        target=receiver_target,
+        source=receiver.source,
+        target=receiver.target,
         count=count)
 
     payload = payload_pb2.TransactionPayload(
@@ -285,3 +284,38 @@ def close_offer(txn_key, batch_key, identifier):
         outputs=outputs,
         txn_key=txn_key,
         batch_key=batch_key)
+
+
+class OfferParticipant(object):
+
+    def __init__(self, source, target, source_asset, target_asset):
+        """Constructor
+
+        Args:
+            source (str): The id of the source Holding.
+            target (str): The id of the target Holding.
+            source_asset (str): The id of the source Asset.
+            target_asset (str): The id of the target Asset.
+        """
+
+        self._source = source
+        self._source_asset = source_asset
+
+        self._target = target
+        self._target_asset = target_asset
+
+    @property
+    def source(self):
+        return self._source
+
+    @property
+    def source_asset(self):
+        return self._source_asset
+
+    @property
+    def target(self):
+        return self._target
+
+    @property
+    def target_asset(self):
+        return self._target_asset

@@ -97,15 +97,19 @@ async def accept_offer(request, offer_id):
     offer = await offers_query.fetch_offer_resource(
         request.app.config.DB_CONN, offer_id)
 
+    offer_holdings = await _create_holdings_dict(
+        request.app.config.DB_CONN, offer)
+
+    offerer, receiver = _create_offer_participants(
+        request.json, offer, offer_holdings)
+
     signer = await common.get_signer(request)
     batches, batch_id = transaction_creation.accept_offer(
         txn_key=signer,
         batch_key=request.app.config.SIGNER,
         identifier=offer_id,
-        receiver_source=request.json.get('source'),
-        offerer_source=offer['source'],
-        receiver_target=request.json['target'],
-        offerer_target=offer.get('target'),
+        offerer=offerer,
+        receiver=receiver,
         count=request.json['count'])
 
     await messaging.send(
@@ -136,6 +140,41 @@ async def close_offer(request, offer_id):
     await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
 
     return response.json('')
+
+
+def _create_offer_participants(body, offer, offer_holdings):
+    input_asset = offer_holdings['source']['asset']
+    if offer.get('target'):
+        output_asset = offer_holdings['target']['asset']
+    else:
+        output_asset = None
+
+    offerer = transaction_creation.OfferParticipant(
+        source=offer['source'],
+        target=offer.get('target'),
+        source_asset=input_asset,
+        target_asset=output_asset)
+
+    receiver = transaction_creation.OfferParticipant(
+        source=body.get('source'),
+        target=body['target'],
+        source_asset=output_asset,
+        target_asset=input_asset)
+
+    return (offerer, receiver)
+
+
+async def _create_holdings_dict(conn, holding_ids):
+    keys = ['source', 'target']
+    holdings = await fetch_holdings([
+        holding_ids.get(k) for k in keys if holding_ids.get(k) is not None
+    ]).run(conn)
+
+    holdings_dict = {
+        k: h for h in holdings for k in keys if holding_ids.get(k) == h['id']
+    }
+
+    return holdings_dict
 
 
 def _create_offer_dict(body, public_key):
