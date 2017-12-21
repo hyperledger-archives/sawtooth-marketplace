@@ -61,8 +61,7 @@ def do_schedule(opts):
 
     try:
         crontab = subprocess.check_output(['crontab', '-l'],
-                                          encoding='utf-8',
-                                          stderr=subprocess.PIPE)
+                                          stderr=subprocess.PIPE).decode()
     except subprocess.CalledProcessError:
         crontab = ''
 
@@ -91,8 +90,8 @@ def _get_schedule(opts):
         return '0 0 * * 0'
     if opts.monthly:
         return '0 0 1 * *'
-    raise RuntimeException('No schedule specified, must specify --hourly, '
-                           '--daily, --weekly, or --monthly')
+    raise RuntimeError('No schedule specified, must specify --hourly, '
+                       '--daily, --weekly, or --monthly')
 
 def _get_command(opts):
     cmd_rel = '../../../bin/mktadm'

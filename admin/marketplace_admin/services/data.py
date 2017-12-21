@@ -78,4 +78,4 @@ def parse_jwt(token):
     if missing_padding != 0:
         payload += '=' * (4 - missing_padding)
 
-    return json.loads(b64decode(payload))
+    return json.loads(b64decode(payload).decode())
