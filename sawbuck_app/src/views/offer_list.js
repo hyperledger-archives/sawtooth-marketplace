@@ -19,6 +19,7 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const layout = require('../components/layout')
 const mkt = require('../components/marketplace')
@@ -106,13 +107,7 @@ const OfferListPage = {
           const account = accounts
             .find(account => account.publicKey === publicKey)
 
-          const quantities = account.holdings
-            .reduce((quantities, { asset, quantity }) => {
-              if (!quantities[asset]) quantities[asset] = quantity
-              else quantities[asset] = Math.max(quantities[asset], quantity)
-              return quantities
-            }, {})
-
+          const quantities = acct.getAssetQuantities(account)
           vnode.state.account = _.assign({ quantities }, account)
         }
       })

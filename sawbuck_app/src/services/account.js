@@ -36,6 +36,20 @@ const getUserAccount = () => {
     })
 }
 
+/**
+ * Returns an object with each asset an account has holdings of as the keys
+ * the largest quantity of those holdings as the value.
+ */
+const getAssetQuantities = account => {
+  return account.holdings
+    .reduce((quantities, { asset, quantity }) => {
+      if (!quantities[asset]) quantities[asset] = quantity
+      else quantities[asset] = Math.max(quantities[asset], quantity)
+      return quantities
+    }, {})
+}
+
 module.exports = {
-  getUserAccount
+  getUserAccount,
+  getAssetQuantities
 }

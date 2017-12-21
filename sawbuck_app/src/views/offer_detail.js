@@ -51,12 +51,7 @@ const OfferDetailPage = {
         } else if (offer.targetQuantity === 0) {
           vnode.state.disabled = false
         } else {
-          const quantities = user.holdings
-            .reduce((quantities, { asset, quantity }) => {
-              if (!quantities[asset]) quantities[asset] = quantity
-              else quantities[asset] = Math.max(quantities[asset], quantity)
-              return quantities
-            }, {})
+          const quantities = acct.getAssetQuantities(user)
 
           if (!quantities[offer.targetAsset]) {
             vnode.state.disabled = true
