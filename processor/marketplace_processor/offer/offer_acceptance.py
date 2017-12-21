@@ -50,6 +50,7 @@ def handle_accept_offer(accept_offer, header, state):
     offer_accept.validate_exchange_once()
 
     offer_accept.validate_once_per_account()
+    offer_accept.validate_accounts_limited_to()
 
     # The holding ids referernce Holdings.
     offer_accept.validate_output_holding_exists()
@@ -199,6 +200,15 @@ class OfferAcceptance(object):
                     "Failed to accept offer, offer has already been accepted "
                     "and EXCHANGE ONCE is set.")
 
+    def validate_accounts_limited_to(self):
+        if _accounts_limited_to(self._offer):
+            if self._header.signer_public_key not in _accounts(self._offer):
+                raise InvalidTransaction(
+                    "Failed to accept offer, accounts limited to {} but "
+                    "account is {}".format(
+                        _accounts(self._offer),
+                        self._header.signer_public_key))
+
     def handle_offerer_source(self, input_quantity):
         if not _holding_is_infinite(self._offerer.source_asset,
                                     self._offerer.source.account):
@@ -241,6 +251,19 @@ def _has_rule(rules, rule_type):
         if rule.type == rule_type:
             return True
     return False
+
+
+def _accounts_limited_to(offer):
+    if _has_rule(offer.rules, rule_pb2.Rule.EXCHANGE_LIMITED_TO_ACCOUNTS):
+        return True
+    return False
+
+
+def _accounts(offer):
+    return set.intersection(
+        *[set(str(rule.value, 'utf-8').split(','))
+          for rule in offer.rules
+          if rule.type == rule_pb2.Rule.EXCHANGE_LIMITED_TO_ACCOUNTS])
 
 
 def _exchange_once(offer):
