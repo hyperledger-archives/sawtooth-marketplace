@@ -41,8 +41,7 @@ def _handle_events(database, events):
         return
 
     changes = _parse_state_changes(events)
-    if changes:
-        _apply_state_changes(database, changes, block_num)
+    _apply_state_changes(database, changes, block_num)
 
     _insert_new_block(database, block_num, block_id)
 
@@ -65,7 +64,7 @@ def _parse_state_changes(events):
         change_data = next(e.data for e in events
                            if e.event_type == 'sawtooth/state-delta')
     except StopIteration:
-        return None
+        return []
 
     state_change_list = StateChangeList()
     state_change_list.ParseFromString(change_data)

@@ -127,7 +127,10 @@ def address_is(address):
 
     infix = int(address[6:8], 16)
 
-    if _contains(infix, AssetSpace):
+    if _contains(infix, OfferHistorySpace):
+        return AddressSpace.OFFER_HISTORY
+
+    elif _contains(infix, AssetSpace):
         return AddressSpace.ASSET
 
     elif _contains(infix, HoldingSpace):
