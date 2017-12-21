@@ -231,10 +231,18 @@ def accept_offer(txn_key,
               addresser.make_holding_address(offerer.source),
               addresser.make_asset_address(receiver.target_asset),
               addresser.make_asset_address(offerer.source_asset),
+              addresser.make_offer_history_address(offer_id=identifier),
+              addresser.make_offer_account_address(
+                  offer_id=identifier,
+                  account=txn_key.get_public_key().as_hex()),
               addresser.make_offer_address(identifier)]
 
     outputs = [addresser.make_holding_address(receiver.target),
-               addresser.make_holding_address(offerer.source)]
+               addresser.make_holding_address(offerer.source),
+               addresser.make_offer_history_address(offer_id=identifier),
+               addresser.make_offer_account_address(
+                   offer_id=identifier,
+                   account=txn_key.get_public_key().as_hex())]
 
     if receiver.source is not None:
         inputs.append(addresser.make_holding_address(receiver.source))
