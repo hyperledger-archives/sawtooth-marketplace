@@ -221,21 +221,21 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(
             self.client.create_holding(
-                key=self.signer1,
+                key=self.signer2,
                 identifier=self.signer2_sawbucks,
                 label=uuid4().hex,
                 description=uuid4().hex,
-                asset=self.pickles,
+                asset=self.sawbucks,
                 quantity=0)[0]['status'],
             "COMMITTED")
 
         self.assertEqual(
             self.client.create_holding(
-                key=self.signer2,
+                key=self.signer1,
                 identifier=self.signer1_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
-                asset=self.sawbucks,
+                asset=self.pickles,
                 quantity=0)[0]['status'],
             "COMMITTED")
 
@@ -264,16 +264,24 @@ class BlockchainTest(unittest.TestCase):
                 - The txn signer must be the account holder of both Holdings.
         """
 
+        source = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_sawbucks,
+            quantity=1,
+            asset=self.sawbucks)
+
+        target = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_pickles,
+            quantity=1,
+            asset=self.pickles)
+
         self.assertEqual(
             self.client.create_offer(
                 key=self.signer1,
                 identifier=self.sawbucks_for_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=1,
-                target=self.signer2_sawbucks,
-                target_quantity=1,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "COMMITTED")
 
@@ -283,10 +291,8 @@ class BlockchainTest(unittest.TestCase):
                 identifier=self.sawbucks_for_pickles,
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=10,
-                target=self.signer2_sawbucks,
-                target_quantity=10,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The Offer id must not already exist.")
@@ -299,55 +305,55 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=10,
-                target=self.signer2_sawbucks,
-                target_quantity=10,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The Transaction signer must have an Account")
 
+        source = transaction_creation.MarketplaceHolding(
+            holding_id='',
+            quantity=1,
+            asset=self.sawbucks)
+
         self.assertEqual(
             self.client.create_offer(
                 key=self.signer1,
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source='',
-                source_quantity=10,
-                target=self.signer1_sawbucks,
-                target_quantity=10,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The Source must be set.")
 
+        source = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_sawbucks,
+            quantity=None,
+            asset=self.sawbucks)
+
         self.assertEqual(
             self.client.create_offer(
                 key=self.signer1,
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=None,
-                target=self.signer2_sawbucks,
-                target_quantity=10,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The source quantity must be set and non-zero.")
 
-        self.assertEqual(
-            self.client.create_offer(
-                key=self.signer1,
-                identifier=str(uuid4()),
-                label=uuid4().hex,
-                description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=10,
-                target=self.signer2_sawbucks,
-                target_quantity=None,
-                rules=[])[0]['status'],
-            "INVALID",
-            "The target and target_quantity must be both set or unset.")
+        source = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_sawbucks,
+            quantity=1,
+            asset=self.sawbucks)
+
+        target = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_pickles,
+            quantity=None,
+            asset=self.pickles)
 
         self.assertEqual(
             self.client.create_offer(
@@ -355,13 +361,16 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=10,
-                target='',
-                target_quantity=10,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The target and target_quantity must be both set or unset.")
+
+        target = transaction_creation.MarketplaceHolding(
+            holding_id='',
+            quantity=1,
+            asset=self.sawbucks)
 
         self.assertEqual(
             self.client.create_offer(
@@ -369,27 +378,65 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=str(uuid4()),
-                source_quantity=10,
-                target=self.signer2_sawbucks,
-                target_quantity=10,
+                source=source,
+                target=target,
+                rules=[])[0]['status'],
+            "INVALID",
+            "The target and target_quantity must be both set or unset.")
+
+        source = transaction_creation.MarketplaceHolding(
+            holding_id=str(uuid4()),
+            quantity=1,
+            asset=self.sawbucks)
+
+        target = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_pickles,
+            quantity=1,
+            asset=self.pickles)
+
+        self.assertEqual(
+            self.client.create_offer(
+                key=self.signer1,
+                identifier=str(uuid4()),
+                label=uuid4().hex,
+                description=uuid4().hex,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The Source must be a Holding.")
 
+        source = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_sawbucks,
+            quantity=1,
+            asset=self.sawbucks)
+
+        target = transaction_creation.MarketplaceHolding(
+            holding_id=str(uuid4()),
+            quantity=1,
+            asset=self.pickles)
+
         self.assertEqual(
             self.client.create_offer(
                 key=self.signer1,
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=10,
-                target=str(uuid4()),
-                target_quantity=10,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The target must be a Holding.")
+
+        source = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer1_sawbucks,
+            quantity=10,
+            asset=self.sawbucks)
+
+        target = transaction_creation.MarketplaceHolding(
+            holding_id=self.signer2_sawbucks,
+            quantity=11,
+            asset=self.sawbucks)
 
         self.assertEqual(
             self.client.create_offer(
@@ -397,10 +444,8 @@ class BlockchainTest(unittest.TestCase):
                 identifier=str(uuid4()),
                 label=uuid4().hex,
                 description=uuid4().hex,
-                source=self.signer1_sawbucks,
-                source_quantity=10,
-                target=self.signer2_sawbucks,
-                target_quantity=11,
+                source=source,
+                target=target,
                 rules=[])[0]['status'],
             "INVALID",
             "The txn signer must be the account holder for both source and "
@@ -424,13 +469,13 @@ class BlockchainTest(unittest.TestCase):
         offerer = transaction_creation.OfferParticipant(
             source=self.signer1_sawbucks,
             source_asset=self.sawbucks,
-            target=self.signer2_sawbucks,
-            target_asset=self.sawbucks)
+            target=self.signer1_pickles,
+            target_asset=self.pickles)
         receiver = transaction_creation.OfferParticipant(
             source=self.signer2_pickles,
             source_asset=self.pickles,
-            target=self.signer1_pickles,
-            target_asset=self.pickles)
+            target=self.signer2_sawbucks,
+            target_asset=self.sawbucks)
 
         self.assertEqual(
             self.client.accept_offer(
@@ -550,9 +595,7 @@ class MarketplaceClient(object):
                      label,
                      description,
                      source,
-                     source_quantity,
                      target,
-                     target_quantity,
                      rules):
         batches, signature = transaction_creation.create_offer(
             txn_key=key,
@@ -561,9 +604,7 @@ class MarketplaceClient(object):
             label=label,
             description=description,
             source=source,
-            source_quantity=source_quantity,
             target=target,
-            target_quantity=target_quantity,
             rules=rules)
         batch_list = batch_pb2.BatchList(batches=batches)
         self._client.send_batches(batch_list)

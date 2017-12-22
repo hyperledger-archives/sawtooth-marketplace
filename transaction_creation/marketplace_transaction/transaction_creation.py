@@ -106,8 +106,6 @@ def create_holding(txn_key,
         identifier (str): The identifier of the Holding.
         label (str): The label of the Holding.
         description (str): The description of the Holding.
-        account (str): The account's public key.
-        holding (str): The asset's identifier.
         quantity (int): The amount of the Asset.
 
     Returns:
@@ -144,8 +142,14 @@ def create_holding(txn_key,
         batch_key=batch_key)
 
 
-def create_offer(txn_key, batch_key, identifier, label, description,
-                 source, source_quantity, target, target_quantity, rules):
+def create_offer(txn_key,
+                 batch_key,
+                 identifier,
+                 label,
+                 description,
+                 source,
+                 target,
+                 rules):
     """Create a CreateOffer txn and wrap it in a batch and list.
 
     Args:
@@ -154,10 +158,10 @@ def create_offer(txn_key, batch_key, identifier, label, description,
         identifier (str): The identifier of the Offer.
         label (str): The offer's label.
         description (str): The description of the offer.
-        source (str): The id of a Holding from which resources will be drawn.
-        source_quantity (int): The quantity of resources to send.
-        target (str): The id of a Holding which will receive resources.
-        target_quantity (int): The quantity of resources to require.
+        source (MarketplaceHolding): The holding id, quantity, asset to be
+            drawn from.
+        target (MarketplaceHolding): The holding id, quantity, asset to be
+            paid into.
         rules (list): List of protobuf.rule_pb2.Rule
 
 
@@ -168,11 +172,15 @@ def create_offer(txn_key, batch_key, identifier, label, description,
     inputs = [
         addresser.make_account_address(
             account_id=txn_key.get_public_key().as_hex()),
-        addresser.make_holding_address(holding_id=source),
-        addresser.make_offer_address(offer_id=identifier)
+        addresser.make_holding_address(
+            holding_id=source.holding_id),
+        addresser.make_offer_address(offer_id=identifier),
+        addresser.make_asset_address(asset_id=source.asset)
     ]
-    if target is not None:
-        inputs.append(addresser.make_holding_address(holding_id=target))
+    if target.holding_id:
+        inputs.append(addresser.make_holding_address(
+            holding_id=target.holding_id))
+        inputs.append(addresser.make_asset_address(target.asset))
 
     outputs = [addresser.make_offer_address(offer_id=identifier)]
 
@@ -180,10 +188,10 @@ def create_offer(txn_key, batch_key, identifier, label, description,
         id=identifier,
         label=label,
         description=description,
-        source=source,
-        source_quantity=source_quantity,
-        target=target,
-        target_quantity=target_quantity,
+        source=source.holding_id,
+        source_quantity=source.quantity,
+        target=target.holding_id,
+        target_quantity=target.quantity,
         rules=rules)
 
     payload = payload_pb2.TransactionPayload(
@@ -319,3 +327,23 @@ class OfferParticipant(object):
     @property
     def target_asset(self):
         return self._target_asset
+
+
+class MarketplaceHolding(object):
+
+    def __init__(self, holding_id, quantity, asset):
+        self._holding_id = holding_id
+        self._quantity = quantity
+        self._asset = asset
+
+    @property
+    def holding_id(self):
+        return self._holding_id
+
+    @property
+    def quantity(self):
+        return self._quantity
+
+    @property
+    def asset(self):
+        return self._asset

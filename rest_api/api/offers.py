@@ -13,6 +13,7 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
+import asyncio
 from uuid import uuid4
 
 from sanic import response
@@ -40,7 +41,14 @@ async def create_offer(request):
     common.validate_fields(required_fields, request.json)
 
     signer = await common.get_signer(request)
+
+    await asyncio.sleep(2.0)  # Mitigate race condition
     offer = _create_offer_dict(request.json, signer.get_public_key().as_hex())
+
+    offer_holdings = await _create_holdings_dict(
+        request.app.config.DB_CONN, offer)
+
+    source, target = _create_marketplace_holdings(offer, offer_holdings)
 
     batches, batch_id = transaction_creation.create_offer(
         txn_key=signer,
@@ -48,10 +56,8 @@ async def create_offer(request):
         identifier=offer['id'],
         label=offer.get('label'),
         description=offer.get('description'),
-        source=offer['source'],
-        source_quantity=offer['sourceQuantity'],
-        target=offer.get('target'),
-        target_quantity=offer.get('targetQuantity'),
+        source=source,
+        target=target,
         rules=offer.get('rules'))
 
     await messaging.send(
@@ -140,6 +146,24 @@ async def close_offer(request, offer_id):
     await messaging.check_batch_status(request.app.config.VAL_CONN, batch_id)
 
     return response.json('')
+
+
+def _create_marketplace_holdings(offer, offer_holdings):
+    source = transaction_creation.MarketplaceHolding(
+        holding_id=offer['source'],
+        quantity=offer['sourceQuantity'],
+        asset=offer_holdings['source']['asset'])
+
+    if offer.get('target'):
+        target_asset = offer_holdings['target']['asset']
+    else:
+        target_asset = None
+    target = transaction_creation.MarketplaceHolding(
+        holding_id=offer.get('target'),
+        quantity=offer.get('targetQuantity'),
+        asset=target_asset)
+
+    return (source, target)
 
 
 def _create_offer_participants(body, offer, offer_holdings):
