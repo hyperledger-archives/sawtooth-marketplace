@@ -19,6 +19,7 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const forms = require('../components/forms')
 const layout = require('../components/layout')
@@ -147,7 +148,7 @@ const AcceptOfferModal = {
         vnode.state.offer = offer
 
         return Promise.all([
-          api.get(`accounts/${api.getPublicKey()}`),
+          acct.getUserAccount(),
           api.get(`accounts/${offer.owners[0]}`)
         ])
       })

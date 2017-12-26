@@ -19,6 +19,7 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const forms = require('../components/forms')
 const layout = require('../components/layout')
@@ -118,8 +119,18 @@ const AccountDetailPage = {
   oninit (vnode) {
     vnode.state.toggled = {}
     vnode.state.update = {}
-    api.get(`accounts/${vnode.attrs.publicKey}`)
-      .then(account => { vnode.state.account = account })
+
+    Promise.resolve()
+      .then(() => {
+        if (vnode.attrs.publicKey === api.getPublicKey()) {
+          return acct.getUserAccount()
+        }
+        return api.get(`accounts/${vnode.attrs.publicKey}`)
+      })
+      .then(account => {
+        vnode.state.account = account
+        m.redraw()
+      })
       .catch(api.ignoreError)
   },
 
