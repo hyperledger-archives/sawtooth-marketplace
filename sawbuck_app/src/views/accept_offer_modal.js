@@ -132,6 +132,8 @@ const submitter = (state, onDone) => () => {
     })
     .then(onDone)
     .then(() => m.route.set('/account'))
+    .then(() => new Promise(resolve => setTimeout(resolve, 2000)))
+    .then(() => window.location.reload())
     .catch(api.alertError)
 }
 
