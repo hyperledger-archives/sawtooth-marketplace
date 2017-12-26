@@ -49,8 +49,8 @@ ASSET = {
         },
         {
             'type': 'EXCHANGE_LIMITED_TO_ACCOUNTS',
-            'value': (['02178c1bcdb25407394348f1ff5273ada'
-                      'e287d8ea328184546837957e71c7de57a'])
+            'value': ['02178c1bcdb25407394348f1ff5273ada'
+                      'e287d8ea328184546837957e71c7de57a']
         }
     ]
 }
@@ -103,8 +103,8 @@ OFFER = {
         },
         {
             'type': 'EXCHANGE_LIMITED_TO_ACCOUNTS',
-            'value': (['02178c1bcdb25407394348f1ff5273ada'
-                      'e287d8ea328184546837957e71c7de57a'])
+            'value': ['02178c1bcdb25407394348f1ff5273ada'
+                      'e287d8ea328184546837957e71c7de57a']
         }
     ]
 }
@@ -154,6 +154,13 @@ def sub_nested_strings(dct, pattern, replacement):
             sub_nested_strings(dct[key], pattern, replacement)
         elif isinstance(dct[key], str):
             dct[key] = re.sub(pattern, replacement, dct[key])
+        elif isinstance(dct[key], list):
+            for item in dct[key]:
+                if isinstance(item, dict):
+                    sub_nested_strings(item, pattern, replacement)
+            dct[key] = [re.sub(pattern, replacement, item)
+                        for item in dct[key] if isinstance(item, str)]
+
 
 
 @hooks.before_all
@@ -167,6 +174,10 @@ def initialize_sample_resources(txns):
     seeded_data['account'] = account_response['account']
 
     # Create ASSET
+    for spec_id, id_getter in INVALID_SPEC_IDS:
+        if spec_id == '02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a':
+            sub_nested_strings(ASSET, spec_id, id_getter(seeded_data))
+
     seeded_data['asset'] = submit('assets', ASSET)
     seeded_data['asset_2'] = submit('assets', ASSET_2)
 
@@ -184,6 +195,9 @@ def initialize_sample_resources(txns):
     # Create OFFER
     OFFER['source'] = seeded_data['holding']['id']
     OFFER['target'] = seeded_data['holding_3']['id']
+    for spec_id, id_getter in INVALID_SPEC_IDS:
+        if spec_id == '02178c1bcdb25407394348f1ff5273adae287d8ea328184546837957e71c7de57a':
+            sub_nested_strings(OFFER, spec_id, id_getter(seeded_data))
     seeded_data['offer'] = submit('offers', OFFER)
 
     # Replace example auth and identifiers with ones from seeded data
