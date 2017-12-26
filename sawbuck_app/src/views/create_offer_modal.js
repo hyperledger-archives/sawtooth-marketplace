@@ -27,7 +27,7 @@ const mkt = require('../components/marketplace')
 const modals = require('../components/modals')
 
 // Returns a label string, truncated if necessary
-const getLabel = (value, defaultValue, max = 11) => {
+const getLabel = (value, defaultValue, max = 10) => {
   const label = value || defaultValue
   if (label.length <= max) return label
   return `${label.slice(0, max - 3)}...`
@@ -80,8 +80,8 @@ const optionsTail = state => {
     text: [check(state.noTarget === true), m('em', 'free (No Holding)')],
     onclick: targetSetter(state)(null, 'free', true)
   }, {
-    text: [check(state.hasNewHolding === true), m('em', 'New Holding')],
-    onclick: targetSetter(state)(null, 'New Holding', false, true)
+    text: [check(state.hasNewHolding === true), m('em', 'new (New Holding)')],
+    onclick: targetSetter(state)(null, 'new', false, true)
   }]
 }
 

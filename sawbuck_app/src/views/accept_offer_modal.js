@@ -26,7 +26,7 @@ const mkt = require('../components/marketplace')
 const modals = require('../components/modals')
 
 // Returns a label string, truncated if necessary
-const truncatedLabel = (value, defaultValue, max = 11) => {
+const truncatedLabel = (value, defaultValue, max = 10) => {
   const label = value || defaultValue
   if (label.length <= max) return label
   return `${label.slice(0, max - 3)}...`
@@ -90,8 +90,8 @@ const optionMapper = (state, key = 'in') => {
 // Returns a dropdown option which will trigger holding creation
 const newOption = state => ({
   isSelected: () => !!state.hasNewHolding,
-  text: m('em', 'New Holding'),
-  onclick: inSetter(state)({ asset: 'New Holding' }, true)
+  text: m('em', 'new (New Holding)'),
+  onclick: inSetter(state)({ asset: 'new' }, true)
 })
 
 // Adds a check mark to the appropriate holding option
