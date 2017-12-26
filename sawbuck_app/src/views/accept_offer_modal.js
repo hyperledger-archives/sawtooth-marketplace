@@ -68,6 +68,10 @@ const countSetter = state => inQuantity => {
   })
   if (exchangeOnce) count = Math.min(count, 1)
 
+  if (count * state.offer.sourceQuantity > state.inMax) {
+    count = Math.floor(state.inMax / state.offer.sourceQuantity)
+  }
+
   if (count * state.offer.targetQuantity > state.outMax) {
     count = Math.floor(state.outMax / state.offer.sourceQuantity)
   }
@@ -173,6 +177,23 @@ const AcceptOfferModal = {
 
         // Set initial count/quantity values to the minimum exchange
         countSetter(vnode.state)(1)
+
+        return Promise.all([ owner, api.get(`assets/${inAsset}`) ])
+      })
+      .then(([ owner, inAsset ]) => {
+        const allInfinite = inAsset.rules.find(({ type }) => {
+          return type === 'ALL_HOLDINGS_INFINITE'
+        })
+        const ownerInfinite = inAsset.rules.find(({ type }) => {
+          return type === 'OWNER_HOLDINGS_INFINITE'
+        })
+        const isOwner = owner.publicKey === inAsset.owners[0].publicKey
+
+        vnode.state.inMax = allInfinite || (ownerInfinite && isOwner)
+          ? Number.MAX_SAFE_INTEGER
+          : owner.holdings
+            .find(holding => holding.id === vnode.state.offer.source)
+            .quantity
       })
   },
 
