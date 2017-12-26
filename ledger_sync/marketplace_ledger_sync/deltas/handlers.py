@@ -16,9 +16,10 @@
 import re
 import logging
 
+from sawtooth_sdk.protobuf.transaction_receipt_pb2 import StateChangeList
+
 from marketplace_ledger_sync.deltas.decoding import data_to_dicts
 from marketplace_ledger_sync.deltas.updating import get_updater
-from sawtooth_sdk.protobuf.transaction_receipt_pb2 import StateChangeList
 from marketplace_addressing.addresser import NS as NAMESPACE
 
 

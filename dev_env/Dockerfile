@@ -33,7 +33,7 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install -y nodejs
 
 RUN pip3 install \
-    pylint==1.7.4 \
+    pylint==1.8.1 \
     pycodestyle==2.3.1 \
     grpcio-tools==1.7.0 \
     nose2==0.7.2 \
