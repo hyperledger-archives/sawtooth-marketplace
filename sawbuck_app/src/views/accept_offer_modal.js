@@ -186,6 +186,8 @@ const AcceptOfferModal = {
       modals.header('Accept Offer', vnode.attrs.cancelFn),
       modals.body(
         m('.container', [
+          m('.text-muted.mb-2',
+            `Enter how much ${vnode.state.holding.asset} you would like`),
           mkt.bifold({
             header: layout.dropdown(
               truncatedLabel(vnode.state.inLabel, 'Offered'),

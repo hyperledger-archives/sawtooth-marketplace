@@ -223,6 +223,11 @@ const CreateOfferModal = {
       modals.header('Create Offer', vnode.attrs.cancelFn),
       modals.body(
         m('.container', [
+          m('.text-muted.mb-2',
+            'Enter info for your new Offer ',
+            vnode.attrs.target
+              ? `requesting ${vnode.attrs.target}`
+              : `of ${vnode.attrs.source}`),
           layout.row([
             forms.textInput(setter('offer.label'), 'Label', false),
             forms.textInput(setter('offer.description'), 'Description', false)
