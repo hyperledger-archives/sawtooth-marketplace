@@ -68,7 +68,7 @@ const countSetter = state => inQuantity => {
   if (exchangeOnce) count = Math.min(count, 1)
 
   if (count * state.offer.targetQuantity > state.outMax) {
-    count = Math.floor(state.outMax / state.offer.sourceQuantity)
+    count = Math.floor(state.outMax / state.offer.targetQuantity)
   }
 
   state.acceptance.count = count
