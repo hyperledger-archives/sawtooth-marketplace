@@ -39,7 +39,7 @@ def data_to_dicts(address, data):
     """
     data_type = address_is(address)
 
-    if (IGNORE.get(data_type)):
+    if IGNORE.get(data_type):
         return []
 
     try:

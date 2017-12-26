@@ -128,18 +128,20 @@ def address_is(address):
     infix = int(address[6:8], 16)
 
     if _contains(infix, OfferHistorySpace):
-        return AddressSpace.OFFER_HISTORY
+        result = AddressSpace.OFFER_HISTORY
 
     elif _contains(infix, AssetSpace):
-        return AddressSpace.ASSET
+        result = AddressSpace.ASSET
 
     elif _contains(infix, HoldingSpace):
-        return AddressSpace.HOLDING
+        result = AddressSpace.HOLDING
 
     elif _contains(infix, AccountSpace):
-        return AddressSpace.ACCOUNT
+        result = AddressSpace.ACCOUNT
 
     elif _contains(infix, OfferSpace):
-        return AddressSpace.OFFER
+        result = AddressSpace.OFFER
     else:
-        return AddressSpace.OTHER_FAMILY
+        result = AddressSpace.OTHER_FAMILY
+
+    return result
