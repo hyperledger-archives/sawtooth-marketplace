@@ -169,6 +169,9 @@ const AcceptOfferModal = {
         } else {
           vnode.state.outLabel = 'free'
         }
+
+        // Set initial count/quantity values to the minimum exchange
+        countSetter(vnode.state)(1)
       })
   },
 
@@ -190,6 +193,7 @@ const AcceptOfferModal = {
               'success'),
             body: forms.field(countSetter(vnode.state), {
               type: 'number',
+              defaultValue: vnode.state.inQuantity,
               onblur: ({ target }) => { target.value = vnode.state.inQuantity }
             })
           }, {
