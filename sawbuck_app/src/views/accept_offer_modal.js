@@ -19,6 +19,7 @@
 const m = require('mithril')
 const _ = require('lodash')
 
+const acct = require('../services/account')
 const api = require('../services/api')
 const forms = require('../components/forms')
 const layout = require('../components/layout')
@@ -26,7 +27,7 @@ const mkt = require('../components/marketplace')
 const modals = require('../components/modals')
 
 // Returns a label string, truncated if necessary
-const truncatedLabel = (value, defaultValue, max = 11) => {
+const truncatedLabel = (value, defaultValue, max = 10) => {
   const label = value || defaultValue
   if (label.length <= max) return label
   return `${label.slice(0, max - 3)}...`
@@ -67,6 +68,10 @@ const countSetter = state => inQuantity => {
   })
   if (exchangeOnce) count = Math.min(count, 1)
 
+  if (count * state.offer.sourceQuantity > state.inMax) {
+    count = Math.floor(state.inMax / state.offer.sourceQuantity)
+  }
+
   if (count * state.offer.targetQuantity > state.outMax) {
     count = Math.floor(state.outMax / state.offer.targetQuantity)
   }
@@ -90,8 +95,8 @@ const optionMapper = (state, key = 'in') => {
 // Returns a dropdown option which will trigger holding creation
 const newOption = state => ({
   isSelected: () => !!state.hasNewHolding,
-  text: m('em', 'New Holding'),
-  onclick: inSetter(state)({ asset: 'New Holding' }, true)
+  text: m('em', 'new (New Holding)'),
+  onclick: inSetter(state)({ asset: 'new' }, true)
 })
 
 // Adds a check mark to the appropriate holding option
@@ -127,6 +132,8 @@ const submitter = (state, onDone) => () => {
     })
     .then(onDone)
     .then(() => m.route.set('/account'))
+    .then(() => new Promise(resolve => setTimeout(resolve, 2000)))
+    .then(() => window.location.reload())
     .catch(api.alertError)
 }
 
@@ -147,7 +154,7 @@ const AcceptOfferModal = {
         vnode.state.offer = offer
 
         return Promise.all([
-          api.get(`accounts/${api.getPublicKey()}`),
+          acct.getUserAccount(),
           api.get(`accounts/${offer.owners[0]}`)
         ])
       })
@@ -169,6 +176,26 @@ const AcceptOfferModal = {
         } else {
           vnode.state.outLabel = 'free'
         }
+
+        // Set initial count/quantity values to the minimum exchange
+        countSetter(vnode.state)(1)
+
+        return Promise.all([ owner, api.get(`assets/${inAsset}`) ])
+      })
+      .then(([ owner, inAsset ]) => {
+        const allInfinite = inAsset.rules.find(({ type }) => {
+          return type === 'ALL_HOLDINGS_INFINITE'
+        })
+        const ownerInfinite = inAsset.rules.find(({ type }) => {
+          return type === 'OWNER_HOLDINGS_INFINITE'
+        })
+        const isOwner = owner.publicKey === inAsset.owners[0].publicKey
+
+        vnode.state.inMax = allInfinite || (ownerInfinite && isOwner)
+          ? Number.MAX_SAFE_INTEGER
+          : owner.holdings
+            .find(holding => holding.id === vnode.state.offer.source)
+            .quantity
       })
   },
 
@@ -183,6 +210,8 @@ const AcceptOfferModal = {
       modals.header('Accept Offer', vnode.attrs.cancelFn),
       modals.body(
         m('.container', [
+          m('.text-muted.mb-2',
+            `Enter how much ${vnode.state.holding.asset} you would like`),
           mkt.bifold({
             header: layout.dropdown(
               truncatedLabel(vnode.state.inLabel, 'Offered'),
@@ -190,6 +219,7 @@ const AcceptOfferModal = {
               'success'),
             body: forms.field(countSetter(vnode.state), {
               type: 'number',
+              defaultValue: vnode.state.inQuantity,
               onblur: ({ target }) => { target.value = vnode.state.inQuantity }
             })
           }, {
