@@ -87,7 +87,7 @@ class Subscriber(object):
         # Forked all the way back to genesis, restart with no known_ids
         if (response.status == ClientEventsSubscribeResponse.UNKNOWN_BLOCK
                 and known_ids):
-            return self.start()
+            self.start()
 
         if response.status != ClientEventsSubscribeResponse.OK:
             raise RuntimeError(
