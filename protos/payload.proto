@@ -21,12 +21,12 @@ message TransactionPayload {
 
     enum PayloadType {
         TYPE_UNSET = 0;
-        CREATE_ACCOUNT = 1;
-        CREATE_ASSET = 2;
-        CREATE_HOLDING = 3;
-        CREATE_OFFER = 4;
-        ACCEPT_OFFER = 5;
-        CLOSE_OFFER = 6;
+        CREATE_ACCOUNT = 2;
+        CREATE_ASSET = 3;
+        CREATE_HOLDING = 4;
+        CREATE_OFFER = 5;
+        ACCEPT_OFFER = 10;
+        CLOSE_OFFER = 11;
     }
 
     PayloadType payload_type = 1;
