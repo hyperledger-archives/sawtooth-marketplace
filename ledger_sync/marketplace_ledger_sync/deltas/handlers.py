@@ -83,6 +83,7 @@ def _resolve_if_forked(database, block_num, block_id):
             LOGGER.warning(
                 'Failed to drop forked resources since block: %s',
                 block_num)
+    return False
 
 
 def _apply_state_changes(database, changes, block_num):
