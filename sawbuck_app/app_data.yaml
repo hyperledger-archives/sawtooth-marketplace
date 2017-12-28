@@ -15,25 +15,25 @@
 
 ACCOUNTS:
 
-  - label: US Federal Reserve
-    description: The central banking system of the United States
-    email: fed@us.gov
+  - label: Minicoin Reserve
+    description: The sole issuing authoririty for Minicoins
+    email: minicoin@minicoin.example
     password: password
     ASSETS:
-      - name: USD
-        description: United States Dollars (in thousandths of a cent)
+      - name: Minicoin
+        description: The cryptocurrency that fits in your pocket
         rules:
           - type: OWNER_HOLDINGS_INFINITE
     HOLDINGS:
-      - label: US Mint
-        description: An unlimited supply of printable dollars
-        asset: USD
+      - label: Minicoin Source
+        description: An unlimited supply new minicoin
+        asset: Minicoin
         quantity: 9007199254740991
     OFFERS:
-      - label: Account Provision
-        description: A one-time payout of 100 USD for each Account
-        source: $REF=HOLDINGS[label:US Mint].id
-        sourceQuantity: 10000000
+      - label: Minicoin Provision
+        description: A one time payout of 1 million minicoin
+        source: $REF=HOLDINGS[label:Minicoin Source].id
+        sourceQuantity: 1000000
         rules:
           - type: EXCHANGE_ONCE_PER_ACCOUNT
     RENEWABLES: []
