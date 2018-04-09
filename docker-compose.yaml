@@ -20,6 +20,10 @@ services:
     build:
       context: .
       dockerfile: ./dev_env/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
     image: market-dev-env
     container_name: market-shell
     volumes:
