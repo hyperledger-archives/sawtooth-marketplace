@@ -4,15 +4,23 @@ _Sawtooth Marketplace_ is a blockchain application built on Hyperledger
 Sawtooth, allowing users to exchange quantities of customized "Assets" with
 other users on the blockchain. This repo contains a number of components which
 together with a _Hyperledger Sawtooth_ validator, will run a Sawtooth
-blockchain and provide a simple RESTful API to interact with it. The components
-in this repo include:
+blockchain and provide a simple RESTful API to interact with it. 
 
-- a **rest api** which provides HTTP/JSON endpoints for querying blockchain data
-- a **transaction processor** which handles Marketplace transaction logic
-- a **ledger sync** which writes blockchain state changes to a local database
-- **SawbuckManager** and an example client which uses Marketplace to create a
+The components in this repo include:
+
+<img src="Images/Marketplace_components.JPG"
+     alt="Marketplace component Diagram"
+     style="float: left; margin-right: 10px;" /><br/>
+     
+-  **Rest api** which provides HTTP/JSON endpoints for querying blockchain data
+-  **Transaction processor** which handles Marketplace transaction logic
+-  **Ledger sync** which writes blockchain state changes to a local database.
+	It subscribes to validator’s state and block update events and updates to a local database (Rethink DB).
+-  **SawbuckManager** and an example client which uses Marketplace to create a
   loyalty point program that users can interact with through a simple web app
-- a **shell** with all of the dependencies necessary to run support scripts
+-  **Market-Rest-API** acts as an interface between the Sawtooth rest api and SawbuckManager and it queries marketplace data from RethinkDB
+- **Shell** with all of the dependencies necessary to run support scripts
+- **RethinkDB** is a Database which stores marketplace information such as Assets, user’s holdings, user’s accounts, offers, blocks.
 
 ## Usage
 
@@ -84,8 +92,26 @@ container), you can simply run:
 ```bash
 exit
 ```
+### Usage of Sawbuck Manager App
 
-## Development
+Open **http://localhost:8041** in a browser, which will take you to the sawbuck app. Continue with the following operations,
+
+- Currency used is Sawbuck.
+- To create a new account, click on the login/Signup button on the top of the page
+- Click on the tab `View Assets` to view all the assets available in the market
+	- **Create offer/request**
+		- Offer&nbsp; &nbsp; &nbsp; - Creating an offer to sell the Assets
+        - Request - Making an offer to buy the Assets
+    - An Offer/Request can be created by exchanging Assets/Sawbucks
+- Click on the tab `View Offers` to view the offers on assets
+	- Accept Signup bonus, can only be accepted once per account
+	- There is no limit on offering Top-up bonus
+- Open **http://localhost:8042** in browser, to query the database using simple query statements
+- Other way to query block chain data, using Sawtooth CLIs\
+  Ex: sawtooth block list --url http://sawtooth-rest-api:8008
+
+
+## Development 
 
 The default Docker containers use the `volumes` command to link directly to the
 source code on your local machine. As a result any changes you make will

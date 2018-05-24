@@ -1,0 +1,155 @@
+# Copyright 2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# -----------------------------------------------------------------------------
+
+ACCOUNTS:
+
+  - label: Sawtooth Central
+    description: The source for all your Sawtooth products and services
+    email: sawtooth@hyperledger.org
+    password: password
+    ASSETS:
+      - name: Sawbuck
+        description: Sawtooth loyalty points, better than cryptocurrency!
+        rules:
+          - type: OWNER_HOLDINGS_INFINITE
+      - name: Nokia 7 Plus
+        description: |
+          The Nokia 7 Plus is a beautiful phone, its subtle curves and ceramic-feel coating bring the best of both worlds.
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+          - type: NOT_TRANSFERABLE
+      - name: Casio Privia PX150
+        description: |
+         The Privia series has focused on providing a comprehensive learning and playing experience for the serious pianist.
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+      - name: Call of Duty - Advanced Warfare(PS4)
+        description: |
+          First-person shooter video game, all information is relayed to the player via holographic projections from the weapon equipped.
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+          - type: NOT_TRANSFERABLE
+      - name: Sennheiser CX 180 In-Ear Headphone
+        description: |
+          Entertainment headphones are capable of delivering a powerful bass and offer high passive attenuation of ambient noise to provide an uncompromised musical session.
+        rules:
+          - type: ALL_HOLDINGS_INFINITE
+          - type: NOT_TRANSFERABLE
+      - name: Apple MacBook Pro 
+        description: |
+          Macintosh portable computer, its razor thin, feather light and even faster and more powerful than before.
+        rules: []
+      - name: IFB Solo Microwave Oven
+        description: |
+          Powder coated cavity and LED display with clock.Touch Key Pad is sensitive to touch and easy to clean.
+        rules: []
+    HOLDINGS:
+      - label: Sawbucket
+        description: An unlimited supply of precious Sawbucks
+        asset: Sawbuck
+        quantity: 9007199254740991
+      - label: Nokia 7 Plus Dispenser
+        description: An unlimited supply of Nokia 7 Plus.
+        asset: Nokia 7 Plus
+        quantity: 9007199254740991
+      - label: Casio Privia PX150 Dispenser
+        description: An unlimited supply of Casio Privia PX150.
+        asset: Casio Privia PX150
+        quantity: 9007199254740991
+      - label: Call of Duty - Advanced Warfare(PS4) Dispenser
+        description: An unlimited supply of Call of Duty - Advanced Warfare(PS4)
+        asset: Call of Duty - Advanced Warfare(PS4)
+        quantity: 9007199254740991
+      - label: Sennheiser CX 180 In-Ear Headphone Dispenser
+        description: An unlimited supply of Sennheiser CX In-Ear Headphone
+        asset: Sennheiser CX 180 In-Ear Headphone
+        quantity: 9007199254740991
+      - label: Apple MacBook Pro Dispenser
+        description: An unlimited supply of Apple MacBook Pro
+        asset: Apple MacBook Pro
+        quantity: 9007199254740991
+      - label: IFB Solo Microwave Oven Dispenser
+        description: An unlimited supply of IFB Solo Microwave Oven
+        asset: IFB Solo Microwave Oven
+        quantity: 9007199254740991
+    OFFERS:
+      - label: Signup Bonus!
+        description: You get 50000 Sawbucks, just for signing up!
+        source: $REF=HOLDINGS[label:Sawbucket].id
+        sourceQuantity: 50000
+        image: Images/signup.jpg
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT
+      - label: Topup Bonus!
+        description: You get 5000 Sawbucks for unlimited times.
+        source: $REF=HOLDINGS[label:Sawbucket].id
+        sourceQuantity: 5000
+        image: Images/topupbonus.jpg
+        rules:
+          - type: OWNER_HOLDINGS_INFINITE
+      - label: Claim Nokia 7 plus
+        description: Get 1 Nokia 7 Plus for 20000 sawbucks.
+        source: $REF=HOLDINGS[label:Nokia 7 Plus Dispenser].id
+        sourceQuantity: 1
+        target: $REF=HOLDINGS[label:Sawbucket].id
+        targetQuantity: 20000
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT
+      - label: Claim Casio Privia PX150
+        description: Get 1 Casio Privia PX150 for 37000 sawbucks.
+        source: $REF=HOLDINGS[label:Casio Privia PX150 Dispenser].id
+        sourceQuantity: 1
+        target: $REF=HOLDINGS[label:Sawbucket].id
+        targetQuantity: 37000
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT
+      - label: Claim Call of Duty - Advanced Warfare(PS4)
+        description: Get 1 Call of Duty - Advanced Warfare(PS4) for 1200 sawbucks.
+        source: $REF=HOLDINGS[label:Call of Duty - Advanced Warfare(PS4) Dispenser].id
+        sourceQuantity: 1
+        target: $REF=HOLDINGS[label:Sawbucket].id
+        targetQuantity: 1200
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT
+      - label: Claim Sennheiser CX 180 In-Ear Headphone
+        description:  Get 1 Sennheiser CX 180 In-Ear Headphone for 800 sawbucks.
+        source: $REF=HOLDINGS[label:Sennheiser CX 180 In-Ear Headphone Dispenser].id
+        sourceQuantity: 1
+        target: $REF=HOLDINGS[label:Sawbucket].id
+        targetQuantity: 800
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT
+      - label: Claim Apple MacBook Pro
+        description: Get 1 Apple MacBook Pro for 160000 sawbucks.
+        source: $REF=HOLDINGS[label:Apple MacBook Pro Dispenser].id
+        sourceQuantity: 1
+        target: $REF=HOLDINGS[label:Sawbucket].id
+        targetQuantity: 160000
+        rules: []
+      - label: Claim IFB Solo Microwave Oven Dispenser
+        description: Get 1 IFB Solo Microwave Oven Dispenser for 6500 sawbucks.
+        source: $REF=HOLDINGS[label:IFB Solo Microwave Oven Dispenser].id
+        sourceQuantity: 1
+        target: $REF=HOLDINGS[label:Sawbucket].id
+        targetQuantity: 6500
+        rules: []
+    RENEWABLES:
+      - label: Daily Loyalty Bonus!
+        description: |
+          Refreshed each day, get yourself 500 Sawbucks just for being here!
+        source: $REF=holdings[label:Sawbucket].id
+        sourceQuantity: 500
+        rules:
+          - type: EXCHANGE_ONCE_PER_ACCOUNT

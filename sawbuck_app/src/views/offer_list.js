@@ -54,23 +54,42 @@ const acceptButton = (offer, account = null) => {
     'Accept')
 }
 
+
 const offerRow = account => offer => {
+  const offerimage = offer.sourceAsset.replace(/ /g,"_")
   return [
-    m('.row.my-2',
-      m('.col-md-9',
-        m('a.h5', {
-          href: `/offers/${offer.id}`,
-          oncreate: m.route.link
-        }, offer.label || offer.id)),
-      m('.col-md-3.text-right', acceptButton(offer, account))),
-    mkt.bifold({
-      header: offer.sourceAsset,
-      body: offer.sourceQuantity
-    }, {
-      header: offer.targetAsset,
-      body: offer.targetQuantity || 'free'
-    })
-  ]
+	    m(".well",{style: {"margin-top": "2px", "border-radius": "20px", "box-shadow": "0 0 30px grey", "padding": "0 15px 0 15px"}},
+		m("br"),
+		m(".row.center",
+		 m(".col-md-4", 
+		    m("img.col-md-12.img-rounded[alt='Offer Image Not Found[404]'][height='100%'][width='100%']",{src:`Images/${offerimage}.jpg`}	
+		  ),
+		),
+		 m(".col-md-6",
+		  m(".row",
+		    m('a.h5', {
+                        href: `/offers/${offer.id}`,
+                        oncreate: m.route.link
+                        },offer.label || offer.id
+		     )
+		   ),
+		   m(".row",
+		     "Qty offered:"+ offer.sourceQuantity
+		    ),
+		   m(".row",
+		     "Assets requested:"+`${offer.targetQuantity == 0 ? "free" : offer.targetQuantity}`+""+`${(offer.targetAsset && offer.targetAsset != "Sawbuck") ? " nos of "+offer.targetAsset : (offer.targetQuantity==0 ? "" : " sawbucks")}`
+		    )
+		  ),
+		m(".col-md-2",{style: {"display": "flex", "align-items": "center"}},
+		  acceptButton(offer, account)
+		 )
+		),
+	      m("br")
+	     ),
+	   m("br")
+	  
+ 	 ]
+
 }
 
 const pluckUniq = (items, key) => _.uniq(items.map(item => item[key]))
@@ -133,23 +152,12 @@ const OfferListPage = {
 
     return [
       layout.title('Available Offers'),
-      m('.container',
-        m('.row.text-center.my-4',
-          m('.col-md-5',
-            filterDropdown(
-              vnode.state.source || 'Offered',
-              sourceAssets,
-              asset => () => { vnode.state.source = asset })),
-          m('.col-md-2'),
-          m('.col-md-5',
-            filterDropdown(
-              vnode.state.target || 'Requested',
-              targetAssets,
-              asset => () => { vnode.state.target = asset }))),
+      m('.container-fluid',[
         offers.length > 0
           ? offers.map(offerRow(vnode.state.account))
           : m('.text-center.font-italic',
-              'there are currently no available offers'))
+              'there are currently no available offers')
+	])
     ]
   }
 }
