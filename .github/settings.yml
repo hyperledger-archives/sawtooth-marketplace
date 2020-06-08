@@ -1,0 +1,9 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+repository:
+  name: sawtooth-marketplace
+  description: Archive of sawtooth-marketplace
+  archived: true
+  private: false
