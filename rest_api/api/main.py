@@ -20,7 +20,10 @@ import os
 from signal import signal, SIGINT
 import sys
 
-import rethinkdb as r
+import rethinkdb as rdb
+
+r = rdb.RethinkDB()
+
 
 from sanic import Sanic
 

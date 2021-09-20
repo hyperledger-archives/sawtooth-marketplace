@@ -18,8 +18,10 @@
 import sys
 import argparse
 
-import rethinkdb as r
+import rethinkdb as rdb
 from rethinkdb.errors import RqlRuntimeError
+
+r = None
 
 
 def parse_args(args):
@@ -37,6 +39,13 @@ def parse_args(args):
 
 
 def setup_db(host, port, name):
+    print("*"*60)
+    """
+    import rethinkdb as rdb
+    r = rdb.RethinkDB()
+    r.connect('localhost', 28015).repl()
+    """
+    r = rdb.RethinkDB()
     conn = r.connect(host=host, port=port)
     print('Connection opened')
     try:

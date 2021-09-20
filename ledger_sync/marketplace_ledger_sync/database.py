@@ -14,8 +14,11 @@
 # -----------------------------------------------------------------------------
 
 import logging
-import rethinkdb as r
+import rethinkdb as rdb
 
+r = rdb.RethinkDB() 
+
+print(dir(r))
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +36,7 @@ class Database(object):
         """Initializes a connection to the database
         """
         LOGGER.debug('Connecting to database: %s:%s', self._host, self._port)
+        
         self._conn = r.connect(host=self._host, port=self._port)
 
     def disconnect(self):

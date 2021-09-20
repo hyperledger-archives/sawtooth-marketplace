@@ -26,30 +26,26 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
         python3-sawtooth-rest-api \
         python3-sawtooth-cli \
         python3-sawtooth-signing \
-	python3-setuptools-scm \
-	python3-websockets \
-	python3-grpcio \
-	pylint3 \
+	python3-bcrypt \
         cron-apt \
-	python3-cffi \	
-        curl
-
-
+        curl \
+	wget
 
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install -y nodejs
 
-# RUN pip3 install   pylint==1.8.1
-RUN pip3 install   pycodestyle==2.3.1
-#RUN pip3 install  grpcio-tools==1.7.0
-RUN pip3 install   nose2==0.7.2
-RUN pip3 install   bcrypt
-RUN pip3 install   pycrypto
-RUN pip3 install   rethinkdb
-RUN pip3 install uvloop==0.5.3
-RUN pip3 install websockets==4.0.1
-RUN pip3 install   sanic==0.7.0
-RUN pip3 install   itsdangerous
+RUN pip3 install \
+    futures==2.2 \
+    ujson==3.1.0 \
+    uvloop==0.14 \
+    pylint==1.8.1 \
+    pycodestyle==2.3.1 \
+    grpcio-tools==1.7.0 \
+    nose2==0.7.2 \
+    pycrypto \
+    rethinkdb \
+    sanic==0.8.3 \
+    itsdangerous==1.1.0
 
 WORKDIR /project/sawtooth-marketplace
 
