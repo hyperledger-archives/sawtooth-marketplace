@@ -22,11 +22,11 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
     apt-get update && \
     apt-get install -y --allow-unauthenticated -q \
         python3-pip \
+	python3-cffi \
         python3-sawtooth-sdk \
         python3-sawtooth-rest-api \
         python3-sawtooth-cli \
         python3-sawtooth-signing \
-	python3-bcrypt \
         cron-apt \
         curl \
 	wget
@@ -36,6 +36,7 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
 
 RUN pip3 install \
     futures==2.2 \
+    bcrypt==3.1.5 \
     ujson==3.1.0 \
     uvloop==0.14 \
     pylint==1.8.1 \

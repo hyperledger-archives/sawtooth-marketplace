@@ -13,7 +13,7 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-import rethinkdb as r
+import rethinkdb as rdb
 from rethinkdb.errors import ReqlNonExistenceError
 
 from api.errors import ApiBadRequest
@@ -21,6 +21,8 @@ from api.errors import ApiBadRequest
 from db.common import fetch_latest_block_num
 from db.common import parse_rules
 
+
+r = rdb.RethinkDB()
 
 async def fetch_all_asset_resources(conn):
     return await r.table('assets')\
