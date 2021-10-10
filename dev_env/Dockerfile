@@ -35,6 +35,7 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install -y nodejs
 
 RUN pip3 install \
+    coverage==4.4.1 \
     futures==2.2 \
     bcrypt==3.1.5 \
     ujson==3.1.0 \
