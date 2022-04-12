@@ -25,3 +25,4 @@ repository:
   allow_squash_merge: false
   allow_merge_commit: true
   allow_rebase_merge: true
+  archived: true
