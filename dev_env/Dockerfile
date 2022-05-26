@@ -22,26 +22,32 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
     apt-get update && \
     apt-get install -y --allow-unauthenticated -q \
         python3-pip \
+	python3-cffi \
         python3-sawtooth-sdk \
         python3-sawtooth-rest-api \
         python3-sawtooth-cli \
         python3-sawtooth-signing \
         cron-apt \
-        curl
+        curl \
+	wget
 
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install -y nodejs
 
 RUN pip3 install \
+    coverage==4.4.1 \
+    futures==2.2 \
+    bcrypt==3.1.5 \
+    ujson==3.1.0 \
+    uvloop==0.14 \
     pylint==1.8.1 \
     pycodestyle==2.3.1 \
     grpcio-tools==1.7.0 \
     nose2==0.7.2 \
-    bcrypt \
     pycrypto \
     rethinkdb \
-    sanic \
-    itsdangerous
+    sanic==0.8.3 \
+    itsdangerous==1.1.0
 
 WORKDIR /project/sawtooth-marketplace
 

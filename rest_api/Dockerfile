@@ -20,15 +20,19 @@ RUN echo "deb apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 
     apt-get update && \
     apt-get install -y --allow-unauthenticated -q python3-grpcio-tools=1.1.3-1 \
         python3-pip \
+	python3-cffi \
         python3-sawtooth-sdk \
         python3-sawtooth-signing \
-        python3-sawtooth-rest-api
+        python3-sawtooth-rest-api \
+	curl
 
 RUN pip3 install \
-    bcrypt \
-    itsdangerous \
+    uvloop==0.14 \
+    bcrypt==3.1.5 \
+    ujson==3.1.0 \
+    itsdangerous==1.1.0 \
     rethinkdb \
-    sanic \
+    sanic==0.8.3 \
     pycrypto
 
 WORKDIR /project/sawtooth-marketplace
